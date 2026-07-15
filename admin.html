@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14532d">
+  <title>Admin Bank Sampah</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">♻</div>
+        <div><strong>Bank Sampah</strong><small>Panel Administrator</small></div>
+      </div>
+
+      <div class="nav-label">Menu Utama</div>
+      <nav class="nav">
+        <button class="active" data-view="dashboard"><span class="nav-icon">⌂</span>Dashboard</button>
+        <button data-view="anggota"><span class="nav-icon">👥</span>Data Anggota</button>
+        <button data-view="jenis"><span class="nav-icon">♻</span>Jenis Sampah</button>
+        <button data-view="pengajuan"><span class="nav-icon">📥</span>Pengajuan</button>
+        <button data-view="pencairan"><span class="nav-icon">💳</span>Pencairan</button>
+        <button data-view="pengguna"><span class="nav-icon">🔐</span>Pengguna</button>
+        <button data-view="akses"><span class="nav-icon">▦</span>Akses & QR</button>
+      </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuButton" class="menu-button" type="button">☰</button>
+          <div class="page-heading">
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSubtitle">Ringkasan bank sampah</p>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="button light small" type="button" onclick="refreshCurrentView()">↻</button>
+          <div class="user-chip">
+            <div id="userAvatar" class="avatar">A</div>
+            <div><strong id="userName">Administrator</strong><small id="userRole">Memeriksa akses...</small></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="view-dashboard" class="view active">
+          <div class="hero">
+            <div>
+              <h2>Dashboard Administrator</h2>
+              <p>Kelola anggota, transaksi, harga sampah, pengguna, dan akses QR dari satu halaman.</p>
+            </div>
+            <div class="hero-actions">
+              <button class="button light" onclick="openMemberModal()">+ Anggota</button>
+              <button class="button light" onclick="navigateTo('akses')">Kelola QR</button>
+            </div>
+          </div>
+
+          <div class="toolbar card" style="margin-top:18px">
+            <div class="field">
+              <label>Periode</label>
+              <input id="dashboardPeriod" class="input" type="month">
+            </div>
+            <button class="button" onclick="loadDashboard()">Tampilkan</button>
+          </div>
+
+          <div class="kpi-grid">
+            <article class="kpi"><span>Anggota aktif</span><strong id="kpiAnggota">0</strong></article>
+            <article class="kpi"><span>Berat setoran</span><strong id="kpiBerat">0 kg</strong></article>
+            <article class="kpi"><span>Nilai setoran</span><strong id="kpiNilai">Rp0</strong></article>
+            <article class="kpi"><span>Total saldo</span><strong id="kpiSaldo">Rp0</strong></article>
+            <article class="kpi"><span>Pengajuan menunggu</span><strong id="kpiPengajuan">0</strong></article>
+            <article class="kpi"><span>Pencairan menunggu</span><strong id="kpiPencairan">0</strong></article>
+            <article class="kpi"><span>Pendapatan bersih</span><strong id="kpiPendapatan">Rp0</strong></article>
+            <article class="kpi"><span>Transaksi setoran</span><strong id="kpiTransaksi">0</strong></article>
+          </div>
+        </section>
+
+        <section id="view-anggota" class="view">
+          <div class="section-head">
+            <div><h2>Data Anggota</h2><p>CRUD anggota dan pengaturan status.</p></div>
+            <button class="button" onclick="openMemberModal()">+ Tambah Anggota</button>
+          </div>
+          <div class="card">
+            <div class="toolbar">
+              <input id="memberSearch" class="input search" type="search" placeholder="Cari anggota...">
+              <select id="memberStatus" class="select">
+                <option value="">Semua status</option><option>Aktif</option><option>Nonaktif</option><option>Pindah</option>
+              </select>
+              <button class="button light" onclick="loadMembers()">Muat Ulang</button>
+            </div>
+            <div id="memberTable"></div>
+          </div>
+        </section>
+
+        <section id="view-jenis" class="view">
+          <div class="section-head">
+            <div><h2>Jenis Sampah</h2><p>Master jenis, satuan, dan harga beli/jual.</p></div>
+            <button class="button" onclick="openTypeModal()">+ Tambah Jenis</button>
+          </div>
+          <div class="card">
+            <div class="toolbar">
+              <input id="typeSearch" class="input search" type="search" placeholder="Cari jenis sampah...">
+              <button class="button light" onclick="loadTypes()">Muat Ulang</button>
+            </div>
+            <div id="typeTable"></div>
+          </div>
+        </section>
+
+        <section id="view-pengajuan" class="view">
+          <div class="section-head"><div><h2>Pengajuan Setoran</h2><p>Pengajuan dari anggota beserta foto.</p></div></div>
+          <div class="card">
+            <div class="toolbar">
+              <select id="submissionStatus" class="select">
+                <option value="">Semua status</option><option>Menunggu</option><option>Selesai</option><option>Ditolak</option>
+              </select>
+              <button class="button light" onclick="loadSubmissions()">Muat Ulang</button>
+            </div>
+            <div id="submissionTable"></div>
+          </div>
+        </section>
+
+        <section id="view-pencairan" class="view">
+          <div class="section-head"><div><h2>Pencairan Saldo</h2><p>Setujui atau tolak pencairan anggota.</p></div></div>
+          <div class="card">
+            <div class="toolbar">
+              <select id="withdrawalStatus" class="select">
+                <option value="">Semua status</option><option>Menunggu</option><option>Disetujui</option><option>Ditolak</option><option>Dibatalkan</option>
+              </select>
+              <button class="button light" onclick="loadWithdrawals()">Muat Ulang</button>
+            </div>
+            <div id="withdrawalTable"></div>
+          </div>
+        </section>
+
+        <section id="view-pengguna" class="view">
+          <div class="section-head">
+            <div><h2>Pengguna Sistem</h2><p>Admin, petugas, keuangan, dan viewer.</p></div>
+            <button class="button" onclick="openUserModal()">+ Tambah Pengguna</button>
+          </div>
+          <div class="card"><div id="userTable"></div></div>
+        </section>
+
+        <section id="view-akses" class="view">
+          <div class="section-head"><div><h2>Akses & QR</h2><p>Generate, aktifkan, nonaktifkan, atau hapus token QR.</p></div></div>
+          <div class="card">
+            <div class="card-header"><div><h3>QR Anggota</h3><p>Akses menuju portal anggota.</p></div></div>
+            <div id="memberQrTable"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><h3>QR Admin & Petugas</h3><p>Akses menuju portal sesuai role pengguna.</p></div></div>
+            <div id="userQrTable"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="memberModal" class="modal-backdrop">
+    <section class="modal">
+      <div class="modal-header"><h3 id="memberModalTitle">Tambah Anggota</h3><button class="close" onclick="closeModal('memberModal')">×</button></div>
+      <form id="memberForm">
+        <div class="modal-body">
+          <input id="memberId" type="hidden">
+          <div class="form-grid">
+            <div class="field full"><label>Nama anggota</label><input id="memberName" class="input" required></div>
+            <div class="field"><label>RT</label><input id="memberRt" class="input"></div>
+            <div class="field"><label>RW</label><input id="memberRw" class="input"></div>
+            <div class="field full"><label>Alamat</label><textarea id="memberAddress" class="textarea"></textarea></div>
+            <div class="field"><label>No. HP</label><input id="memberPhone" class="input"></div>
+            <div class="field"><label>Status</label><select id="memberFormStatus" class="select"><option>Aktif</option><option>Nonaktif</option><option>Pindah</option></select></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="button light" onclick="closeModal('memberModal')">Batal</button><button id="memberSubmit" class="button" type="submit">Simpan</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div id="typeModal" class="modal-backdrop">
+    <section class="modal">
+      <div class="modal-header"><h3 id="typeModalTitle">Tambah Jenis Sampah</h3><button class="close" onclick="closeModal('typeModal')">×</button></div>
+      <form id="typeForm">
+        <div class="modal-body">
+          <input id="typeId" type="hidden">
+          <div class="form-grid">
+            <div class="field full"><label>Nama sampah</label><input id="typeName" class="input" required></div>
+            <div class="field"><label>Kategori</label><select id="typeCategory" class="select"><option>Plastik</option><option>Kertas</option><option>Logam</option><option>Kaca</option><option>Elektronik</option><option>Lainnya</option></select></div>
+            <div class="field"><label>Satuan</label><select id="typeUnit" class="select"><option>Kg</option><option>Pcs</option></select></div>
+            <div class="field"><label>Harga beli</label><input id="typeBuy" class="input" type="number" min="0" required></div>
+            <div class="field"><label>Estimasi harga jual</label><input id="typeSell" class="input" type="number" min="0" required></div>
+            <div class="field"><label>Status</label><select id="typeFormStatus" class="select"><option>Aktif</option><option>Nonaktif</option></select></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="button light" onclick="closeModal('typeModal')">Batal</button><button id="typeSubmit" class="button" type="submit">Simpan</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div id="userModal" class="modal-backdrop">
+    <section class="modal">
+      <div class="modal-header"><h3 id="userModalTitle">Tambah Pengguna</h3><button class="close" onclick="closeModal('userModal')">×</button></div>
+      <form id="userForm">
+        <div class="modal-body">
+          <input id="userId" type="hidden">
+          <div class="form-grid">
+            <div class="field full"><label>Nama pengguna</label><input id="systemUserName" class="input" required></div>
+            <div class="field full"><label>Email</label><input id="systemUserEmail" class="input" type="email" required></div>
+            <div class="field"><label>Role</label><select id="systemUserRole" class="select"><option>Admin</option><option>Petugas</option><option>Petugas Setor</option><option>Keuangan</option><option>Petugas Penjualan</option><option>Viewer</option></select></div>
+            <div class="field"><label>Status</label><select id="systemUserStatus" class="select"><option>Aktif</option><option>Nonaktif</option></select></div>
+            <div class="field full"><label>No. HP</label><input id="systemUserPhone" class="input"></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="button light" onclick="closeModal('userModal')">Batal</button><button id="userSubmit" class="button" type="submit">Simpan</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div id="processModal" class="modal-backdrop">
+    <section class="modal">
+      <div class="modal-header"><h3 id="processTitle">Proses Data</h3><button class="close" onclick="closeModal('processModal')">×</button></div>
+      <form id="processForm">
+        <div id="processBody" class="modal-body"></div>
+        <div class="modal-footer"><button type="button" class="button light" onclick="closeModal('processModal')">Batal</button><button id="processSubmit" class="button" type="submit">Simpan</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div id="qrModal" class="modal-backdrop">
+    <section class="modal wide">
+      <div class="modal-header"><h3>QR Akses</h3><button class="close" onclick="closeModal('qrModal')">×</button></div>
+      <div class="modal-body qr-layout">
+        <div id="qrImage" class="qr-box"></div>
+        <div>
+          <div id="qrDetails" class="detail-list"></div>
+          <div class="actions" style="margin-top:16px">
+            <button class="button info" onclick="copyCurrentQr()">Salin Link</button>
+            <button class="button" onclick="downloadCurrentQr()">Simpan QR</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script>
+    'use strict';
+
+    const {
+      apiGet, apiPost, getQueryParam, formatRupiah, formatNumber,
+      formatDateTime, escapeHtml, showToast, setButtonLoading
+    } = BankSampahAPI;
+
+    const accessToken = getQueryParam('access');
+    const state = {
+      currentView: 'dashboard',
+      currentUser: null,
+      members: [],
+      types: [],
+      users: [],
+      submissions: [],
+      withdrawals: [],
+      currentQr: null
+    };
+
+    const titles = {
+      dashboard: ['Dashboard', 'Ringkasan bank sampah'],
+      anggota: ['Data Anggota', 'CRUD dan status anggota'],
+      jenis: ['Jenis Sampah', 'Harga beli dan estimasi jual'],
+      pengajuan: ['Pengajuan Setoran', 'Verifikasi pengajuan anggota'],
+      pencairan: ['Pencairan Saldo', 'Persetujuan pencairan'],
+      pengguna: ['Pengguna Sistem', 'Role dan status pengguna'],
+      akses: ['Akses & QR', 'Token akses anggota, admin, dan petugas']
+    };
+
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    async function initialize() {
+      bindNavigation();
+      bindForms();
+      setCurrentMonth();
+
+      if (!accessToken) {
+        showToast('Token admin tidak ditemukan.', 'error');
+        window.setTimeout(() => window.location.href = 'index.html', 1300);
+        return;
+      }
+
+      try {
+        const access = await apiGet('access.token', { token: accessToken });
+
+        if (access.type !== 'admin') {
+          throw new Error('Token ini bukan akses admin.');
+        }
+
+        state.currentUser = access.data;
+        renderCurrentUser();
+
+        await Promise.all([loadDashboard(), loadMembers(), loadTypes(), loadUsers()]);
+      } catch (error) {
+        showToast(error.message, 'error');
+        window.setTimeout(() => window.location.href = 'index.html', 1600);
+      }
+    }
+
+    function bindNavigation() {
+      document.querySelectorAll('.nav button').forEach((button) => {
+        button.addEventListener('click', () => navigateTo(button.dataset.view));
+      });
+
+      document.getElementById('menuButton').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+      });
+
+      document.getElementById('overlay').addEventListener('click', closeSidebar);
+      document.getElementById('memberSearch').addEventListener('input', debounce(loadMembers, 300));
+      document.getElementById('memberStatus').addEventListener('change', loadMembers);
+      document.getElementById('typeSearch').addEventListener('input', debounce(loadTypes, 300));
+      document.getElementById('submissionStatus').addEventListener('change', loadSubmissions);
+      document.getElementById('withdrawalStatus').addEventListener('change', loadWithdrawals);
+    }
+
+    function bindForms() {
+      document.getElementById('memberForm').addEventListener('submit', submitMember);
+      document.getElementById('typeForm').addEventListener('submit', submitType);
+      document.getElementById('userForm').addEventListener('submit', submitUser);
+      document.getElementById('processForm').addEventListener('submit', submitProcess);
+
+      document.querySelectorAll('.modal-backdrop').forEach((modal) => {
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) closeModal(modal.id);
+        });
+      });
+    }
+
+    function navigateTo(view) {
+      state.currentView = view;
+
+      document.querySelectorAll('.view').forEach((item) => {
+        item.classList.toggle('active', item.id === `view-${view}`);
+      });
+
+      document.querySelectorAll('.nav button').forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === view);
+      });
+
+      const [title, subtitle] = titles[view];
+      document.getElementById('pageTitle').textContent = title;
+      document.getElementById('pageSubtitle').textContent = subtitle;
+      closeSidebar();
+
+      if (view === 'pengajuan') loadSubmissions();
+      if (view === 'pencairan') loadWithdrawals();
+      if (view === 'akses') renderAccessTables();
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('open');
+    }
+
+    function renderCurrentUser() {
+      const name = state.currentUser.NAMA_USER || 'Administrator';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userRole').textContent = state.currentUser.ROLE || 'Admin';
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    }
+
+    async function refreshCurrentView() {
+      const loaders = {
+        dashboard: loadDashboard, anggota: loadMembers, jenis: loadTypes,
+        pengajuan: loadSubmissions, pencairan: loadWithdrawals,
+        pengguna: loadUsers, akses: async () => {
+          await Promise.all([loadMembers(), loadUsers()]);
+          renderAccessTables();
+        }
+      };
+
+      await loaders[state.currentView]();
+      showToast('Data berhasil dimuat ulang.');
+    }
+
+    async function loadDashboard() {
+      try {
+        const dashboard = await apiGet('dashboard', {
+          period: document.getElementById('dashboardPeriod').value
+        });
+
+        document.getElementById('kpiAnggota').textContent = dashboard.anggotaAktif || 0;
+        document.getElementById('kpiBerat').textContent = `${formatNumber(dashboard.beratSetoran)} kg`;
+        document.getElementById('kpiNilai').textContent = formatRupiah(dashboard.nilaiSetoran);
+        document.getElementById('kpiSaldo').textContent = formatRupiah(dashboard.totalSaldoAnggota);
+        document.getElementById('kpiPengajuan').textContent = dashboard.pengajuanMenunggu || 0;
+        document.getElementById('kpiPencairan').textContent = dashboard.pencairanMenunggu || 0;
+        document.getElementById('kpiPendapatan').textContent = formatRupiah(dashboard.pendapatanBersih);
+        document.getElementById('kpiTransaksi').textContent = dashboard.transaksiSetoran || 0;
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    async function loadMembers() {
+      const container = document.getElementById('memberTable');
+      container.innerHTML = '<div class="loading">Memuat anggota...</div>';
+
+      try {
+        state.members = await apiGet('anggota.list', {
+          keyword: document.getElementById('memberSearch').value,
+          status: document.getElementById('memberStatus').value,
+          limit: 500
+        });
+
+        renderMemberTable(container);
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function renderMemberTable(container) {
+      if (!state.members.length) {
+        container.innerHTML = '<div class="empty">Belum ada data anggota.</div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID</th><th>Nama</th><th>RT/RW</th><th>Saldo</th><th>Status</th><th>QR</th><th>Aksi</th></tr></thead>
+          <tbody>${state.members.map((item) => `
+            <tr>
+              <td data-label="ID">${escapeHtml(item.ID_ANGGOTA)}</td>
+              <td data-label="Nama"><strong>${escapeHtml(item.NAMA_ANGGOTA)}</strong><br><small>${escapeHtml(item.NO_HP || '-')}</small></td>
+              <td data-label="RT/RW">${escapeHtml(item.RT || '-')}/${escapeHtml(item.RW || '-')}</td>
+              <td data-label="Saldo">${formatRupiah(item.SALDO)}</td>
+              <td data-label="Status">${badge(item.STATUS_ANGGOTA)}</td>
+              <td data-label="QR">${badge(item.QR_STATUS || 'Belum Dibuat')}</td>
+              <td data-label="Aksi"><div class="actions">
+                <button class="button small info" onclick="editMember('${item.ID_ANGGOTA}')">Edit</button>
+                <button class="button small warning" onclick="toggleMemberStatus('${item.ID_ANGGOTA}','${item.STATUS_ANGGOTA === 'Aktif' ? 'Nonaktif' : 'Aktif'}')">${item.STATUS_ANGGOTA === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                <button class="button small danger" onclick="deleteMember('${item.ID_ANGGOTA}')">Hapus</button>
+              </div></td>
+            </tr>`).join('')}</tbody>
+        </table></div>`;
+    }
+
+    async function loadTypes() {
+      const container = document.getElementById('typeTable');
+      container.innerHTML = '<div class="loading">Memuat jenis sampah...</div>';
+
+      try {
+        state.types = await apiGet('jenis.list', {
+          keyword: document.getElementById('typeSearch').value,
+          limit: 500
+        });
+
+        if (!state.types.length) {
+          container.innerHTML = '<div class="empty">Belum ada jenis sampah.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="table-wrap"><table>
+            <thead><tr><th>ID</th><th>Nama</th><th>Kategori</th><th>Satuan</th><th>Harga Beli</th><th>Harga Jual</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody>${state.types.map((item) => `
+              <tr>
+                <td data-label="ID">${escapeHtml(item.ID_JENIS)}</td>
+                <td data-label="Nama">${escapeHtml(item.NAMA_SAMPAH)}</td>
+                <td data-label="Kategori">${escapeHtml(item.KATEGORI)}</td>
+                <td data-label="Satuan">${escapeHtml(item.SATUAN)}</td>
+                <td data-label="Harga Beli">${formatRupiah(item.HARGA_BELI)}</td>
+                <td data-label="Harga Jual">${formatRupiah(item.ESTIMASI_HARGA_JUAL)}</td>
+                <td data-label="Status">${badge(item.STATUS_JENIS)}</td>
+                <td data-label="Aksi"><div class="actions">
+                  <button class="button small info" onclick="editType('${item.ID_JENIS}')">Edit</button>
+                  <button class="button small warning" onclick="toggleTypeStatus('${item.ID_JENIS}','${item.STATUS_JENIS === 'Aktif' ? 'Nonaktif' : 'Aktif'}')">${item.STATUS_JENIS === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                  <button class="button small danger" onclick="deleteType('${item.ID_JENIS}')">Hapus</button>
+                </div></td>
+              </tr>`).join('')}</tbody>
+          </table></div>`;
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadSubmissions() {
+      const container = document.getElementById('submissionTable');
+      container.innerHTML = '<div class="loading">Memuat pengajuan...</div>';
+
+      try {
+        state.submissions = await apiGet('pengajuan.list', {
+          status: document.getElementById('submissionStatus').value,
+          limit: 500
+        });
+
+        if (!state.submissions.length) {
+          container.innerHTML = '<div class="empty">Belum ada pengajuan.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="table-wrap"><table>
+            <thead><tr><th>ID</th><th>Anggota</th><th>Sampah</th><th>Perkiraan</th><th>Foto</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+            <tbody>${state.submissions.map((item) => `
+              <tr>
+                <td data-label="ID">${escapeHtml(item.ID_PENGAJUAN)}</td>
+                <td data-label="Anggota">${escapeHtml(item.NAMA_ANGGOTA || item.ID_ANGGOTA)}</td>
+                <td data-label="Sampah">${escapeHtml(item.NAMA_SAMPAH || item.ID_JENIS)}</td>
+                <td data-label="Perkiraan">${formatNumber(item.PERKIRAAN_BERAT)} kg</td>
+                <td data-label="Foto">${item.FOTO_THUMBNAIL_URL ? `<a href="${escapeHtml(item.FOTO_URL)}" target="_blank"><img src="${escapeHtml(item.FOTO_THUMBNAIL_URL)}" alt="Foto sampah" style="width:56px;height:56px;object-fit:cover;border-radius:9px"></a>` : '-'}</td>
+                <td data-label="Status">${badge(item.STATUS_PENGAJUAN)}</td>
+                <td data-label="Tanggal">${formatDateTime(item.TANGGAL_PENGAJUAN)}</td>
+                <td data-label="Aksi"><div class="actions">
+                  ${item.STATUS_PENGAJUAN === 'Menunggu' ? `
+                    <button class="button small" onclick="openSubmissionProcess('${item.ID_PENGAJUAN}')">Verifikasi</button>
+                    <button class="button small danger" onclick="rejectSubmission('${item.ID_PENGAJUAN}')">Tolak</button>` : '-'}
+                </div></td>
+              </tr>`).join('')}</tbody>
+          </table></div>`;
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadWithdrawals() {
+      const container = document.getElementById('withdrawalTable');
+      container.innerHTML = '<div class="loading">Memuat pencairan...</div>';
+
+      try {
+        state.withdrawals = await apiGet('pencairan.list', {
+          status: document.getElementById('withdrawalStatus').value,
+          limit: 500
+        });
+
+        if (!state.withdrawals.length) {
+          container.innerHTML = '<div class="empty">Belum ada pengajuan pencairan.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="table-wrap"><table>
+            <thead><tr><th>ID</th><th>Anggota</th><th>Nominal</th><th>Metode</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+            <tbody>${state.withdrawals.map((item) => `
+              <tr>
+                <td data-label="ID">${escapeHtml(item.ID_PENCAIRAN)}</td>
+                <td data-label="Anggota">${escapeHtml(item.NAMA_ANGGOTA || item.ID_ANGGOTA)}</td>
+                <td data-label="Nominal">${formatRupiah(item.NOMINAL)}</td>
+                <td data-label="Metode">${escapeHtml(item.METODE)}</td>
+                <td data-label="Status">${badge(item.STATUS_PENCAIRAN)}</td>
+                <td data-label="Tanggal">${formatDateTime(item.TANGGAL_PENGAJUAN)}</td>
+                <td data-label="Aksi">${item.STATUS_PENCAIRAN === 'Menunggu' ? `<button class="button small" onclick="openWithdrawalProcess('${item.ID_PENCAIRAN}')">Proses</button>` : '-'}</td>
+              </tr>`).join('')}</tbody>
+          </table></div>`;
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function loadUsers() {
+      const container = document.getElementById('userTable');
+      container.innerHTML = '<div class="loading">Memuat pengguna...</div>';
+
+      try {
+        state.users = await apiGet('pengguna.list', { limit: 500 });
+
+        if (!state.users.length) {
+          container.innerHTML = '<div class="empty">Belum ada pengguna sistem.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="table-wrap"><table>
+            <thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Role</th><th>Status</th><th>QR</th><th>Aksi</th></tr></thead>
+            <tbody>${state.users.map((item) => `
+              <tr>
+                <td data-label="ID">${escapeHtml(item.ID_USER)}</td>
+                <td data-label="Nama">${escapeHtml(item.NAMA_USER)}</td>
+                <td data-label="Email">${escapeHtml(item.EMAIL_USERNAME)}</td>
+                <td data-label="Role">${escapeHtml(item.ROLE)}</td>
+                <td data-label="Status">${badge(item.STATUS_USER)}</td>
+                <td data-label="QR">${badge(item.QR_STATUS || 'Belum Dibuat')}</td>
+                <td data-label="Aksi"><div class="actions">
+                  <button class="button small info" onclick="editUser('${item.ID_USER}')">Edit</button>
+                  <button class="button small warning" onclick="toggleUserStatus('${item.ID_USER}','${item.STATUS_USER === 'Aktif' ? 'Nonaktif' : 'Aktif'}')">${item.STATUS_USER === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                  <button class="button small danger" onclick="deleteUser('${item.ID_USER}')">Hapus</button>
+                </div></td>
+              </tr>`).join('')}</tbody>
+          </table></div>`;
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function renderAccessTables() {
+      document.getElementById('memberQrTable').innerHTML = renderQrTable(
+        state.members.map((item) => ({
+          type: 'anggota', id: item.ID_ANGGOTA, name: item.NAMA_ANGGOTA,
+          token: item.QR_TOKEN, status: item.QR_STATUS || 'Belum Dibuat'
+        }))
+      );
+
+      document.getElementById('userQrTable').innerHTML = renderQrTable(
+        state.users.map((item) => ({
+          type: item.ROLE === 'Admin' ? 'admin' : 'petugas',
+          id: item.ID_USER, name: `${item.NAMA_USER} (${item.ROLE})`,
+          token: item.QR_TOKEN, status: item.QR_STATUS || 'Belum Dibuat'
+        }))
+      );
+    }
+
+    function renderQrTable(rows) {
+      if (!rows.length) return '<div class="empty">Belum ada data.</div>';
+
+      return `<div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Nama</th><th>Tipe</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>${rows.map((item) => `
+          <tr>
+            <td data-label="ID">${escapeHtml(item.id)}</td>
+            <td data-label="Nama">${escapeHtml(item.name)}</td>
+            <td data-label="Tipe">${escapeHtml(item.type)}</td>
+            <td data-label="Status">${badge(item.status)}</td>
+            <td data-label="Aksi"><div class="actions">
+              <button class="button small" onclick="generateQr('${item.type}','${item.id}')">${item.token ? 'Buat Ulang' : 'Buat QR'}</button>
+              ${item.token ? `<button class="button small info" onclick="showExistingQr('${item.type}','${item.id}')">Lihat</button>` : ''}
+              ${item.token ? `<button class="button small warning" onclick="changeQrStatus('${item.type}','${item.id}','${item.status === 'Aktif' ? 'Nonaktif' : 'Aktif'}')">${item.status === 'Aktif' ? 'Nonaktifkan' : 'Aktifkan'}</button>` : ''}
+              ${item.token ? `<button class="button small danger" onclick="deleteQr('${item.type}','${item.id}')">Hapus QR</button>` : ''}
+            </div></td>
+          </tr>`).join('')}</tbody>
+      </table></div>`;
+    }
+
+    function openMemberModal(member = null) {
+      document.getElementById('memberForm').reset();
+      document.getElementById('memberId').value = member?.ID_ANGGOTA || '';
+      document.getElementById('memberName').value = member?.NAMA_ANGGOTA || '';
+      document.getElementById('memberRt').value = member?.RT || '';
+      document.getElementById('memberRw').value = member?.RW || '';
+      document.getElementById('memberAddress').value = member?.ALAMAT || '';
+      document.getElementById('memberPhone').value = member?.NO_HP || '';
+      document.getElementById('memberFormStatus').value = member?.STATUS_ANGGOTA || 'Aktif';
+      document.getElementById('memberModalTitle').textContent = member ? 'Edit Anggota' : 'Tambah Anggota';
+      openModal('memberModal');
+    }
+
+    function editMember(id) {
+      openMemberModal(state.members.find((item) => item.ID_ANGGOTA === id));
+    }
+
+    async function submitMember(event) {
+      event.preventDefault();
+      const button = document.getElementById('memberSubmit');
+      setButtonLoading(button, true);
+
+      const id = document.getElementById('memberId').value;
+      const payload = {
+        idAnggota: id,
+        namaAnggota: document.getElementById('memberName').value,
+        rt: document.getElementById('memberRt').value,
+        rw: document.getElementById('memberRw').value,
+        alamat: document.getElementById('memberAddress').value,
+        noHp: document.getElementById('memberPhone').value,
+        statusAnggota: document.getElementById('memberFormStatus').value
+      };
+
+      try {
+        await apiPost(id ? 'anggota.update' : 'anggota.create', payload);
+        closeModal('memberModal');
+        await loadMembers();
+        showToast('Data anggota berhasil disimpan.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function toggleMemberStatus(id, status) {
+      await confirmPost('anggota.status', { idAnggota: id, status }, loadMembers, `Status anggota diubah menjadi ${status}.`);
+    }
+
+    async function deleteMember(id) {
+      if (!confirm('Hapus anggota ini? Data yang sudah memiliki transaksi tidak dapat dihapus.')) return;
+      await confirmPost('anggota.delete', { idAnggota: id }, loadMembers, 'Anggota berhasil dihapus.');
+    }
+
+    function openTypeModal(type = null) {
+      document.getElementById('typeForm').reset();
+      document.getElementById('typeId').value = type?.ID_JENIS || '';
+      document.getElementById('typeName').value = type?.NAMA_SAMPAH || '';
+      document.getElementById('typeCategory').value = type?.KATEGORI || 'Plastik';
+      document.getElementById('typeUnit').value = type?.SATUAN || 'Kg';
+      document.getElementById('typeBuy').value = type?.HARGA_BELI || '';
+      document.getElementById('typeSell').value = type?.ESTIMASI_HARGA_JUAL || '';
+      document.getElementById('typeFormStatus').value = type?.STATUS_JENIS || 'Aktif';
+      document.getElementById('typeModalTitle').textContent = type ? 'Edit Jenis Sampah' : 'Tambah Jenis Sampah';
+      openModal('typeModal');
+    }
+
+    function editType(id) {
+      openTypeModal(state.types.find((item) => item.ID_JENIS === id));
+    }
+
+    async function submitType(event) {
+      event.preventDefault();
+      const button = document.getElementById('typeSubmit');
+      setButtonLoading(button, true);
+      const id = document.getElementById('typeId').value;
+
+      try {
+        await apiPost(id ? 'jenis.update' : 'jenis.create', {
+          idJenis: id,
+          namaSampah: document.getElementById('typeName').value,
+          kategori: document.getElementById('typeCategory').value,
+          satuan: document.getElementById('typeUnit').value,
+          hargaBeli: document.getElementById('typeBuy').value,
+          estimasiHargaJual: document.getElementById('typeSell').value,
+          statusJenis: document.getElementById('typeFormStatus').value
+        });
+
+        closeModal('typeModal');
+        await loadTypes();
+        showToast('Jenis sampah berhasil disimpan.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function toggleTypeStatus(id, status) {
+      await confirmPost('jenis.status', { idJenis: id, status }, loadTypes, `Status jenis diubah menjadi ${status}.`);
+    }
+
+    async function deleteType(id) {
+      if (!confirm('Hapus jenis sampah ini?')) return;
+      await confirmPost('jenis.delete', { idJenis: id }, loadTypes, 'Jenis sampah berhasil dihapus.');
+    }
+
+    function openUserModal(user = null) {
+      document.getElementById('userForm').reset();
+      document.getElementById('userId').value = user?.ID_USER || '';
+      document.getElementById('systemUserName').value = user?.NAMA_USER || '';
+      document.getElementById('systemUserEmail').value = user?.EMAIL_USERNAME || '';
+      document.getElementById('systemUserRole').value = user?.ROLE || 'Petugas';
+      document.getElementById('systemUserStatus').value = user?.STATUS_USER || 'Aktif';
+      document.getElementById('systemUserPhone').value = user?.NO_HP || '';
+      document.getElementById('userModalTitle').textContent = user ? 'Edit Pengguna' : 'Tambah Pengguna';
+      openModal('userModal');
+    }
+
+    function editUser(id) {
+      openUserModal(state.users.find((item) => item.ID_USER === id));
+    }
+
+    async function submitUser(event) {
+      event.preventDefault();
+      const button = document.getElementById('userSubmit');
+      setButtonLoading(button, true);
+      const id = document.getElementById('userId').value;
+
+      try {
+        await apiPost(id ? 'pengguna.update' : 'pengguna.create', {
+          idUser: id,
+          namaUser: document.getElementById('systemUserName').value,
+          emailUsername: document.getElementById('systemUserEmail').value,
+          role: document.getElementById('systemUserRole').value,
+          statusUser: document.getElementById('systemUserStatus').value,
+          noHp: document.getElementById('systemUserPhone').value
+        });
+
+        closeModal('userModal');
+        await loadUsers();
+        showToast('Pengguna berhasil disimpan.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function toggleUserStatus(id, status) {
+      await confirmPost('pengguna.status', { idUser: id, status }, loadUsers, `Status pengguna diubah menjadi ${status}.`);
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('Hapus pengguna ini?')) return;
+      await confirmPost('pengguna.delete', { idUser: id }, loadUsers, 'Pengguna berhasil dihapus.');
+    }
+
+    function openSubmissionProcess(id) {
+      const item = state.submissions.find((row) => row.ID_PENGAJUAN === id);
+      document.getElementById('processTitle').textContent = 'Verifikasi Pengajuan';
+      document.getElementById('processForm').dataset.mode = 'submission';
+      document.getElementById('processForm').dataset.id = id;
+      document.getElementById('processBody').innerHTML = `
+        <div class="form-grid">
+          <div class="field full"><label>Anggota</label><input class="input" value="${escapeHtml(item.NAMA_ANGGOTA || item.ID_ANGGOTA)}" readonly></div>
+          <div class="field"><label>Jenis sampah</label><select id="processType" class="select">${state.types.map((type) => `<option value="${type.ID_JENIS}" ${type.ID_JENIS === item.ID_JENIS ? 'selected' : ''}>${escapeHtml(type.NAMA_SAMPAH)}</option>`).join('')}</select></div>
+          <div class="field"><label>Berat final</label><input id="processWeight" class="input" type="number" min="0.01" step="0.01" value="${item.PERKIRAAN_BERAT || ''}" required></div>
+          <div class="field full"><label>Catatan petugas</label><textarea id="processNote" class="textarea"></textarea></div>
+        </div>`;
+      openModal('processModal');
+    }
+
+    async function rejectSubmission(id) {
+      const note = prompt('Alasan penolakan:', 'Sampah tidak sesuai ketentuan.');
+      if (note === null) return;
+
+      await confirmPost('pengajuan.reject', {
+        idPengajuan: id,
+        petugas: state.currentUser.NAMA_USER,
+        catatanPetugas: note
+      }, loadSubmissions, 'Pengajuan berhasil ditolak.');
+    }
+
+    function openWithdrawalProcess(id) {
+      const item = state.withdrawals.find((row) => row.ID_PENCAIRAN === id);
+      document.getElementById('processTitle').textContent = 'Proses Pencairan';
+      document.getElementById('processForm').dataset.mode = 'withdrawal';
+      document.getElementById('processForm').dataset.id = id;
+      document.getElementById('processBody').innerHTML = `
+        <div class="form-grid">
+          <div class="field full"><label>Anggota & nominal</label><input class="input" value="${escapeHtml(item.NAMA_ANGGOTA || item.ID_ANGGOTA)} — ${formatRupiah(item.NOMINAL)}" readonly></div>
+          <div class="field"><label>Keputusan</label><select id="processStatus" class="select"><option>Disetujui</option><option>Ditolak</option><option>Dibatalkan</option></select></div>
+          <div class="field"><label>No. referensi</label><input id="processReference" class="input"></div>
+          <div class="field full"><label>Catatan</label><textarea id="processNote" class="textarea"></textarea></div>
+        </div>`;
+      openModal('processModal');
+    }
+
+    async function submitProcess(event) {
+      event.preventDefault();
+      const form = document.getElementById('processForm');
+      const button = document.getElementById('processSubmit');
+      setButtonLoading(button, true);
+
+      try {
+        if (form.dataset.mode === 'submission') {
+          await apiPost('pengajuan.verify', {
+            idPengajuan: form.dataset.id,
+            idJenis: document.getElementById('processType').value,
+            beratFinal: document.getElementById('processWeight').value,
+            petugas: state.currentUser.NAMA_USER,
+            catatanPetugas: document.getElementById('processNote').value
+          });
+          await loadSubmissions();
+        } else {
+          await apiPost('pencairan.process', {
+            idPencairan: form.dataset.id,
+            status: document.getElementById('processStatus').value,
+            diprosesOleh: state.currentUser.NAMA_USER,
+            noReferensi: document.getElementById('processReference').value,
+            catatan: document.getElementById('processNote').value
+          });
+          await loadWithdrawals();
+        }
+
+        closeModal('processModal');
+        showToast('Data berhasil diproses.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function generateQr(type, id) {
+      try {
+        const result = await apiPost('qr.generate', { type, id });
+        await reloadQrSource(type);
+        showQr({
+          type, id, token: result.token,
+          url: buildFrontendQrUrl(type, result.token),
+          status: result.status
+        });
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    function showExistingQr(type, id) {
+      const source = type === 'anggota'
+        ? state.members.find((item) => item.ID_ANGGOTA === id)
+        : state.users.find((item) => item.ID_USER === id);
+
+      showQr({
+        type, id, token: source.QR_TOKEN,
+        url: buildFrontendQrUrl(type, source.QR_TOKEN),
+        status: source.QR_STATUS
+      });
+    }
+
+    function showQr(data) {
+      state.currentQr = data;
+      const container = document.getElementById('qrImage');
+      container.replaceChildren();
+
+      new QRCode(container, {
+        text: data.url,
+        width: 230,
+        height: 230,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      document.getElementById('qrDetails').innerHTML = `
+        <div class="detail-item"><span>Tipe</span><strong>${escapeHtml(data.type)}</strong></div>
+        <div class="detail-item"><span>ID</span><strong>${escapeHtml(data.id)}</strong></div>
+        <div class="detail-item"><span>Status</span><strong>${escapeHtml(data.status)}</strong></div>
+        <div class="detail-item"><span>Token</span><strong style="word-break:break-all">${escapeHtml(data.token)}</strong></div>
+        <div class="detail-item"><span>Link</span><strong style="word-break:break-all">${escapeHtml(data.url)}</strong></div>`;
+      openModal('qrModal');
+    }
+
+    async function changeQrStatus(type, id, status) {
+      await confirmPost('qr.status', { type, id, status }, async () => {
+        await reloadQrSource(type);
+        renderAccessTables();
+      }, `Status QR diubah menjadi ${status}.`);
+    }
+
+    async function deleteQr(type, id) {
+      if (!confirm('Hapus token QR ini? Data utama tidak akan terhapus.')) return;
+      await confirmPost('qr.delete', { type, id }, async () => {
+        await reloadQrSource(type);
+        renderAccessTables();
+      }, 'Token QR berhasil dihapus.');
+    }
+
+    async function reloadQrSource(type) {
+      if (type === 'anggota') await loadMembers();
+      else await loadUsers();
+      renderAccessTables();
+    }
+
+    function buildFrontendQrUrl(type, token) {
+      const target = type === 'anggota'
+        ? 'anggota.html'
+        : type === 'admin'
+          ? 'admin.html'
+          : 'petugas.html';
+
+      const param = type === 'anggota' ? 'token' : 'access';
+      return new URL(`${target}?${param}=${encodeURIComponent(token)}`, window.location.href).href;
+    }
+
+    async function copyCurrentQr() {
+      await navigator.clipboard.writeText(state.currentQr.url);
+      showToast('Link QR berhasil disalin.');
+    }
+
+    function downloadCurrentQr() {
+      const container = document.getElementById('qrImage');
+      const canvas = container.querySelector('canvas');
+      const image = container.querySelector('img');
+      const dataUrl = canvas ? canvas.toDataURL('image/png') : image?.src;
+
+      if (!dataUrl) {
+        showToast('Gambar QR belum tersedia.', 'error');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `QR_${state.currentQr.type}_${state.currentQr.id}.png`;
+      link.click();
+    }
+
+    async function confirmPost(action, payload, callback, successMessage) {
+      try {
+        await apiPost(action, payload);
+        await callback();
+        showToast(successMessage);
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    function badge(status) {
+      const value = String(status || '-');
+      const lower = value.toLowerCase();
+      let cls = 'badge';
+
+      if (['aktif', 'selesai', 'disetujui'].some((word) => lower.includes(word))) cls += ' success';
+      if (['menunggu', 'diproses'].some((word) => lower.includes(word))) cls += ' warning';
+      if (['nonaktif', 'ditolak', 'dibatalkan'].some((word) => lower.includes(word))) cls += ' danger';
+      return `<span class="${cls}">${escapeHtml(value)}</span>`;
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function setCurrentMonth() {
+      document.getElementById('dashboardPeriod').value = new Date().toISOString().slice(0, 7);
+    }
+
+    function debounce(fn, delay) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+  </script>
+</body>
+</html>

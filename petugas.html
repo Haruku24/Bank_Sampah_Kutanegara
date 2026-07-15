@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14532d">
+  <title>Portal Petugas</title>
+  <link rel="stylesheet" href="css/petugas.css">
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand"><div class="brand-icon">⚖</div><div><strong>Portal Petugas</strong><small>Bank Sampah Kutanegara</small></div></div>
+      <div class="nav-label">Menu Petugas</div>
+      <nav class="nav">
+        <button class="active" data-view="setoran"><span class="nav-icon">⚖</span>Input Setoran</button>
+        <button data-view="pengajuan"><span class="nav-icon">📥</span>Pengajuan Anggota</button>
+        <button data-view="riwayat"><span class="nav-icon">🧾</span>Riwayat Anggota</button>
+      </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuButton" class="menu-button">☰</button>
+          <div class="page-heading"><h1 id="pageTitle">Input Setoran</h1><p id="pageSubtitle">Penimbangan final anggota</p></div>
+        </div>
+        <div class="user-chip"><div id="userAvatar" class="avatar">P</div><div><strong id="userName">Petugas</strong><small id="userRole">Memeriksa akses...</small></div></div>
+      </header>
+
+      <main class="content">
+        <section id="view-setoran" class="view active">
+          <div class="hero">
+            <div><h2>Pelayanan Setoran</h2><p>Cari anggota dan masukkan hasil penimbangan sebenarnya.</p></div>
+          </div>
+
+          <div class="card" style="margin-top:18px">
+            <div class="card-header"><div><h3>Cari Anggota</h3><p>Gunakan ID, nama, nomor HP, atau token QR.</p></div></div>
+            <div class="card-body">
+              <div class="toolbar" style="padding:0;border:0;background:transparent">
+                <input id="memberQuery" class="input search" placeholder="Cari anggota...">
+                <button class="button" onclick="searchMember()">Cari</button>
+              </div>
+              <div id="memberResult"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div><h3>Hasil Penimbangan</h3><p>Tambahkan beberapa jenis sampah bila diperlukan.</p></div><button class="button light small" onclick="addDepositItem()">+ Jenis</button></div>
+            <form id="depositForm">
+              <div class="card-body">
+                <div id="depositItems"></div>
+                <div class="field" style="margin-top:14px"><label>Catatan</label><textarea id="depositNote" class="textarea"></textarea></div>
+              </div>
+              <div class="modal-footer"><button id="depositButton" class="button" type="submit">Simpan Setoran Final</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section id="view-pengajuan" class="view">
+          <div class="section-head"><div><h2>Pengajuan Anggota</h2><p>Verifikasi berat final dan foto sampah.</p></div></div>
+          <div class="card">
+            <div class="toolbar">
+              <select id="submissionStatus" class="select"><option>Menunggu</option><option value="">Semua status</option><option>Selesai</option><option>Ditolak</option></select>
+              <button class="button light" onclick="loadSubmissions()">Muat Ulang</button>
+            </div>
+            <div id="submissionTable"></div>
+          </div>
+        </section>
+
+        <section id="view-riwayat" class="view">
+          <div class="section-head"><div><h2>Riwayat Anggota</h2><p>Riwayat anggota yang sedang dipilih.</p></div></div>
+          <div class="card"><div id="historyTable"></div></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="verifyModal" class="modal-backdrop">
+    <section class="modal">
+      <div class="modal-header"><h3>Verifikasi Pengajuan</h3><button class="close" onclick="closeModal('verifyModal')">×</button></div>
+      <form id="verifyForm">
+        <div class="modal-body">
+          <input id="verifyId" type="hidden">
+          <div id="verifySummary" style="margin-bottom:14px"></div>
+          <div class="form-grid">
+            <div class="field"><label>Jenis sampah</label><select id="verifyType" class="select"></select></div>
+            <div class="field"><label>Berat final</label><input id="verifyWeight" class="input" type="number" min="0.01" step="0.01" required></div>
+            <div class="field full"><label>Catatan petugas</label><textarea id="verifyNote" class="textarea"></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="button danger" onclick="rejectCurrentSubmission()">Tolak</button><button id="verifyButton" class="button" type="submit">Verifikasi</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script>
+    'use strict';
+
+    const {
+      apiGet, apiPost, getQueryParam, formatRupiah, formatNumber,
+      formatDateTime, escapeHtml, showToast, setButtonLoading
+    } = BankSampahAPI;
+
+    const accessToken = getQueryParam('access');
+    const state = {
+      currentUser: null,
+      selectedMember: null,
+      members: [],
+      types: [],
+      submissions: [],
+      currentSubmission: null,
+      itemCounter: 0
+    };
+
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    async function initialize() {
+      bindNavigation();
+      document.getElementById('depositForm').addEventListener('submit', submitDeposit);
+      document.getElementById('verifyForm').addEventListener('submit', submitVerification);
+      document.getElementById('submissionStatus').addEventListener('change', loadSubmissions);
+
+      if (!accessToken) {
+        showToast('Token petugas tidak ditemukan.', 'error');
+        window.setTimeout(() => window.location.href = 'index.html', 1400);
+        return;
+      }
+
+      try {
+        const access = await apiGet('access.token', { token: accessToken });
+
+        if (access.type !== 'petugas') {
+          throw new Error('Token ini bukan akses petugas.');
+        }
+
+        state.currentUser = access.data;
+        renderCurrentUser();
+        state.types = await apiGet('jenis.list', { activeOnly: true, limit: 500 });
+        addDepositItem();
+        await loadSubmissions();
+      } catch (error) {
+        showToast(error.message, 'error');
+        window.setTimeout(() => window.location.href = 'index.html', 1600);
+      }
+    }
+
+    function bindNavigation() {
+      document.querySelectorAll('.nav button').forEach((button) => {
+        button.addEventListener('click', () => navigateTo(button.dataset.view));
+      });
+
+      document.getElementById('menuButton').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('overlay').classList.add('open');
+      });
+
+      document.getElementById('overlay').addEventListener('click', closeSidebar);
+    }
+
+    function navigateTo(view) {
+      const titles = {
+        setoran: ['Input Setoran', 'Penimbangan final anggota'],
+        pengajuan: ['Pengajuan Anggota', 'Verifikasi pengajuan setoran'],
+        riwayat: ['Riwayat Anggota', 'Transaksi anggota terpilih']
+      };
+
+      document.querySelectorAll('.view').forEach((section) => {
+        section.classList.toggle('active', section.id === `view-${view}`);
+      });
+
+      document.querySelectorAll('.nav button').forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === view);
+      });
+
+      document.getElementById('pageTitle').textContent = titles[view][0];
+      document.getElementById('pageSubtitle').textContent = titles[view][1];
+      closeSidebar();
+
+      if (view === 'pengajuan') loadSubmissions();
+      if (view === 'riwayat') loadHistory();
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('open');
+    }
+
+    function renderCurrentUser() {
+      const name = state.currentUser.NAMA_USER || 'Petugas';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userRole').textContent = state.currentUser.ROLE || 'Petugas';
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    }
+
+    async function searchMember() {
+      const query = document.getElementById('memberQuery').value.trim();
+      const container = document.getElementById('memberResult');
+
+      if (!query) {
+        showToast('Masukkan ID, nama, nomor HP, atau token.', 'warning');
+        return;
+      }
+
+      container.innerHTML = '<div class="loading">Mencari anggota...</div>';
+
+      try {
+        let member = null;
+
+        try {
+          member = await apiGet('anggota.token', { token: extractToken(query) });
+        } catch (_) {
+          const rows = await apiGet('anggota.list', { keyword: query, status: 'Aktif', limit: 10 });
+          if (!rows.length) throw new Error('Anggota tidak ditemukan.');
+          member = rows[0];
+        }
+
+        state.selectedMember = member;
+        container.innerHTML = `
+          <div class="card" style="margin-top:14px;margin-bottom:0">
+            <div class="card-body">
+              <strong style="font-size:18px">${escapeHtml(member.NAMA_ANGGOTA)}</strong>
+              <p style="margin:6px 0;color:#64748b">${escapeHtml(member.ID_ANGGOTA)} • RT ${escapeHtml(member.RT || '-')}/RW ${escapeHtml(member.RW || '-')}</p>
+              <strong style="color:#166534">${formatRupiah(member.SALDO)}</strong>
+            </div>
+          </div>`;
+
+        await loadHistory();
+        showToast('Anggota berhasil dipilih.');
+      } catch (error) {
+        state.selectedMember = null;
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function addDepositItem() {
+      state.itemCounter += 1;
+      const row = document.createElement('div');
+      row.className = 'form-grid';
+      row.style.marginBottom = '12px';
+      row.dataset.item = state.itemCounter;
+      row.innerHTML = `
+        <div class="field"><label>Jenis sampah</label><select class="select item-type" required>${typeOptions()}</select></div>
+        <div class="field"><label>Berat</label><input class="input item-weight" type="number" min="0.01" step="0.01" required></div>
+        <div class="field full"><button type="button" class="button danger small" onclick="this.closest('[data-item]').remove()">Hapus Item</button></div>`;
+      document.getElementById('depositItems').appendChild(row);
+    }
+
+    function typeOptions(selected = '') {
+      return '<option value="">Pilih jenis</option>' +
+        state.types.map((item) =>
+          `<option value="${item.ID_JENIS}" ${item.ID_JENIS === selected ? 'selected' : ''}>${escapeHtml(item.NAMA_SAMPAH)} — ${formatRupiah(item.HARGA_BELI)}/${escapeHtml(item.SATUAN)}</option>`
+        ).join('');
+    }
+
+    async function submitDeposit(event) {
+      event.preventDefault();
+
+      if (!state.selectedMember) {
+        showToast('Pilih anggota terlebih dahulu.', 'warning');
+        return;
+      }
+
+      const button = document.getElementById('depositButton');
+      setButtonLoading(button, true);
+
+      const items = Array.from(document.querySelectorAll('[data-item]')).map((row) => ({
+        idJenis: row.querySelector('.item-type').value,
+        berat: row.querySelector('.item-weight').value
+      }));
+
+      try {
+        await apiPost('setoran.create', {
+          idAnggota: state.selectedMember.ID_ANGGOTA,
+          petugas: state.currentUser.NAMA_USER,
+          sumberInput: 'Manual',
+          catatan: document.getElementById('depositNote').value,
+          items
+        });
+
+        document.getElementById('depositItems').replaceChildren();
+        addDepositItem();
+        document.getElementById('depositNote').value = '';
+        await searchMember();
+        navigateTo('riwayat');
+        showToast('Setoran final berhasil disimpan.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function loadSubmissions() {
+      const container = document.getElementById('submissionTable');
+      container.innerHTML = '<div class="loading">Memuat pengajuan...</div>';
+
+      try {
+        state.submissions = await apiGet('pengajuan.list', {
+          status: document.getElementById('submissionStatus').value,
+          limit: 500
+        });
+
+        if (!state.submissions.length) {
+          container.innerHTML = '<div class="empty">Belum ada pengajuan.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="table-wrap"><table>
+            <thead><tr><th>Anggota</th><th>Sampah</th><th>Perkiraan</th><th>Foto</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody>${state.submissions.map((item) => `
+              <tr>
+                <td data-label="Anggota">${escapeHtml(item.NAMA_ANGGOTA || item.ID_ANGGOTA)}</td>
+                <td data-label="Sampah">${escapeHtml(item.NAMA_SAMPAH || item.ID_JENIS)}</td>
+                <td data-label="Perkiraan">${formatNumber(item.PERKIRAAN_BERAT)} kg</td>
+                <td data-label="Foto">${item.FOTO_THUMBNAIL_URL ? `<a href="${escapeHtml(item.FOTO_URL)}" target="_blank"><img src="${escapeHtml(item.FOTO_THUMBNAIL_URL)}" style="width:58px;height:58px;object-fit:cover;border-radius:9px"></a>` : '-'}</td>
+                <td data-label="Status">${badge(item.STATUS_PENGAJUAN)}</td>
+                <td data-label="Aksi">${item.STATUS_PENGAJUAN === 'Menunggu' ? `<button class="button small" onclick="openVerify('${item.ID_PENGAJUAN}')">Verifikasi</button>` : '-'}</td>
+              </tr>`).join('')}</tbody>
+          </table></div>`;
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function openVerify(id) {
+      const item = state.submissions.find((row) => row.ID_PENGAJUAN === id);
+      state.currentSubmission = item;
+      document.getElementById('verifyId').value = id;
+      document.getElementById('verifyType').innerHTML = typeOptions(item.ID_JENIS);
+      document.getElementById('verifyWeight').value = item.PERKIRAAN_BERAT || '';
+      document.getElementById('verifyNote').value = '';
+      document.getElementById('verifySummary').innerHTML =
+        `<strong>${escapeHtml(item.NAMA_ANGGOTA)}</strong><br><span>${escapeHtml(item.NAMA_SAMPAH)} — perkiraan ${formatNumber(item.PERKIRAAN_BERAT)} kg</span>`;
+      openModal('verifyModal');
+    }
+
+    async function submitVerification(event) {
+      event.preventDefault();
+      const button = document.getElementById('verifyButton');
+      setButtonLoading(button, true);
+
+      try {
+        await apiPost('pengajuan.verify', {
+          idPengajuan: document.getElementById('verifyId').value,
+          idJenis: document.getElementById('verifyType').value,
+          beratFinal: document.getElementById('verifyWeight').value,
+          petugas: state.currentUser.NAMA_USER,
+          catatanPetugas: document.getElementById('verifyNote').value
+        });
+
+        closeModal('verifyModal');
+        await loadSubmissions();
+        showToast('Pengajuan berhasil diverifikasi.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function rejectCurrentSubmission() {
+      if (!state.currentSubmission) return;
+      const note = document.getElementById('verifyNote').value || 'Pengajuan ditolak petugas.';
+
+      try {
+        await apiPost('pengajuan.reject', {
+          idPengajuan: state.currentSubmission.ID_PENGAJUAN,
+          petugas: state.currentUser.NAMA_USER,
+          catatanPetugas: note
+        });
+
+        closeModal('verifyModal');
+        await loadSubmissions();
+        showToast('Pengajuan ditolak.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    async function loadHistory() {
+      const container = document.getElementById('historyTable');
+
+      if (!state.selectedMember) {
+        container.innerHTML = '<div class="empty">Pilih anggota pada menu Input Setoran.</div>';
+        return;
+      }
+
+      try {
+        const rows = await apiGet('setoran.list', {
+          idAnggota: state.selectedMember.ID_ANGGOTA,
+          limit: 100
+        });
+
+        container.innerHTML = rows.length ? `
+          <div class="table-wrap"><table>
+            <thead><tr><th>Tanggal</th><th>Sampah</th><th>Berat</th><th>Nilai</th><th>Status</th></tr></thead>
+            <tbody>${rows.map((item) => `
+              <tr>
+                <td data-label="Tanggal">${formatDateTime(item.TANGGAL_SETORAN)}</td>
+                <td data-label="Sampah">${escapeHtml(item.NAMA_SAMPAH || item.ID_JENIS)}</td>
+                <td data-label="Berat">${formatNumber(item.BERAT)} kg</td>
+                <td data-label="Nilai">${formatRupiah(item.TOTAL_NILAI)}</td>
+                <td data-label="Status">${badge(item.STATUS_TRANSAKSI)}</td>
+              </tr>`).join('')}</tbody>
+          </table></div>` : '<div class="empty">Belum ada riwayat setoran.</div>';
+      } catch (error) {
+        container.innerHTML = `<div class="error">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function extractToken(value) {
+      const text = String(value || '').trim();
+      try {
+        const url = new URL(text);
+        return url.searchParams.get('token') || text;
+      } catch (_) {
+        return text;
+      }
+    }
+
+    function badge(status) {
+      const value = String(status || '-');
+      const lower = value.toLowerCase();
+      let cls = 'badge';
+      if (['aktif','selesai','disetujui'].some((word) => lower.includes(word))) cls += ' success';
+      if (['menunggu','diproses'].some((word) => lower.includes(word))) cls += ' warning';
+      if (['ditolak','dibatalkan','nonaktif'].some((word) => lower.includes(word))) cls += ' danger';
+      return `<span class="${cls}">${escapeHtml(value)}</span>`;
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+  </script>
+</body>
+</html>

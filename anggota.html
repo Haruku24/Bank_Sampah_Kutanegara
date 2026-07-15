@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14532d">
+  <title>Portal Anggota</title>
+  <link rel="stylesheet" href="css/anggota.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">♻</div>
+      <div><strong>Portal Anggota</strong><small>Bank Sampah Kutanegara</small></div>
+    </div>
+    <div class="profile-chip">
+      <div id="avatar" class="avatar">A</div>
+      <div><strong id="memberName">Memuat...</strong><small id="memberId">-</small></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1 id="welcomeTitle">Selamat datang</h1>
+        <p>Lihat saldo, riwayat, ajukan setoran sampah, dan pencairan dari HP.</p>
+      </div>
+      <div class="balance-card">
+        <span>Saldo tersedia</span>
+        <strong id="balanceValue">Rp0</strong>
+      </div>
+    </section>
+
+    <section class="stats">
+      <article class="stat"><span>Total setoran</span><strong id="totalDeposit">Rp0</strong></article>
+      <article class="stat"><span>Total pencairan</span><strong id="totalWithdrawal">Rp0</strong></article>
+      <article class="stat"><span>Pengajuan menunggu</span><strong id="pendingSubmission">0</strong></article>
+    </section>
+
+    <section id="view-home" class="view active">
+      <article class="card">
+        <div class="card-header"><div><h2>Profil Anggota</h2><p>Data identitas yang tersimpan.</p></div></div>
+        <div id="profileBody" class="card-body"></div>
+      </article>
+    </section>
+
+    <section id="view-submit" class="view">
+      <article class="card">
+        <div class="card-header"><div><h2>Ajukan Setoran</h2><p>Berat yang dimasukkan masih berupa perkiraan.</p></div></div>
+        <form id="submissionForm">
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Jenis sampah</label><select id="submissionType" class="select" required></select></div>
+              <div class="field"><label>Perkiraan berat</label><input id="submissionWeight" class="input" type="number" min="0.01" step="0.01" required></div>
+              <div class="field full"><label>Foto sampah</label><input id="submissionImage" class="input" type="file" accept="image/*" capture="environment"></div>
+              <div class="field full"><div id="imagePreview" class="image-preview"><img alt="Preview foto sampah"></div></div>
+              <div class="field full"><label>Catatan</label><textarea id="submissionNote" class="textarea" placeholder="Opsional"></textarea></div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:0"><button id="submissionButton" class="button" type="submit">Kirim Pengajuan</button></div>
+        </form>
+      </article>
+    </section>
+
+    <section id="view-history" class="view">
+      <article class="card">
+        <div class="card-header"><div><h2>Riwayat Setoran</h2><p>Transaksi final yang sudah diverifikasi.</p></div></div>
+        <div id="depositHistory"></div>
+      </article>
+      <article class="card">
+        <div class="card-header"><div><h2>Status Pengajuan</h2><p>Pengajuan awal beserta hasil verifikasi.</p></div></div>
+        <div id="submissionHistory"></div>
+      </article>
+    </section>
+
+    <section id="view-withdrawal" class="view">
+      <article class="card">
+        <div class="card-header"><div><h2>Ajukan Pencairan</h2><p>Pengajuan akan diperiksa oleh admin/keuangan.</p></div></div>
+        <form id="withdrawalForm">
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Nominal</label><input id="withdrawalAmount" class="input" type="number" min="1" required></div>
+              <div class="field"><label>Metode</label><select id="withdrawalMethod" class="select"><option>Tunai</option><option>Transfer</option></select></div>
+              <div class="field full"><label>Catatan</label><textarea id="withdrawalNote" class="textarea"></textarea></div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:0"><button id="withdrawalButton" class="button" type="submit">Kirim Pengajuan</button></div>
+        </form>
+      </article>
+      <article class="card">
+        <div class="card-header"><div><h2>Riwayat Pencairan</h2></div></div>
+        <div id="withdrawalHistory"></div>
+      </article>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="active" data-view="home"><span>⌂</span><span>Beranda</span></button>
+    <button data-view="submit"><span>＋</span><span>Setor</span></button>
+    <button data-view="history"><span>🧾</span><span>Riwayat</span></button>
+    <button data-view="withdrawal"><span>💳</span><span>Cairkan</span></button>
+  </nav>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script>
+    'use strict';
+
+    const {
+      apiGet, apiPost, getQueryParam, formatRupiah, formatNumber,
+      formatDateTime, escapeHtml, showToast, setButtonLoading, compressImage
+    } = BankSampahAPI;
+
+    const token = getQueryParam('token');
+    let portal = null;
+    let selectedImage = null;
+
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    async function initialize() {
+      bindNavigation();
+      bindForms();
+
+      if (!token) {
+        showToast('Token anggota tidak ditemukan.', 'error');
+        window.setTimeout(() => window.location.href = 'index.html', 1400);
+        return;
+      }
+
+      await loadPortal();
+    }
+
+    function bindNavigation() {
+      document.querySelectorAll('.bottom-nav button').forEach((button) => {
+        button.addEventListener('click', () => navigateTo(button.dataset.view));
+      });
+    }
+
+    function bindForms() {
+      document.getElementById('submissionForm').addEventListener('submit', submitSubmission);
+      document.getElementById('withdrawalForm').addEventListener('submit', submitWithdrawal);
+      document.getElementById('submissionImage').addEventListener('change', previewImage);
+    }
+
+    async function loadPortal() {
+      try {
+        portal = await apiGet('portal.anggota', { token });
+        renderPortal();
+      } catch (error) {
+        showToast(error.message, 'error');
+        window.setTimeout(() => window.location.href = 'index.html', 1600);
+      }
+    }
+
+    function renderPortal() {
+      const member = portal.anggota;
+      const saldo = portal.saldo;
+
+      document.getElementById('memberName').textContent = member.NAMA_ANGGOTA;
+      document.getElementById('memberId').textContent = member.ID_ANGGOTA;
+      document.getElementById('avatar').textContent = member.NAMA_ANGGOTA.charAt(0).toUpperCase();
+      document.getElementById('welcomeTitle').textContent = `Halo, ${member.NAMA_ANGGOTA}`;
+      document.getElementById('balanceValue').textContent = formatRupiah(saldo.saldo);
+      document.getElementById('totalDeposit').textContent = formatRupiah(saldo.totalSetoran);
+      document.getElementById('totalWithdrawal').textContent = formatRupiah(saldo.totalPencairan);
+      document.getElementById('pendingSubmission').textContent =
+        portal.pengajuan.filter((item) => item.STATUS_PENGAJUAN === 'Menunggu').length;
+
+      document.getElementById('profileBody').innerHTML = `
+        <div class="form-grid">
+          <div class="field"><label>ID anggota</label><input class="input" value="${escapeHtml(member.ID_ANGGOTA)}" readonly></div>
+          <div class="field"><label>Status</label><input class="input" value="${escapeHtml(member.STATUS_ANGGOTA)}" readonly></div>
+          <div class="field"><label>RT/RW</label><input class="input" value="${escapeHtml(member.RT || '-')}/${escapeHtml(member.RW || '-')}" readonly></div>
+          <div class="field"><label>No. HP</label><input class="input" value="${escapeHtml(member.NO_HP || '-')}" readonly></div>
+          <div class="field full"><label>Alamat</label><textarea class="textarea" readonly>${escapeHtml(member.ALAMAT || '-')}</textarea></div>
+        </div>`;
+
+      document.getElementById('submissionType').innerHTML =
+        '<option value="">Pilih jenis sampah</option>' +
+        portal.jenisSampah.map((item) =>
+          `<option value="${item.ID_JENIS}">${escapeHtml(item.NAMA_SAMPAH)} — ${formatRupiah(item.HARGA_BELI)}/${escapeHtml(item.SATUAN)}</option>`
+        ).join('');
+
+      renderDepositHistory();
+      renderSubmissionHistory();
+      renderWithdrawalHistory();
+    }
+
+    function navigateTo(view) {
+      document.querySelectorAll('.view').forEach((section) => {
+        section.classList.toggle('active', section.id === `view-${view}`);
+      });
+
+      document.querySelectorAll('.bottom-nav button').forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === view);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function previewImage(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById('imagePreview');
+
+      if (!file) {
+        selectedImage = null;
+        preview.classList.remove('show');
+        return;
+      }
+
+      try {
+        selectedImage = await compressImage(file);
+        preview.querySelector('img').src = selectedImage.dataUrl;
+        preview.classList.add('show');
+      } catch (error) {
+        selectedImage = null;
+        showToast(error.message, 'error');
+      }
+    }
+
+    async function submitSubmission(event) {
+      event.preventDefault();
+      const button = document.getElementById('submissionButton');
+      setButtonLoading(button, true, selectedImage ? 'Mengunggah foto...' : 'Mengirim...');
+
+      try {
+        await apiPost('pengajuan.create', {
+          token,
+          idJenis: document.getElementById('submissionType').value,
+          perkiraanBerat: document.getElementById('submissionWeight').value,
+          catatanAnggota: document.getElementById('submissionNote').value,
+          image: selectedImage
+        });
+
+        document.getElementById('submissionForm').reset();
+        document.getElementById('imagePreview').classList.remove('show');
+        selectedImage = null;
+        await loadPortal();
+        navigateTo('history');
+        showToast('Pengajuan setoran berhasil dikirim.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    async function submitWithdrawal(event) {
+      event.preventDefault();
+      const button = document.getElementById('withdrawalButton');
+      setButtonLoading(button, true);
+
+      try {
+        await apiPost('pencairan.create', {
+          token,
+          nominal: document.getElementById('withdrawalAmount').value,
+          metode: document.getElementById('withdrawalMethod').value,
+          catatan: document.getElementById('withdrawalNote').value
+        });
+
+        document.getElementById('withdrawalForm').reset();
+        await loadPortal();
+        showToast('Pengajuan pencairan berhasil dikirim.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false);
+      }
+    }
+
+    function renderDepositHistory() {
+      const rows = portal.riwayatSetoran;
+      document.getElementById('depositHistory').innerHTML = rows.length
+        ? table(`
+            <tr><th>Tanggal</th><th>Sampah</th><th>Berat</th><th>Nilai</th><th>Status</th></tr>`,
+            rows.map((item) => `
+              <tr>
+                <td data-label="Tanggal">${formatDateTime(item.TANGGAL_SETORAN)}</td>
+                <td data-label="Sampah">${escapeHtml(item.NAMA_SAMPAH || item.ID_JENIS)}</td>
+                <td data-label="Berat">${formatNumber(item.BERAT)} kg</td>
+                <td data-label="Nilai">${formatRupiah(item.TOTAL_NILAI)}</td>
+                <td data-label="Status">${badge(item.STATUS_TRANSAKSI)}</td>
+              </tr>`).join(''))
+        : '<div class="empty">Belum ada transaksi setoran.</div>';
+    }
+
+    function renderSubmissionHistory() {
+      const rows = portal.pengajuan;
+      document.getElementById('submissionHistory').innerHTML = rows.length
+        ? table(`
+            <tr><th>Tanggal</th><th>Sampah</th><th>Perkiraan</th><th>Hasil Final</th><th>Status</th><th>Foto</th></tr>`,
+            rows.map((item) => `
+              <tr>
+                <td data-label="Tanggal">${formatDateTime(item.TANGGAL_PENGAJUAN)}</td>
+                <td data-label="Sampah">${escapeHtml(item.NAMA_SAMPAH || item.ID_JENIS)}</td>
+                <td data-label="Perkiraan">${formatNumber(item.PERKIRAAN_BERAT)} kg</td>
+                <td data-label="Hasil Final">${item.BERAT_TERVERIFIKASI ? `${formatNumber(item.BERAT_TERVERIFIKASI)} kg / ${formatRupiah(item.TOTAL_NILAI_FINAL)}` : '-'}</td>
+                <td data-label="Status">${badge(item.STATUS_PENGAJUAN)}</td>
+                <td data-label="Foto">${item.FOTO_THUMBNAIL_URL ? `<a href="${escapeHtml(item.FOTO_URL)}" target="_blank"><img src="${escapeHtml(item.FOTO_THUMBNAIL_URL)}" style="width:52px;height:52px;object-fit:cover;border-radius:9px"></a>` : '-'}</td>
+              </tr>`).join(''))
+        : '<div class="empty">Belum ada pengajuan setoran.</div>';
+    }
+
+    function renderWithdrawalHistory() {
+      const rows = portal.pencairan;
+      document.getElementById('withdrawalHistory').innerHTML = rows.length
+        ? table(`
+            <tr><th>Tanggal</th><th>Nominal</th><th>Metode</th><th>Status</th><th>Catatan</th></tr>`,
+            rows.map((item) => `
+              <tr>
+                <td data-label="Tanggal">${formatDateTime(item.TANGGAL_PENGAJUAN)}</td>
+                <td data-label="Nominal">${formatRupiah(item.NOMINAL)}</td>
+                <td data-label="Metode">${escapeHtml(item.METODE)}</td>
+                <td data-label="Status">${badge(item.STATUS_PENCAIRAN)}</td>
+                <td data-label="Catatan">${escapeHtml(item.CATATAN || '-')}</td>
+              </tr>`).join(''))
+        : '<div class="empty">Belum ada pencairan.</div>';
+    }
+
+    function table(head, body) {
+      return `<div class="table-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+    }
+
+    function badge(status) {
+      const value = String(status || '-');
+      const lower = value.toLowerCase();
+      let cls = 'badge';
+      if (['aktif','selesai','disetujui'].some((word) => lower.includes(word))) cls += ' success';
+      if (['menunggu','diproses'].some((word) => lower.includes(word))) cls += ' warning';
+      if (['ditolak','dibatalkan','nonaktif'].some((word) => lower.includes(word))) cls += ' danger';
+      return `<span class="${cls}">${escapeHtml(value)}</span>`;
+    }
+  </script>
+</body>
+</html>
