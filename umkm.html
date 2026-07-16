@@ -1,0 +1,1854 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b3b25">
+  <meta name="description" content="Portal UMKM Bank Sampah Kutanegara.">
+  <meta name="bank-sampah-api" content="">
+  <title>Portal UMKM | Bank Sampah Kutanegara</title>
+  <link rel="stylesheet" href="css/umkm.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-mark">♻</div>
+    <strong>Menyiapkan portal Anda</strong>
+    <p>Data usaha sedang dimuat dengan aman.</p>
+    <span class="loading-line"></span>
+  </div>
+
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="Navigasi UMKM">
+      <a class="sidebar-brand" href="umkm.html">
+        <span class="sidebar-logo" aria-hidden="true">♻</span>
+        <span><strong>Bank Sampah</strong><small>Kutanegara</small></span>
+      </a>
+
+      <div class="sidebar-profile">
+        <span id="sidebarAvatar" class="profile-avatar">U</span>
+        <span><strong id="sidebarName">Nama UMKM</strong><small>Portal usaha</small></span>
+      </div>
+
+      <p class="nav-label">Ringkasan usaha</p>
+      <nav class="nav-list">
+        <button class="nav-item is-active" type="button" data-view="dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
+        <button class="nav-item" type="button" data-view="laporan"><span class="nav-icon">▤</span><span>Laporan PDF</span></button>
+      </nav>
+
+      <p class="nav-label">Aktivitas saya</p>
+      <nav class="nav-list">
+        <button class="nav-item" type="button" data-view="pengajuan"><span class="nav-icon">＋</span><span>Pengajuan</span><span id="navSubmissionCount" class="nav-count warning">0</span></button>
+        <button class="nav-item" type="button" data-view="setoran"><span class="nav-icon">⇩</span><span>Riwayat Setoran</span></button>
+        <button class="nav-item" type="button" data-view="pencairan"><span class="nav-icon">¤</span><span>Pencairan</span><span id="navWithdrawalCount" class="nav-count">0</span></button>
+        <button class="nav-item" type="button" data-view="profil"><span class="nav-icon">◎</span><span>Profil & Akun</span></button>
+      </nav>
+
+      <div class="privacy-note">
+        <span>✓</span>
+        <p><strong>Data usaha</strong><small>Grafik dan transaksi hanya berasal dari UMKM ini.</small></p>
+      </div>
+
+      <div class="sidebar-footer">
+        <button type="button" onclick="logoutMember()"><span>↪</span>Keluar dari portal</button>
+        <small>Bank Sampah Kutanegara · <span id="sidebarYear"></span></small>
+      </div>
+    </aside>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Buka menu">☰</button>
+          <div class="page-heading">
+            <span id="pageEyebrow">Ringkasan usaha</span>
+            <h1 id="pageTitle">Dashboard</h1>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button id="apiStatusButton" class="api-pill is-checking" type="button" onclick="refreshCurrentView()">
+            <span></span><b id="apiStatusText">Memuat data...</b>
+          </button>
+          <button class="icon-button refresh-button" type="button" onclick="refreshCurrentView()" title="Muat ulang">↻</button>
+          <button class="user-menu" type="button" onclick="navigateTo('profil')">
+            <span id="topbarAvatar" class="profile-avatar small">U</span>
+            <span><strong id="topbarName">Nama UMKM</strong><small>UMKM</small></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="view-dashboard" class="view is-active">
+          <div class="welcome-card">
+            <div>
+              <span class="welcome-kicker">Kontribusi hijau usaha Anda</span>
+              <h2>Halo, <span id="welcomeName">UMKM</span>!</h2>
+              <p>Pantau sampah usaha yang sudah disetor, nilai tabungan, dan perkembangan kontribusi UMKM Anda di Bank Sampah Kutanegara.</p>
+              <div class="welcome-actions">
+                <button class="button button-light" type="button" onclick="openSubmissionModal()">＋ Ajukan Setoran</button>
+                <button class="button button-ghost-light" type="button" onclick="navigateTo('laporan')">↓ Unduh Laporan</button>
+              </div>
+            </div>
+            <div class="balance-card">
+              <span>Saldo tersedia</span>
+              <strong id="heroBalance">Rp0</strong>
+              <small id="heroBalanceNote">Dihitung dari setoran terverifikasi</small>
+            </div>
+          </div>
+
+          <div class="dashboard-controls">
+            <div id="dashboardPeriodTabs" class="period-tabs">
+              <button type="button" data-period="today">Hari ini</button>
+              <button type="button" data-period="week">Minggu ini</button>
+              <button class="is-active" type="button" data-period="month">Bulan ini</button>
+              <button type="button" data-period="year">Tahun ini</button>
+            </div>
+            <label class="compact-field">Tanggal acuan<input id="dashboardReferenceDate" type="date"></label>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card green">
+              <span class="metric-icon">♻</span>
+              <div><small>Total berat</small><strong id="metricWeight">0 kg</strong><p id="metricWeightNote">Belum ada setoran</p></div>
+            </article>
+            <article class="metric-card blue">
+              <span class="metric-icon">¤</span>
+              <div><small>Nilai setoran</small><strong id="metricValue">Rp0</strong><p id="metricValueNote">Transaksi terverifikasi</p></div>
+            </article>
+            <article class="metric-card amber">
+              <span class="metric-icon">⇩</span>
+              <div><small>Transaksi</small><strong id="metricTransactions">0</strong><p id="metricTransactionsNote">Pada periode ini</p></div>
+            </article>
+            <article class="metric-card purple">
+              <span class="metric-icon">＋</span>
+              <div><small>Pengajuan aktif</small><strong id="metricSubmissions">0</strong><p>Menunggu verifikasi admin</p></div>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel chart-panel">
+              <div class="panel-heading">
+                <div><span class="panel-kicker">Grafik usaha</span><h3 id="trendTitle">Berat sampah bulan ini</h3></div>
+                <span id="dashboardPeriodLabel" class="soft-badge">-</span>
+              </div>
+              <div class="chart-box"><canvas id="personalTrendChart"></canvas></div>
+            </article>
+            <article class="panel chart-panel">
+              <div class="panel-heading">
+                <div><span class="panel-kicker">Komposisi usaha</span><h3>Jenis sampah UMKM Anda</h3></div>
+                <span class="soft-badge green">Terverifikasi</span>
+              </div>
+              <div class="chart-box doughnut"><canvas id="personalTypeChart"></canvas></div>
+              <div id="topTypeSummary" class="chart-summary"></div>
+            </article>
+          </div>
+
+          <div class="dashboard-grid lower">
+            <article class="panel">
+              <div class="panel-heading">
+                <div><span class="panel-kicker">Aktivitas terbaru</span><h3>Setoran Terakhir</h3></div>
+                <button class="text-button" type="button" onclick="navigateTo('setoran')">Lihat semua →</button>
+              </div>
+              <div id="recentDeposits" class="activity-list"></div>
+            </article>
+            <article class="panel impact-panel">
+              <div class="panel-heading">
+                <div><span class="panel-kicker">Pencapaian usaha</span><h3>Ringkasan Sepanjang Waktu</h3></div>
+              </div>
+              <div id="lifetimeImpact" class="impact-stats"></div>
+              <p class="impact-message">Setiap setoran usaha yang tercatat ikut menjaga lingkungan Kutanegara lebih bersih.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-pengajuan" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Setor sampah</span><h2>Pengajuan Setoran</h2><p>Ajukan sampah untuk diantar sendiri atau dijemput pengelola.</p></div>
+            <button class="button" type="button" onclick="openSubmissionModal()">＋ Buat Pengajuan</button>
+          </div>
+
+          <div class="summary-grid">
+            <article><span>Semua pengajuan</span><strong id="submissionTotal">0</strong></article>
+            <article class="warning"><span>Menunggu</span><strong id="submissionWaiting">0</strong></article>
+            <article class="success"><span>Terverifikasi</span><strong id="submissionVerified">0</strong></article>
+            <article class="danger"><span>Ditolak</span><strong id="submissionRejected">0</strong></article>
+          </div>
+
+          <article class="panel data-panel">
+            <div class="data-toolbar">
+              <div class="search-box"><span>⌕</span><input id="submissionSearch" type="search" placeholder="Cari jenis sampah atau metode..."></div>
+              <select id="submissionStatus" class="select-control" aria-label="Filter status pengajuan">
+                <option value="">Semua status</option>
+                <option value="MENUNGGU">Menunggu</option>
+                <option value="TERVERIFIKASI">Terverifikasi</option>
+                <option value="DITOLAK">Ditolak</option>
+              </select>
+              <button class="button button-outline" type="button" onclick="loadMemberData()">↻ Muat ulang</button>
+            </div>
+            <div id="submissionTable" class="table-container"></div>
+          </article>
+        </section>
+
+        <section id="view-setoran" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Transaksi usaha</span><h2>Riwayat Setoran</h2><p>Daftar setoran milik UMKM Anda, termasuk berat, nilai, dan statusnya.</p></div>
+            <button class="button button-outline" type="button" onclick="navigateTo('laporan')">↓ Laporan PDF</button>
+          </div>
+
+          <div class="summary-grid">
+            <article><span>Total transaksi</span><strong id="depositTotal">0</strong></article>
+            <article class="success"><span>Total berat valid</span><strong id="depositWeight">0 kg</strong></article>
+            <article class="blue"><span>Total nilai valid</span><strong id="depositValue">Rp0</strong></article>
+            <article class="warning"><span>Jenis terbanyak</span><strong id="depositTopType">-</strong></article>
+          </div>
+
+          <article class="panel data-panel">
+            <div class="data-toolbar">
+              <div class="search-box"><span>⌕</span><input id="depositSearch" type="search" placeholder="Cari jenis sampah atau tanggal..."></div>
+              <select id="depositStatus" class="select-control" aria-label="Filter status setoran">
+                <option value="">Semua status</option>
+                <option value="TERVERIFIKASI">Terverifikasi</option>
+                <option value="DIBATALKAN">Dibatalkan</option>
+              </select>
+              <button class="button button-outline" type="button" onclick="loadMemberData()">↻ Muat ulang</button>
+            </div>
+            <div id="depositTable" class="table-container"></div>
+          </article>
+        </section>
+
+        <section id="view-pencairan" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Tabungan sampah</span><h2>Pencairan Saldo</h2><p>Ajukan pencairan dan pantau keputusan dari pengelola.</p></div>
+            <button class="button button-blue" type="button" onclick="openWithdrawalModal()">＋ Ajukan Pencairan</button>
+          </div>
+
+          <div class="withdrawal-balance panel">
+            <div><span>Saldo tercatat</span><strong id="withdrawalBalance">Rp0</strong><small>Setoran valid dikurangi pencairan disetujui</small></div>
+            <div><span>Masih diajukan</span><strong id="withdrawalPending">Rp0</strong><small>Nominal yang sedang menunggu keputusan</small></div>
+            <div class="available"><span>Dapat diajukan</span><strong id="withdrawalAvailable">Rp0</strong><small>Saldo setelah dikurangi pengajuan aktif</small></div>
+          </div>
+
+          <article class="panel data-panel">
+            <div class="data-toolbar">
+              <div class="search-box"><span>⌕</span><input id="withdrawalSearch" type="search" placeholder="Cari nominal, metode, atau catatan..."></div>
+              <select id="withdrawalStatus" class="select-control" aria-label="Filter status pencairan">
+                <option value="">Semua status</option>
+                <option value="DIAJUKAN">Diajukan</option>
+                <option value="DISETUJUI">Disetujui</option>
+                <option value="DITOLAK">Ditolak</option>
+                <option value="DIBATALKAN">Dibatalkan</option>
+              </select>
+              <button class="button button-outline" type="button" onclick="loadMemberData()">↻ Muat ulang</button>
+            </div>
+            <div id="withdrawalTable" class="table-container"></div>
+          </article>
+        </section>
+
+        <section id="view-laporan" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Dokumen usaha</span><h2>Laporan PDF UMKM</h2><p>Unduh bukti setoran, pengajuan, dan pencairan milik UMKM Anda dalam satu dokumen.</p></div>
+          </div>
+
+          <div class="report-hero panel">
+            <div>
+              <span class="panel-kicker">Atur periode dokumen</span>
+              <h3>Laporan Aktivitas UMKM</h3>
+              <p>Data laporan tidak mencampurkan transaksi UMKM lain. Setoran pada ringkasan hanya menghitung transaksi terverifikasi.</p>
+            </div>
+            <div class="report-controls">
+              <label>Periode
+                <select id="reportPeriod" class="select-control">
+                  <option value="today">Hari ini</option>
+                  <option value="week">Minggu ini</option>
+                  <option value="month" selected>Bulan ini</option>
+                  <option value="year">Tahun ini</option>
+                  <option value="all">Semua data</option>
+                </select>
+              </label>
+              <label>Tanggal acuan<input id="reportReferenceDate" class="input-control" type="date"></label>
+              <button id="downloadReportButton" class="button" type="button" onclick="downloadPersonalReport()">↓ Unduh PDF UMKM</button>
+            </div>
+          </div>
+
+          <div class="report-stat-grid">
+            <article><span>Total berat</span><strong id="reportWeight">0 kg</strong><small>Setoran terverifikasi</small></article>
+            <article><span>Total nilai</span><strong id="reportValue">Rp0</strong><small>Nilai setoran pada periode</small></article>
+            <article><span>Pengajuan</span><strong id="reportSubmissions">0</strong><small>Semua status</small></article>
+            <article><span>Pencairan</span><strong id="reportWithdrawals">0</strong><small>Semua status</small></article>
+          </div>
+
+          <article class="panel report-preview-panel">
+            <div class="panel-heading">
+              <div><span class="panel-kicker">Pratinjau</span><h3 id="reportPreviewTitle">Ringkasan bulan ini</h3></div>
+              <span id="reportTransactionCount" class="soft-badge">0 transaksi</span>
+            </div>
+            <div id="reportPreview" class="report-preview"></div>
+          </article>
+        </section>
+
+        <section id="view-profil" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Data keanggotaan</span><h2>Profil & Akun</h2><p>Periksa data UMKM, penanggung jawab, dan keamanan akses akun.</p></div>
+          </div>
+
+          <div class="profile-layout">
+            <article class="panel profile-card">
+              <div class="profile-cover"></div>
+              <div class="profile-main">
+                <span id="profileAvatar" class="profile-large-avatar">U</span>
+                <div><h3 id="profileName">Nama UMKM</h3><p><span class="status-dot"></span> Anggota aktif · UMKM</p></div>
+              </div>
+              <div id="profileDetails" class="detail-list"></div>
+              <div class="profile-notice"><span>i</span><p>Perubahan nama, alamat, atau nomor HP dilakukan oleh admin agar data tetap terverifikasi.</p></div>
+            </article>
+
+            <article class="panel security-card">
+              <div class="panel-heading"><div><span class="panel-kicker">Keamanan</span><h3>Ubah Password</h3></div><span id="accountAccessBadge" class="soft-badge green">Akun aktif</span></div>
+              <form id="passwordForm" class="form-grid" novalidate>
+                <label class="field full"><span>Password saat ini</span><input id="currentPassword" class="input-control" type="password" autocomplete="current-password" required></label>
+                <label class="field"><span>Password baru</span><input id="newPassword" class="input-control" type="password" minlength="6" autocomplete="new-password" required><small>Minimal 6 karakter.</small></label>
+                <label class="field"><span>Ulangi password baru</span><input id="confirmPassword" class="input-control" type="password" minlength="6" autocomplete="new-password" required></label>
+                <div class="field full"><button id="passwordButton" class="button button-blue" type="submit">Simpan Password Baru</button></div>
+              </form>
+              <div class="security-info">
+                <span>▦</span>
+                <div><strong>Status akses QR</strong><p id="profileQrStatus">Memeriksa status QR...</p></div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="submissionModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="submissionModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <div><span class="panel-kicker">Setor sampah</span><h3 id="submissionModalTitle">Buat Pengajuan Baru</h3></div>
+        <button class="modal-close" type="button" onclick="closeModal('submissionModal')" aria-label="Tutup">×</button>
+      </div>
+      <form id="submissionForm">
+        <div class="modal-body form-grid">
+          <label class="field full"><span>Jenis sampah</span><select id="submissionType" class="select-control" required></select></label>
+          <label class="field"><span>Perkiraan berat (kg)</span><input id="submissionWeight" class="input-control" type="number" min="0.01" step="0.01" placeholder="Contoh: 2.5" required></label>
+          <label class="field"><span>Metode setor</span>
+            <select id="submissionMethod" class="select-control" required>
+              <option value="ANTAR_MANDIRI">Antar mandiri</option>
+              <option value="JEMPUT">Minta dijemput</option>
+            </select>
+          </label>
+          <label id="pickupAddressField" class="field full is-hidden"><span>Alamat penjemputan</span><textarea id="submissionAddress" class="textarea-control" rows="3" placeholder="Tulis alamat lengkap atau patokan lokasi"></textarea></label>
+          <label class="field"><span>Jadwal yang diharapkan</span><input id="submissionSchedule" class="input-control" type="datetime-local"></label>
+          <label class="field full"><span>Catatan</span><textarea id="submissionNote" class="textarea-control" rows="3" placeholder="Keterangan kondisi sampah atau informasi tambahan"></textarea></label>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" type="button" onclick="closeModal('submissionModal')">Batal</button>
+          <button id="submissionSubmitButton" class="button" type="submit">Kirim Pengajuan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="withdrawalModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="withdrawalModalTitle">
+    <div class="modal compact-modal">
+      <div class="modal-header">
+        <div><span class="panel-kicker">Tabungan sampah</span><h3 id="withdrawalModalTitle">Ajukan Pencairan</h3></div>
+        <button class="modal-close" type="button" onclick="closeModal('withdrawalModal')" aria-label="Tutup">×</button>
+      </div>
+      <form id="withdrawalForm">
+        <div class="modal-body form-grid">
+          <div class="available-callout field full"><span>Dapat diajukan</span><strong id="modalAvailableBalance">Rp0</strong></div>
+          <label class="field full"><span>Jumlah pencairan</span><input id="withdrawalAmount" class="input-control" type="number" min="1" step="1" placeholder="Masukkan nominal rupiah" required></label>
+          <label class="field full"><span>Metode penerimaan</span>
+            <select id="withdrawalMethod" class="select-control">
+              <option value="TUNAI">Tunai di bank sampah</option>
+              <option value="TRANSFER">Transfer sesuai data pengelola</option>
+            </select>
+          </label>
+          <label class="field full"><span>Catatan</span><textarea id="withdrawalNote" class="textarea-control" rows="3" placeholder="Informasi tambahan bila diperlukan"></textarea></label>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" type="button" onclick="closeModal('withdrawalModal')">Batal</button>
+          <button id="withdrawalSubmitButton" class="button button-blue" type="submit">Kirim Pengajuan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+
+    const state = {
+      currentView: 'dashboard',
+      member: null,
+      user: null,
+      token: '',
+      saldo: null,
+      types: [],
+      deposits: [],
+      submissions: [],
+      withdrawals: [],
+      dashboardPeriod: 'month',
+      pageSize: 10,
+      pagination: {
+        submissions: 1,
+        deposits: 1,
+        withdrawals: 1
+      },
+      trendChart: null,
+      typeChart: null,
+      apiReady: false
+    };
+
+    const pageMeta = {
+      dashboard: ['Dashboard', 'Ringkasan usaha'],
+      pengajuan: ['Pengajuan Setoran', 'Aktivitas saya'],
+      setoran: ['Riwayat Setoran', 'Transaksi usaha'],
+      pencairan: ['Pencairan Saldo', 'Tabungan sampah'],
+      laporan: ['Laporan PDF UMKM', 'Dokumen usaha'],
+      profil: ['Profil & Akun', 'Data keanggotaan']
+    };
+
+    document.addEventListener('DOMContentLoaded', initializePortal);
+
+    async function initializePortal() {
+      setDefaultDates();
+      bindNavigation();
+      bindFilters();
+      bindForms();
+      document.getElementById('sidebarYear').textContent = new Date().getFullYear();
+
+      try {
+        await authenticateMember();
+        renderIdentity();
+        setApiState(true);
+        renderAll();
+      } catch (error) {
+        setApiState(false);
+        hideLoadingScreen();
+        showToast(error.message || 'Portal UMKM gagal dibuka.', 'error');
+        showAccessError(error.message || 'Sesi UMKM tidak ditemukan.');
+      }
+    }
+
+    function bindNavigation() {
+      document.querySelectorAll('.nav-item').forEach(function (button) {
+        button.addEventListener('click', function () {
+          navigateTo(button.dataset.view);
+        });
+      });
+      document.getElementById('menuButton').addEventListener('click', openSidebar);
+      document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          document.querySelectorAll('.modal-backdrop.is-open').forEach(function (modal) {
+            closeModal(modal.id);
+          });
+        }
+      });
+    }
+
+    function bindFilters() {
+      bindPeriodTabs('dashboardPeriodTabs', function (period) {
+        state.dashboardPeriod = period;
+        renderDashboard();
+      });
+      document.getElementById('dashboardReferenceDate').addEventListener('change', renderDashboard);
+
+      bindPagedFilters(['submissionSearch', 'submissionStatus'], 'submissions', renderSubmissionTable);
+      bindPagedFilters(['depositSearch', 'depositStatus'], 'deposits', renderDepositTable);
+      bindPagedFilters(['withdrawalSearch', 'withdrawalStatus'], 'withdrawals', renderWithdrawalTable);
+
+      document.getElementById('reportPeriod').addEventListener('change', refreshReportPreview);
+      document.getElementById('reportReferenceDate').addEventListener('change', refreshReportPreview);
+      document.getElementById('submissionMethod').addEventListener('change', updatePickupFields);
+    }
+
+    function bindForms() {
+      document.getElementById('submissionForm').addEventListener('submit', submitSubmission);
+      document.getElementById('withdrawalForm').addEventListener('submit', submitWithdrawal);
+      document.getElementById('passwordForm').addEventListener('submit', submitPasswordChange);
+      document.querySelectorAll('.modal-backdrop').forEach(function (modal) {
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) closeModal(modal.id);
+        });
+      });
+    }
+
+    function bindPeriodTabs(containerId, callback) {
+      document.querySelectorAll('#' + containerId + ' [data-period]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          document.querySelectorAll('#' + containerId + ' [data-period]').forEach(function (item) {
+            item.classList.toggle('is-active', item === button);
+          });
+          callback(button.dataset.period);
+        });
+      });
+    }
+
+    function bindPagedFilters(ids, pageKey, renderer) {
+      ids.forEach(function (id) {
+        const element = document.getElementById(id);
+        const eventName = element.tagName === 'INPUT' ? 'input' : 'change';
+        element.addEventListener(eventName, function () {
+          resetPagination(pageKey);
+          renderer();
+        });
+      });
+    }
+
+    async function authenticateMember() {
+      const params = new URLSearchParams(window.location.search);
+      const queryToken = extractAccessToken(params.get('token') || params.get('access') || '');
+      const savedToken = sessionStorage.getItem('BANK_SAMPAH_UMKM_TOKEN') || '';
+      const savedSession = parseJson(sessionStorage.getItem('BANK_SAMPAH_UMKM_SESSION'));
+      state.token = queryToken || savedToken;
+
+      if (state.token) {
+        const portal = await apiGet('portal.anggota', { token: state.token });
+        assignPortalData(portal);
+        ensureCommunityRole();
+        await loadPrivateCollections();
+        sessionStorage.setItem('BANK_SAMPAH_UMKM_TOKEN', state.token);
+        saveMemberSession('QR');
+        return;
+      }
+
+      if (savedSession) {
+        state.member = savedSession.anggota || savedSession.member || null;
+        state.user = savedSession.user || null;
+        ensureCommunityRole();
+        await loadMemberData();
+        return;
+      }
+
+      throw new Error('Sesi UMKM tidak ditemukan. Silakan masuk kembali menggunakan akun atau QR usaha Anda.');
+    }
+
+    function ensureCommunityRole() {
+      const role = normalize(
+        (state.member && (state.member.KATEGORI || state.member.ROLE)) ||
+        (state.user && state.user.ROLE) ||
+        ''
+      );
+      if (role !== 'UMKM') {
+        throw new Error('Halaman ini khusus akun UMKM.');
+      }
+      if (!state.member || normalize(state.member.STATUS || state.member.STATUS_ANGGOTA) === 'NONAKTIF') {
+        throw new Error('Profil UMKM tidak ditemukan atau sedang tidak aktif.');
+      }
+    }
+
+    function assignPortalData(portal) {
+      state.member = portal.anggota || state.member;
+      state.saldo = portal.saldo || state.saldo;
+      state.types = portal.jenisSampah || [];
+      state.deposits = privateRows(portal.riwayatSetoran || []);
+      state.submissions = privateRows(portal.pengajuan || []);
+      state.withdrawals = privateRows(portal.pencairan || []);
+    }
+
+    async function loadPrivateCollections() {
+      const id = memberId();
+      if (!id) throw new Error('Identitas anggota tidak tersedia.');
+      const data = await Promise.all([
+        apiGet('jenis.list', { activeOnly: true, limit: 500 }),
+        apiGet('setoran.list', { idAnggota: id, limit: 500 }),
+        apiGet('pengajuan.list', { idAnggota: id, limit: 500 }),
+        apiGet('pencairan.list', { idAnggota: id, limit: 500 })
+      ]);
+      state.types = data[0] || [];
+      state.deposits = privateRows(data[1] || []);
+      state.submissions = privateRows(data[2] || []);
+      state.withdrawals = privateRows(data[3] || []);
+    }
+
+    function saveMemberSession(method) {
+      sessionStorage.setItem('BANK_SAMPAH_UMKM_SESSION', JSON.stringify({
+        role: 'UMKM',
+        method: method || 'SESSION',
+        user: state.user || null,
+        anggota: state.member,
+        loggedInAt: new Date().toISOString()
+      }));
+    }
+
+    async function loadMemberData() {
+      setApiState(null);
+      try {
+        if (state.token) {
+          const portal = await apiGet('portal.anggota', { token: state.token });
+          assignPortalData(portal);
+          await loadPrivateCollections();
+        } else {
+          const id = memberId();
+          if (!id) throw new Error('Identitas anggota tidak tersedia.');
+          const data = await Promise.all([
+            apiGet('anggota.get', { idAnggota: id }),
+            apiGet('jenis.list', { activeOnly: true, limit: 500 }),
+            apiGet('setoran.list', { idAnggota: id, limit: 500 }),
+            apiGet('pengajuan.list', { idAnggota: id, limit: 500 }),
+            apiGet('pencairan.list', { idAnggota: id, limit: 500 })
+          ]);
+          state.member = data[0];
+          state.types = data[1] || [];
+          state.deposits = privateRows(data[2] || []);
+          state.submissions = privateRows(data[3] || []);
+          state.withdrawals = privateRows(data[4] || []);
+          state.saldo = {
+            saldo: Number(state.member.SALDO_RP || state.member.SALDO || 0),
+            totalSetoran: sum(verifiedDeposits(), function (item) { return Number(item.TOTAL_RP || item.TOTAL_NILAI || 0); }),
+            totalPencairan: sum(state.withdrawals.filter(function (item) { return normalize(item.STATUS || item.STATUS_PENCAIRAN) === 'DISETUJUI'; }), function (item) { return Number(item.JUMLAH_RP || item.NOMINAL || 0); })
+          };
+        }
+        ensureCommunityRole();
+        saveMemberSession(state.token ? 'QR' : 'PASSWORD');
+        setApiState(true);
+        resetPagination('submissions', 'deposits', 'withdrawals');
+        renderIdentity();
+        renderAll();
+        hideLoadingScreen();
+      } catch (error) {
+        setApiState(false);
+        hideLoadingScreen();
+        showToast(error.message, 'error');
+        throw error;
+      }
+    }
+
+    async function refreshCurrentView() {
+      try {
+        await loadMemberData();
+        renderView(state.currentView);
+        showToast('Data UMKM berhasil diperbarui.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    function renderAll() {
+      updateNavigationCounts();
+      populateTypeOptions();
+      renderDashboard();
+      renderSubmissionTable();
+      renderDepositTable();
+      renderWithdrawalTable();
+      refreshReportPreview();
+      renderProfile();
+      hideLoadingScreen();
+    }
+
+    function renderView(view) {
+      if (view === 'dashboard') renderDashboard();
+      if (view === 'pengajuan') renderSubmissionTable();
+      if (view === 'setoran') renderDepositTable();
+      if (view === 'pencairan') renderWithdrawalTable();
+      if (view === 'laporan') refreshReportPreview();
+      if (view === 'profil') renderProfile();
+    }
+
+    function navigateTo(view) {
+      if (!pageMeta[view]) return;
+      state.currentView = view;
+      document.querySelectorAll('.view').forEach(function (element) {
+        element.classList.toggle('is-active', element.id === 'view-' + view);
+      });
+      document.querySelectorAll('.nav-item').forEach(function (button) {
+        button.classList.toggle('is-active', button.dataset.view === view);
+      });
+      document.getElementById('pageTitle').textContent = pageMeta[view][0];
+      document.getElementById('pageEyebrow').textContent = pageMeta[view][1];
+      renderView(view);
+      closeSidebar();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderIdentity() {
+      if (!state.member) return;
+      const name = memberName();
+      const initial = name.charAt(0).toUpperCase() || 'U';
+      ['sidebarAvatar', 'topbarAvatar', 'profileAvatar'].forEach(function (id) {
+        document.getElementById(id).textContent = initial;
+      });
+      document.getElementById('sidebarName').textContent = name;
+      document.getElementById('topbarName').textContent = name;
+      document.getElementById('welcomeName').textContent = name;
+    }
+
+    function updateNavigationCounts() {
+      const waiting = state.submissions.filter(function (item) {
+        return normalize(item.STATUS || item.STATUS_PENGAJUAN) === 'MENUNGGU';
+      }).length;
+      const pending = state.withdrawals.filter(function (item) {
+        return normalize(item.STATUS || item.STATUS_PENCAIRAN) === 'DIAJUKAN';
+      }).length;
+      document.getElementById('navSubmissionCount').textContent = waiting;
+      document.getElementById('navWithdrawalCount').textContent = pending;
+    }
+
+    function renderDashboard() {
+      if (!state.member) return;
+      const reference = document.getElementById('dashboardReferenceDate').valueAsDate || new Date();
+      const range = getPeriodRange(state.dashboardPeriod, reference);
+      const rows = verifiedDeposits(range);
+      const summary = summarizeDeposits(rows);
+      const waiting = state.submissions.filter(function (item) {
+        return normalize(item.STATUS || item.STATUS_PENGAJUAN) === 'MENUNGGU';
+      }).length;
+      const balance = currentBalance();
+
+      document.getElementById('heroBalance').textContent = formatRupiah(balance);
+      document.getElementById('heroBalanceNote').textContent = pendingWithdrawalTotal() > 0
+        ? formatRupiah(pendingWithdrawalTotal()) + ' sedang diajukan'
+        : 'Dihitung dari transaksi terverifikasi';
+      document.getElementById('metricWeight').textContent = formatNumber(summary.totalWeight, 2) + ' kg';
+      document.getElementById('metricWeightNote').textContent = summary.topType ? 'Terbanyak: ' + summary.topType.name : 'Belum ada setoran';
+      document.getElementById('metricValue').textContent = formatRupiah(summary.totalValue);
+      document.getElementById('metricValueNote').textContent = summary.count + ' transaksi terverifikasi';
+      document.getElementById('metricTransactions').textContent = summary.count;
+      document.getElementById('metricTransactionsNote').textContent = range.label;
+      document.getElementById('metricSubmissions').textContent = waiting;
+      document.getElementById('dashboardPeriodLabel').textContent = range.label;
+      document.getElementById('trendTitle').textContent = 'Berat sampah ' + periodName(state.dashboardPeriod).toLowerCase();
+
+      renderPersonalCharts(rows, range);
+      renderRecentDeposits();
+      renderLifetimeImpact();
+    }
+
+    function renderPersonalCharts(rows, range) {
+      if (!window.Chart) return;
+      const points = buildTrendPoints(rows, state.dashboardPeriod, range);
+      const trendContext = document.getElementById('personalTrendChart');
+      if (state.trendChart) state.trendChart.destroy();
+      state.trendChart = new Chart(trendContext, {
+        type: 'line',
+        data: {
+          labels: points.map(function (item) { return item.label; }),
+          datasets: [{
+            label: 'Berat sampah',
+            data: points.map(function (item) { return item.value; }),
+            borderColor: '#16834a',
+            backgroundColor: 'rgba(22,131,74,.13)',
+            fill: true,
+            tension: .38,
+            pointRadius: points.length > 16 ? 0 : 3,
+            pointHoverRadius: 5,
+            borderWidth: 2.5
+          }]
+        },
+        options: chartOptions('kg')
+      });
+
+      const summary = summarizeDeposits(rows);
+      const typeRows = Object.values(summary.byType).sort(function (a, b) { return b.weight - a.weight; }).slice(0, 7);
+      const typeContext = document.getElementById('personalTypeChart');
+      if (state.typeChart) state.typeChart.destroy();
+      state.typeChart = new Chart(typeContext, {
+        type: 'doughnut',
+        data: {
+          labels: typeRows.length ? typeRows.map(function (item) { return item.name; }) : ['Belum ada data'],
+          datasets: [{
+            data: typeRows.length ? typeRows.map(function (item) { return item.weight; }) : [1],
+            backgroundColor: typeRows.length
+              ? ['#16834a', '#35b76b', '#79cc95', '#2563eb', '#f59e0b', '#8b5cf6', '#0ea5e9']
+              : ['#e7eee9'],
+            borderWidth: 0,
+            hoverOffset: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return ' ' + context.label + ': ' + formatNumber(context.raw, 2) + ' kg';
+                }
+              }
+            }
+          }
+        }
+      });
+
+      document.getElementById('topTypeSummary').innerHTML = typeRows.length
+        ? typeRows.slice(0, 3).map(function (item, index) {
+            return '<span><i style="background:' + ['#16834a', '#35b76b', '#79cc95'][index] + '"></i><b>' + escapeHtml(item.name) + '</b><small>' + formatNumber(item.weight, 2) + ' kg</small></span>';
+          }).join('')
+        : '<p class="empty-inline">Belum ada komposisi sampah pada periode ini.</p>';
+    }
+
+    function renderRecentDeposits() {
+      const rows = state.deposits.slice().sort(sortNewest('TANGGAL', 'TANGGAL_SETORAN')).slice(0, 5);
+      document.getElementById('recentDeposits').innerHTML = rows.length
+        ? rows.map(function (item) {
+            const status = normalize(item.STATUS || item.STATUS_TRANSAKSI);
+            return '<div class="activity-item"><span class="activity-icon">⇩</span><span><strong>' +
+              escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)) +
+              '</strong><small>' + formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN) + ' · ' +
+              escapeHtml(statusLabel(status)) + '</small></span><b>' +
+              formatNumber(item.BERAT_KG || item.BERAT, 2) + ' kg</b></div>';
+          }).join('')
+        : emptyState('Belum ada riwayat setoran.');
+    }
+
+    function renderLifetimeImpact() {
+      const summary = summarizeDeposits(verifiedDeposits());
+      const activeMonths = new Set(verifiedDeposits().map(function (item) {
+        const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+        return date ? date.getFullYear() + '-' + date.getMonth() : '';
+      }).filter(Boolean)).size;
+      document.getElementById('lifetimeImpact').innerHTML =
+        '<div><span>♻</span><strong>' + formatNumber(summary.totalWeight, 2) + ' kg</strong><small>Total sampah</small></div>' +
+        '<div><span>⇩</span><strong>' + summary.count + '</strong><small>Transaksi valid</small></div>' +
+        '<div><span>□</span><strong>' + activeMonths + '</strong><small>Bulan aktif</small></div>';
+    }
+
+    function renderSubmissionTable() {
+      const keyword = value('submissionSearch').toLowerCase();
+      const status = normalize(value('submissionStatus'));
+      const rows = state.submissions.filter(function (item) {
+        const itemStatus = normalize(item.STATUS || item.STATUS_PENGAJUAN);
+        const haystack = [
+          item.NAMA_SAMPAH,
+          typeName(item.JENIS_ID || item.ID_JENIS),
+          item.METODE_SETOR,
+          item.CATATAN,
+          formatDate(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN)
+        ].join(' ').toLowerCase();
+        return (!status || itemStatus === status) && (!keyword || haystack.indexOf(keyword) !== -1);
+      });
+      const paging = paginateRows('submissions', rows);
+
+      document.getElementById('submissionTotal').textContent = state.submissions.length;
+      document.getElementById('submissionWaiting').textContent = countStatus(state.submissions, 'MENUNGGU');
+      document.getElementById('submissionVerified').textContent = countStatus(state.submissions, 'TERVERIFIKASI');
+      document.getElementById('submissionRejected').textContent = countStatus(state.submissions, 'DITOLAK');
+
+      const table = tableHtml(
+        ['No.', 'Diajukan', 'Jenis Sampah', 'Perkiraan', 'Metode', 'Jadwal', 'Status', 'Catatan'],
+        paging.items.map(function (item, index) {
+          const itemStatus = normalize(item.STATUS || item.STATUS_PENGAJUAN);
+          return [
+            String(paging.start + index + 1),
+            formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN),
+            escapeHtml(item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)),
+            formatNumber(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT, 2) + ' kg',
+            escapeHtml(methodLabel(item.METODE_SETOR)),
+            item.JADWAL ? formatDateTime(item.JADWAL) : '-',
+            statusBadge(itemStatus),
+            escapeHtml(item.CATATAN || '-')
+          ];
+        })
+      );
+      document.getElementById('submissionTable').innerHTML = (rows.length ? table : emptyState('Pengajuan belum ditemukan.')) + paginationHtml(paging);
+    }
+
+    function renderDepositTable() {
+      const keyword = value('depositSearch').toLowerCase();
+      const status = normalize(value('depositStatus'));
+      const rows = state.deposits.filter(function (item) {
+        const itemStatus = normalize(item.STATUS || item.STATUS_TRANSAKSI);
+        const haystack = [
+          item.NAMA_SAMPAH_SNAPSHOT,
+          item.NAMA_SAMPAH,
+          typeName(item.JENIS_ID || item.ID_JENIS),
+          formatDate(item.TANGGAL || item.TANGGAL_SETORAN)
+        ].join(' ').toLowerCase();
+        return (!status || itemStatus === status) && (!keyword || haystack.indexOf(keyword) !== -1);
+      });
+      const paging = paginateRows('deposits', rows);
+      const summary = summarizeDeposits(verifiedDeposits());
+
+      document.getElementById('depositTotal').textContent = state.deposits.length;
+      document.getElementById('depositWeight').textContent = formatNumber(summary.totalWeight, 2) + ' kg';
+      document.getElementById('depositValue').textContent = formatRupiah(summary.totalValue);
+      document.getElementById('depositTopType').textContent = summary.topType ? summary.topType.name : '-';
+
+      const table = tableHtml(
+        ['No.', 'Tanggal', 'Jenis Sampah', 'Berat', 'Harga/kg', 'Nilai', 'Status'],
+        paging.items.map(function (item, index) {
+          return [
+            String(paging.start + index + 1),
+            formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN),
+            escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)),
+            formatNumber(item.BERAT_KG || item.BERAT, 2) + ' kg',
+            formatRupiah(item.HARGA_BELI_KG || item.HARGA_BELI_SAAT_TRANSAKSI),
+            formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI),
+            statusBadge(normalize(item.STATUS || item.STATUS_TRANSAKSI))
+          ];
+        })
+      );
+      document.getElementById('depositTable').innerHTML = (rows.length ? table : emptyState('Riwayat setoran belum ditemukan.')) + paginationHtml(paging);
+    }
+
+    function renderWithdrawalTable() {
+      const keyword = value('withdrawalSearch').toLowerCase();
+      const status = normalize(value('withdrawalStatus'));
+      const rows = state.withdrawals.filter(function (item) {
+        const itemStatus = normalize(item.STATUS || item.STATUS_PENCAIRAN);
+        const haystack = [
+          item.JUMLAH_RP,
+          item.NOMINAL,
+          item.CATATAN,
+          formatDate(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN)
+        ].join(' ').toLowerCase();
+        return (!status || itemStatus === status) && (!keyword || haystack.indexOf(keyword) !== -1);
+      });
+      const paging = paginateRows('withdrawals', rows);
+      const pending = pendingWithdrawalTotal();
+      const available = availableBalance();
+
+      document.getElementById('withdrawalBalance').textContent = formatRupiah(currentBalance());
+      document.getElementById('withdrawalPending').textContent = formatRupiah(pending);
+      document.getElementById('withdrawalAvailable').textContent = formatRupiah(available);
+
+      const table = tableHtml(
+        ['No.', 'Diajukan', 'Nominal', 'Metode / Catatan', 'Status', 'Diproses'],
+        paging.items.map(function (item, index) {
+          return [
+            String(paging.start + index + 1),
+            formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN),
+            formatRupiah(item.JUMLAH_RP || item.NOMINAL),
+            escapeHtml(item.CATATAN || '-'),
+            statusBadge(normalize(item.STATUS || item.STATUS_PENCAIRAN)),
+            item.DIPROSES_PADA || item.TANGGAL_PROSES ? formatDateTime(item.DIPROSES_PADA || item.TANGGAL_PROSES) : '-'
+          ];
+        })
+      );
+      document.getElementById('withdrawalTable').innerHTML = (rows.length ? table : emptyState('Belum ada pengajuan pencairan.')) + paginationHtml(paging);
+    }
+
+    function populateTypeOptions() {
+      const activeTypes = state.types.filter(function (item) {
+        return normalize(item.STATUS || item.STATUS_JENIS) === 'AKTIF';
+      });
+      document.getElementById('submissionType').innerHTML = activeTypes.length
+        ? '<option value="">Pilih jenis sampah</option>' + activeTypes.map(function (item) {
+            const id = item.JENIS_ID || item.ID_JENIS;
+            const name = item.NAMA_JENIS || item.NAMA_SAMPAH;
+            return '<option value="' + escapeHtml(id) + '">' + escapeHtml(name) + ' · ' + formatRupiah(item.HARGA_BELI_KG || item.HARGA_BELI) + '/kg</option>';
+          }).join('')
+        : '<option value="">Belum ada jenis aktif</option>';
+    }
+
+    function openSubmissionModal() {
+      populateTypeOptions();
+      document.getElementById('submissionForm').reset();
+      document.getElementById('submissionSchedule').min = localDateTimeValue(new Date());
+      updatePickupFields();
+      openModal('submissionModal');
+    }
+
+    function updatePickupFields() {
+      const pickup = value('submissionMethod') === 'JEMPUT';
+      document.getElementById('pickupAddressField').classList.toggle('is-hidden', !pickup);
+      document.getElementById('submissionAddress').required = pickup;
+      if (pickup && !value('submissionAddress') && state.member) {
+        document.getElementById('submissionAddress').value = memberAddress();
+      }
+    }
+
+    async function submitSubmission(event) {
+      event.preventDefault();
+      const button = document.getElementById('submissionSubmitButton');
+      if (!value('submissionType')) return showToast('Pilih jenis sampah terlebih dahulu.', 'warning');
+      if (value('submissionMethod') === 'JEMPUT' && !value('submissionAddress')) {
+        return showToast('Alamat penjemputan wajib diisi.', 'warning');
+      }
+
+      setButtonLoading(button, true, 'Mengirim...');
+      try {
+        const payload = {
+          idAnggota: memberId(),
+          idJenis: value('submissionType'),
+          perkiraanBeratKg: value('submissionWeight'),
+          metodeSetor: value('submissionMethod'),
+          alamatJemput: value('submissionAddress'),
+          jadwal: value('submissionSchedule'),
+          catatan: value('submissionNote')
+        };
+        if (state.token) payload.token = state.token;
+        await apiPost('pengajuan.create', payload);
+        closeModal('submissionModal');
+        await loadMemberData();
+        navigateTo('pengajuan');
+        showToast('Pengajuan setoran berhasil dikirim.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Kirim Pengajuan');
+      }
+    }
+
+    function openWithdrawalModal() {
+      const available = availableBalance();
+      document.getElementById('withdrawalForm').reset();
+      document.getElementById('modalAvailableBalance').textContent = formatRupiah(available);
+      document.getElementById('withdrawalAmount').max = String(Math.max(0, Math.floor(available)));
+      if (available <= 0) {
+        showToast('Belum ada saldo yang dapat diajukan.', 'warning');
+        return;
+      }
+      openModal('withdrawalModal');
+    }
+
+    async function submitWithdrawal(event) {
+      event.preventDefault();
+      const button = document.getElementById('withdrawalSubmitButton');
+      const amount = Number(value('withdrawalAmount'));
+      if (!amount || amount <= 0) return showToast('Masukkan nominal pencairan yang valid.', 'warning');
+      if (amount > availableBalance()) return showToast('Nominal melebihi saldo yang dapat diajukan.', 'warning');
+
+      setButtonLoading(button, true, 'Mengirim...');
+      try {
+        const payload = {
+          idAnggota: memberId(),
+          jumlahRp: amount,
+          metode: value('withdrawalMethod'),
+          catatan: value('withdrawalNote')
+        };
+        if (state.token) payload.token = state.token;
+        await apiPost('pencairan.create', payload);
+        closeModal('withdrawalModal');
+        await loadMemberData();
+        navigateTo('pencairan');
+        showToast('Pengajuan pencairan berhasil dikirim.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Kirim Pengajuan');
+      }
+    }
+
+    function refreshReportPreview() {
+      if (!state.member) return;
+      const range = getReportRange();
+      const deposits = verifiedDeposits(range);
+      const submissions = filterByRange(state.submissions, range, 'DIAJUKAN_PADA', 'TANGGAL_PENGAJUAN');
+      const withdrawals = filterByRange(state.withdrawals, range, 'DIAJUKAN_PADA', 'TANGGAL_PENGAJUAN');
+      const summary = summarizeDeposits(deposits);
+
+      document.getElementById('reportPreviewTitle').textContent = 'Ringkasan ' + range.label.toLowerCase();
+      document.getElementById('reportTransactionCount').textContent = deposits.length + ' transaksi';
+      document.getElementById('reportWeight').textContent = formatNumber(summary.totalWeight, 2) + ' kg';
+      document.getElementById('reportValue').textContent = formatRupiah(summary.totalValue);
+      document.getElementById('reportSubmissions').textContent = submissions.length;
+      document.getElementById('reportWithdrawals').textContent = withdrawals.length;
+
+      const types = Object.values(summary.byType).sort(function (a, b) { return b.weight - a.weight; });
+      document.getElementById('reportPreview').innerHTML = types.length
+        ? tableHtml(
+            ['No.', 'Jenis Sampah', 'Berat', 'Nilai', 'Porsi'],
+            types.map(function (item, index) {
+              return [
+                String(index + 1),
+                escapeHtml(item.name),
+                formatNumber(item.weight, 2) + ' kg',
+                formatRupiah(item.value),
+                (summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : '0') + '%'
+              ];
+            })
+          )
+        : emptyState('Belum ada setoran terverifikasi pada periode ini.');
+    }
+
+    function downloadPersonalReport() {
+      if (!window.jspdf || !window.jspdf.jsPDF) return showToast('Library PDF belum berhasil dimuat.', 'error');
+      const range = getReportRange();
+      const deposits = verifiedDeposits(range);
+      const submissions = filterByRange(state.submissions, range, 'DIAJUKAN_PADA', 'TANGGAL_PENGAJUAN');
+      const withdrawals = filterByRange(state.withdrawals, range, 'DIAJUKAN_PADA', 'TANGGAL_PENGAJUAN');
+      const summary = summarizeDeposits(deposits);
+      const jsPDF = window.jspdf.jsPDF;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const reportId = 'BSK-UMKM-' + formatDateCode(new Date()) + '-' + safeDocumentCode(memberId());
+      let y = 43;
+
+      doc.setFillColor(11, 59, 37);
+      doc.rect(0, 0, pageWidth, 34, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('BANK SAMPAH KUTANEGARA', 14, 14);
+      doc.setFontSize(10);
+      doc.text('LAPORAN AKTIVITAS UMKM', 14, 22);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('No. Dokumen: ' + reportId, 14, 28);
+      doc.text('Dibuat: ' + formatDateTime(new Date()), pageWidth - 14, 28, { align: 'right' });
+
+      const metadata = [
+        ['Nama UMKM', memberName()],
+        ['Penanggung jawab', responsibleName()],
+        ['Kategori', 'UMKM'],
+        ['Alamat', memberAddress() || '-'],
+        ['Periode laporan', range.label],
+        ['Status data', 'Setoran terverifikasi milik UMKM ini']
+      ];
+      doc.setTextColor(30, 41, 59);
+      doc.autoTable({
+        startY: y,
+        body: metadata,
+        theme: 'plain',
+        styles: { fontSize: 8, cellPadding: 1.4 },
+        columnStyles: { 0: { fontStyle: 'bold', textColor: [71, 85, 105], cellWidth: 36 } },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = doc.lastAutoTable.finalY + 6;
+      doc.autoTable({
+        startY: y,
+        head: [['TOTAL BERAT', 'TOTAL NILAI', 'SETORAN', 'SALDO SAAT INI']],
+        body: [[formatNumber(summary.totalWeight, 2) + ' kg', formatRupiah(summary.totalValue), String(deposits.length), formatRupiah(currentBalance())]],
+        theme: 'grid',
+        headStyles: { fillColor: [23, 115, 63], fontSize: 8, halign: 'center' },
+        bodyStyles: { fontSize: 10, fontStyle: 'bold', halign: 'center', cellPadding: 4 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = doc.lastAutoTable.finalY + 7;
+      const typeRows = Object.values(summary.byType).sort(function (a, b) { return b.weight - a.weight; }).map(function (item, index) {
+        return [
+          String(index + 1),
+          item.name,
+          formatNumber(item.weight, 2) + ' kg',
+          formatRupiah(item.value),
+          (summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : '0') + '%'
+        ];
+      });
+      addPdfSectionTitle(doc, 'Ringkasan per Jenis Sampah', y);
+      y += 3;
+      doc.autoTable({
+        startY: y,
+        head: [['No', 'Jenis Sampah', 'Berat', 'Nilai', 'Porsi']],
+        body: typeRows.length ? typeRows : [['-', 'Tidak ada data', '0 kg', 'Rp0', '0%']],
+        theme: 'striped',
+        headStyles: { fillColor: [226, 239, 231], textColor: [11, 59, 37] },
+        styles: { fontSize: 7.5, cellPadding: 2 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = ensurePdfSpace(doc, doc.lastAutoTable.finalY + 8, 45);
+      addPdfSectionTitle(doc, 'Rincian Setoran Terverifikasi', y);
+      y += 3;
+      const depositRows = deposits.map(function (item, index) {
+        return [
+          String(index + 1),
+          formatDate(item.TANGGAL || item.TANGGAL_SETORAN),
+          item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS),
+          formatNumber(item.BERAT_KG || item.BERAT, 2) + ' kg',
+          formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI)
+        ];
+      });
+      doc.autoTable({
+        startY: y,
+        head: [['No', 'Tanggal', 'Jenis Sampah', 'Berat', 'Nilai']],
+        body: depositRows.length ? depositRows : [['-', '-', 'Tidak ada setoran', '0 kg', 'Rp0']],
+        theme: 'grid',
+        headStyles: { fillColor: [11, 59, 37] },
+        styles: { fontSize: 7, cellPadding: 1.8 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = ensurePdfSpace(doc, doc.lastAutoTable.finalY + 8, 45);
+      addPdfSectionTitle(doc, 'Riwayat Pengajuan Setoran', y);
+      y += 3;
+      const submissionRows = submissions.map(function (item, index) {
+        return [
+          String(index + 1),
+          formatDate(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN),
+          item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS),
+          formatNumber(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT, 2) + ' kg',
+          methodLabel(item.METODE_SETOR),
+          statusLabel(item.STATUS || item.STATUS_PENGAJUAN)
+        ];
+      });
+      doc.autoTable({
+        startY: y,
+        head: [['No', 'Tanggal', 'Jenis', 'Perkiraan', 'Metode', 'Status']],
+        body: submissionRows.length ? submissionRows : [['-', '-', 'Tidak ada pengajuan', '-', '-', '-']],
+        theme: 'grid',
+        headStyles: { fillColor: [37, 99, 235] },
+        styles: { fontSize: 6.8, cellPadding: 1.6 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = ensurePdfSpace(doc, doc.lastAutoTable.finalY + 8, 45);
+      addPdfSectionTitle(doc, 'Riwayat Pencairan Saldo', y);
+      y += 3;
+      const withdrawalRows = withdrawals.map(function (item, index) {
+        return [
+          String(index + 1),
+          formatDate(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN),
+          formatRupiah(item.JUMLAH_RP || item.NOMINAL),
+          statusLabel(item.STATUS || item.STATUS_PENCAIRAN),
+          item.DIPROSES_PADA || item.TANGGAL_PROSES ? formatDate(item.DIPROSES_PADA || item.TANGGAL_PROSES) : '-'
+        ];
+      });
+      doc.autoTable({
+        startY: y,
+        head: [['No', 'Diajukan', 'Nominal', 'Status', 'Diproses']],
+        body: withdrawalRows.length ? withdrawalRows : [['-', '-', 'Rp0', 'Tidak ada pencairan', '-']],
+        theme: 'grid',
+        headStyles: { fillColor: [124, 58, 237] },
+        styles: { fontSize: 7, cellPadding: 1.8 },
+        margin: { left: 14, right: 14 }
+      });
+
+      y = ensurePdfSpace(doc, doc.lastAutoTable.finalY + 10, 36);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(71, 85, 105);
+      doc.text('Dokumen ini dihasilkan dari database Bank Sampah Kutanegara dan hanya memuat data UMKM pemilik laporan.', 14, y);
+      y += 12;
+      doc.setTextColor(30, 41, 59);
+      doc.text('Mengetahui,', 36, y);
+      doc.text('Penanggung Jawab UMKM,', pageWidth - 55, y);
+      y += 23;
+      doc.setFont('helvetica', 'bold');
+      doc.text('(________________________)', 36, y, { align: 'center' });
+      doc.text('(________________________)', pageWidth - 55, y, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.text('Admin Bank Sampah Kutanegara', 36, y + 5, { align: 'center' });
+      doc.text(responsibleName() + ' / ' + memberName(), pageWidth - 55, y + 5, { align: 'center' });
+
+      addPdfFooters(doc, reportId);
+      doc.save('Laporan_UMKM_' + safeFileName(memberName()) + '_' + safeFileName(range.label) + '.pdf');
+      showToast('Laporan PDF UMKM berhasil dibuat.');
+    }
+
+    function addPdfSectionTitle(doc, title, y) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(30, 41, 59);
+      doc.text(title, 14, y);
+    }
+
+    function ensurePdfSpace(doc, y, required) {
+      if (y + required > 278) {
+        doc.addPage();
+        return 20;
+      }
+      return y;
+    }
+
+    function addPdfFooters(doc, reportId) {
+      const pages = doc.getNumberOfPages();
+      for (let page = 1; page <= pages; page += 1) {
+        doc.setPage(page);
+        doc.setDrawColor(220, 231, 223);
+        doc.line(14, 286, 196, 286);
+        doc.setFontSize(7);
+        doc.setTextColor(100, 116, 105);
+        doc.text(reportId, 14, 291);
+        doc.text('Halaman ' + page + ' dari ' + pages, 196, 291, { align: 'right' });
+      }
+    }
+
+    function renderProfile() {
+      if (!state.member) return;
+      const name = memberName();
+      document.getElementById('profileName').textContent = name;
+      document.getElementById('profileDetails').innerHTML =
+        detailItem('Nama UMKM', memberName()) +
+        detailItem('Penanggung jawab', responsibleName()) +
+        detailItem('Nama anggota', state.member.NAMA || state.member.NAMA_ANGGOTA || '-') +
+        detailItem('Nomor HP', state.member.NO_HP || '-') +
+        detailItem('Alamat', memberAddress() || '-') +
+        detailItem('Terdaftar sejak', formatDate(state.member.TERDAFTAR_PADA)) +
+        detailItem('Saldo tercatat', formatRupiah(currentBalance())) +
+        detailItem('Status anggota', statusBadge(normalize(state.member.STATUS || state.member.STATUS_ANGGOTA)));
+      const qrStatus = normalize(state.member.QR_STATUS || 'NONAKTIF');
+      document.getElementById('profileQrStatus').textContent = qrStatus === 'AKTIF'
+        ? 'QR aktif dan dapat digunakan untuk masuk ke portal.'
+        : 'QR belum aktif. Hubungi admin untuk mengaktifkannya.';
+      document.getElementById('accountAccessBadge').textContent = normalize(state.member.STATUS || state.member.STATUS_ANGGOTA) === 'AKTIF' ? 'Akun aktif' : 'Akun nonaktif';
+    }
+
+    async function submitPasswordChange(event) {
+      event.preventDefault();
+      const currentPassword = value('currentPassword');
+      const newPassword = value('newPassword');
+      const confirmPassword = value('confirmPassword');
+      const userId = (state.user && (state.user.USER_ID || state.user.ID_USER)) || (state.member && state.member.USER_ID);
+      if (!userId) return showToast('ID akun tidak tersedia. Hubungi admin.', 'error');
+      if (newPassword.length < 6) return showToast('Password baru minimal 6 karakter.', 'warning');
+      if (newPassword !== confirmPassword) return showToast('Konfirmasi password baru tidak sama.', 'warning');
+
+      const button = document.getElementById('passwordButton');
+      setButtonLoading(button, true, 'Menyimpan...');
+      try {
+        await apiPost('auth.password.change', {
+          userId: userId,
+          oldPassword: currentPassword,
+          newPassword: newPassword
+        });
+        document.getElementById('passwordForm').reset();
+        showToast('Password berhasil diperbarui.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Simpan Password Baru');
+      }
+    }
+
+    function verifiedDeposits(range) {
+      return state.deposits.filter(function (item) {
+        const verified = normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI';
+        return isOwnRecord(item) && verified && (!range || dateInRange(item.TANGGAL || item.TANGGAL_SETORAN, range));
+      });
+    }
+
+    function privateRows(rows) {
+      return rows.filter(isOwnRecord);
+    }
+
+    function isOwnRecord(item) {
+      const recordMemberId = item && (item.ANGGOTA_ID || item.ID_ANGGOTA);
+      return !recordMemberId || String(recordMemberId) === String(memberId());
+    }
+
+    function summarizeDeposits(rows) {
+      const result = { count: rows.length, totalWeight: 0, totalValue: 0, byType: {}, topType: null };
+      rows.forEach(function (item) {
+        const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS);
+        const weight = Number(item.BERAT_KG || item.BERAT || 0);
+        const amount = Number(item.TOTAL_RP || item.TOTAL_NILAI || 0);
+        if (!result.byType[name]) result.byType[name] = { name: name, weight: 0, value: 0 };
+        result.byType[name].weight += weight;
+        result.byType[name].value += amount;
+        result.totalWeight += weight;
+        result.totalValue += amount;
+      });
+      result.totalWeight = round(result.totalWeight, 2);
+      result.totalValue = round(result.totalValue, 0);
+      result.topType = Object.values(result.byType).sort(function (a, b) { return b.weight - a.weight; })[0] || null;
+      return result;
+    }
+
+    function buildTrendPoints(rows, period, range) {
+      const points = [];
+      const values = {};
+      rows.forEach(function (item) {
+        const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+        if (!date) return;
+        let key = dateKey(date);
+        if (period === 'year') key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+        values[key] = (values[key] || 0) + Number(item.BERAT_KG || item.BERAT || 0);
+      });
+
+      if (period === 'today') {
+        for (let hour = 0; hour < 24; hour += 3) {
+          const key = dateKey(range.start) + '-' + String(hour).padStart(2, '0');
+          const total = rows.reduce(function (sumValue, item) {
+            const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+            return sumValue + (date && Math.floor(date.getHours() / 3) * 3 === hour ? Number(item.BERAT_KG || item.BERAT || 0) : 0);
+          }, 0);
+          points.push({ label: String(hour).padStart(2, '0') + '.00', value: round(total, 2), key: key });
+        }
+        return points;
+      }
+
+      if (period === 'year') {
+        for (let month = 0; month < 12; month += 1) {
+          const key = range.start.getFullYear() + '-' + String(month + 1).padStart(2, '0');
+          points.push({ label: monthShort(month), value: round(values[key] || 0, 2) });
+        }
+        return points;
+      }
+
+      const cursor = new Date(range.start);
+      while (cursor <= range.end) {
+        const key = dateKey(cursor);
+        const label = period === 'week' ? weekdayShort(cursor) : String(cursor.getDate());
+        points.push({ label: label, value: round(values[key] || 0, 2) });
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return points;
+    }
+
+    function chartOptions(unit) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return ' ' + formatNumber(context.raw, 2) + ' ' + unit;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#758277', font: { size: 10 } } },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(100,116,139,.12)' },
+            ticks: {
+              color: '#758277',
+              font: { size: 10 },
+              callback: function (value) { return formatNumber(value, 1) + ' ' + unit; }
+            }
+          }
+        }
+      };
+    }
+
+    function getPeriodRange(period, reference) {
+      const date = new Date(reference);
+      date.setHours(0, 0, 0, 0);
+      const start = new Date(date);
+      const end = new Date(date);
+      let label = periodName(period);
+
+      if (period === 'today') {
+        end.setHours(23, 59, 59, 999);
+        label = 'Hari ini, ' + formatDate(date);
+      } else if (period === 'week') {
+        const day = (date.getDay() + 6) % 7;
+        start.setDate(date.getDate() - day);
+        end.setDate(start.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
+        label = formatDate(start) + ' – ' + formatDate(end);
+      } else if (period === 'year') {
+        start.setMonth(0, 1);
+        end.setMonth(11, 31);
+        end.setHours(23, 59, 59, 999);
+        label = 'Tahun ' + date.getFullYear();
+      } else {
+        start.setDate(1);
+        end.setMonth(start.getMonth() + 1, 0);
+        end.setHours(23, 59, 59, 999);
+        label = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(start);
+      }
+      return { start: start, end: end, label: label, period: period };
+    }
+
+    function getReportRange() {
+      const period = value('reportPeriod') || 'month';
+      if (period === 'all') {
+        return {
+          start: new Date(2000, 0, 1),
+          end: new Date(2999, 11, 31, 23, 59, 59, 999),
+          label: 'Semua data',
+          period: 'all'
+        };
+      }
+      const reference = document.getElementById('reportReferenceDate').valueAsDate || new Date();
+      return getPeriodRange(period, reference);
+    }
+
+    function filterByRange(rows, range, primaryKey, fallbackKey) {
+      return rows.filter(function (item) {
+        return dateInRange(item[primaryKey] || item[fallbackKey], range);
+      });
+    }
+
+    function dateInRange(valueToCheck, range) {
+      const date = parseDate(valueToCheck);
+      return Boolean(date && date >= range.start && date <= range.end);
+    }
+
+    function paginateRows(key, rows) {
+      const totalItems = rows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
+      const page = Math.min(Math.max(1, Number(state.pagination[key] || 1)), totalPages);
+      state.pagination[key] = page;
+      const start = (page - 1) * state.pageSize;
+      const end = Math.min(start + state.pageSize, totalItems);
+      return {
+        key: key,
+        page: page,
+        totalPages: totalPages,
+        totalItems: totalItems,
+        start: start,
+        end: end,
+        items: rows.slice(start, end)
+      };
+    }
+
+    function resetPagination() {
+      Array.from(arguments).forEach(function (key) {
+        state.pagination[key] = 1;
+      });
+    }
+
+    function paginationHtml(paging) {
+      if (!paging.totalItems) return '';
+      return '<div class="pagination-bar">' +
+        '<span class="pagination-info">Menampilkan <b>' + (paging.start + 1) + '–' + paging.end + '</b> dari <b>' + paging.totalItems + '</b> data</span>' +
+        '<div class="pagination-controls">' +
+          '<button class="page-direction" type="button" onclick="goToPage(\'' + paging.key + '\',' + (paging.page - 1) + ')" ' + (paging.page <= 1 ? 'disabled' : '') + '><span>‹</span><b>Sebelumnya</b></button>' +
+          '<div class="page-numbers">' + paginationNumbers(paging.page, paging.totalPages).map(function (item) {
+            return item === '…'
+              ? '<span class="page-ellipsis">…</span>'
+              : '<button class="page-number ' + (item === paging.page ? 'is-active' : '') + '" type="button" onclick="goToPage(\'' + paging.key + '\',' + item + ')">' + item + '</button>';
+          }).join('') + '</div>' +
+          '<button class="page-direction" type="button" onclick="goToPage(\'' + paging.key + '\',' + (paging.page + 1) + ')" ' + (paging.page >= paging.totalPages ? 'disabled' : '') + '><b>Selanjutnya</b><span>›</span></button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function paginationNumbers(current, total) {
+      if (total <= 7) return Array.from({ length: total }, function (_, index) { return index + 1; });
+      const values = [1];
+      const start = Math.max(2, current - 1);
+      const end = Math.min(total - 1, current + 1);
+      if (start > 2) values.push('…');
+      for (let page = start; page <= end; page += 1) values.push(page);
+      if (end < total - 1) values.push('…');
+      values.push(total);
+      return values;
+    }
+
+    function goToPage(key, page) {
+      const renderers = {
+        submissions: renderSubmissionTable,
+        deposits: renderDepositTable,
+        withdrawals: renderWithdrawalTable
+      };
+      if (!renderers[key]) return;
+      state.pagination[key] = Math.max(1, Number(page || 1));
+      renderers[key]();
+      const container = document.getElementById(key === 'submissions' ? 'submissionTable' : key === 'deposits' ? 'depositTable' : 'withdrawalTable');
+      if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function tableHtml(headers, rows) {
+      return '<div class="table-wrap"><table><thead><tr>' + headers.map(function (header) {
+        return '<th>' + escapeHtml(header) + '</th>';
+      }).join('') + '</tr></thead><tbody>' + rows.map(function (row) {
+        return '<tr>' + row.map(function (cell, index) {
+          return '<td data-label="' + escapeHtml(headers[index]) + '">' + cell + '</td>';
+        }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>';
+    }
+
+    function statusBadge(status) {
+      const valueToShow = normalize(status);
+      const className = ['TERVERIFIKASI', 'DISETUJUI', 'AKTIF', 'SELESAI'].indexOf(valueToShow) !== -1
+        ? 'success'
+        : ['MENUNGGU', 'DIAJUKAN'].indexOf(valueToShow) !== -1
+          ? 'warning'
+          : ['DITOLAK', 'DIBATALKAN', 'NONAKTIF'].indexOf(valueToShow) !== -1
+            ? 'danger'
+            : 'info';
+      return '<span class="status-badge ' + className + '">' + escapeHtml(statusLabel(valueToShow)) + '</span>';
+    }
+
+    function statusLabel(status) {
+      return String(status || '-').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, function (letter) {
+        return letter.toUpperCase();
+      });
+    }
+
+    function methodLabel(method) {
+      const valueToShow = normalize(method);
+      if (valueToShow === 'ANTAR_MANDIRI') return 'Antar mandiri';
+      if (valueToShow === 'JEMPUT') return 'Dijemput';
+      return statusLabel(valueToShow);
+    }
+
+    function countStatus(rows, status) {
+      return rows.filter(function (item) {
+        return normalize(item.STATUS || item.STATUS_PENGAJUAN || item.STATUS_PENCAIRAN) === status;
+      }).length;
+    }
+
+    function typeName(id) {
+      const item = state.types.find(function (row) {
+        return (row.JENIS_ID || row.ID_JENIS) === id;
+      });
+      return item ? item.NAMA_JENIS || item.NAMA_SAMPAH : '-';
+    }
+
+    function currentBalance() {
+      if (state.saldo && state.saldo.saldo !== undefined) return Number(state.saldo.saldo || 0);
+      return Number((state.member && (state.member.SALDO_RP || state.member.SALDO)) || 0);
+    }
+
+    function pendingWithdrawalTotal() {
+      return sum(state.withdrawals.filter(function (item) {
+        return normalize(item.STATUS || item.STATUS_PENCAIRAN) === 'DIAJUKAN';
+      }), function (item) {
+        return Number(item.JUMLAH_RP || item.NOMINAL || 0);
+      });
+    }
+
+    function availableBalance() {
+      return Math.max(0, currentBalance() - pendingWithdrawalTotal());
+    }
+
+    function memberId() {
+      return state.member ? state.member.ANGGOTA_ID || state.member.ID_ANGGOTA || '' : '';
+    }
+
+    function memberName() {
+      return state.member ? state.member.NAMA_UMKM || state.member.NAMA || state.member.NAMA_ANGGOTA || 'UMKM' : 'UMKM';
+    }
+
+    function responsibleName() {
+      return state.member ? state.member.PENANGGUNG_JAWAB || state.member.NAMA || state.member.NAMA_ANGGOTA || '-' : '-';
+    }
+
+    function memberAddress() {
+      if (!state.member) return '';
+      return [
+        state.member.ALAMAT,
+        state.member.RT ? 'RT ' + state.member.RT : '',
+        state.member.RW ? 'RW ' + state.member.RW : ''
+      ].filter(Boolean).join(', ');
+    }
+
+    function detailItem(label, content) {
+      return '<div class="detail-item"><span>' + escapeHtml(label) + '</span><strong>' + content + '</strong></div>';
+    }
+
+    function emptyState(message) {
+      return '<div class="empty-state"><span>♻</span><strong>Belum ada data</strong><p>' + escapeHtml(message) + '</p></div>';
+    }
+
+    function setApiState(connected) {
+      state.apiReady = connected === true;
+      const button = document.getElementById('apiStatusButton');
+      const text = document.getElementById('apiStatusText');
+      button.classList.remove('is-connected', 'is-error', 'is-checking');
+      if (connected === true) {
+        button.classList.add('is-connected');
+        text.textContent = 'Data terhubung';
+      } else if (connected === false) {
+        button.classList.add('is-error');
+        text.textContent = 'API bermasalah';
+      } else {
+        button.classList.add('is-checking');
+        text.textContent = 'Memuat data...';
+      }
+    }
+
+    function showAccessError(message) {
+      document.querySelector('.content').innerHTML =
+        '<section class="access-error"><span>!</span><h2>Portal belum dapat dibuka</h2><p>' + escapeHtml(message) + '</p><a class="button" href="index.html">Kembali ke halaman masuk</a></section>';
+    }
+
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('is-open');
+      document.getElementById('sidebarOverlay').classList.add('is-open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('is-open');
+      document.getElementById('sidebarOverlay').classList.remove('is-open');
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('is-open');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('is-open');
+      if (!document.querySelector('.modal-backdrop.is-open')) document.body.classList.remove('modal-open');
+    }
+
+    function setButtonLoading(button, loading, label) {
+      button.disabled = loading;
+      button.classList.toggle('is-loading', loading);
+      if (!button.dataset.originalLabel) button.dataset.originalLabel = button.textContent;
+      button.textContent = loading ? label : button.dataset.originalLabel;
+    }
+
+    function showToast(message, type) {
+      const toast = document.createElement('div');
+      const kind = type || 'success';
+      toast.className = 'toast ' + kind;
+      toast.innerHTML = '<span>' + (kind === 'error' ? '!' : kind === 'warning' ? 'i' : '✓') + '</span><p>' + escapeHtml(message) + '</p>';
+      document.getElementById('toastContainer').appendChild(toast);
+      setTimeout(function () { toast.classList.add('is-hiding'); }, 3500);
+      setTimeout(function () { toast.remove(); }, 3800);
+    }
+
+    function hideLoadingScreen() {
+      const screen = document.getElementById('loadingScreen');
+      if (!screen) return;
+      screen.classList.add('is-hidden');
+      setTimeout(function () { screen.remove(); }, 400);
+    }
+
+    async function apiGet(action, params) {
+      const data = params || {};
+      if (window.BankSampahAPI && window.BankSampahAPI.apiGet) return window.BankSampahAPI.apiGet(action, data);
+      return rawApiRequest('GET', action, data);
+    }
+
+    async function apiPost(action, payload) {
+      const data = payload || {};
+      if (window.BankSampahAPI && window.BankSampahAPI.apiPost) return window.BankSampahAPI.apiPost(action, data);
+      return rawApiRequest('POST', action, data);
+    }
+
+    async function rawApiRequest(method, action, data) {
+      const metaUrl = document.querySelector('meta[name="bank-sampah-api"]').content.trim();
+      const apiUrl = window.BANK_SAMPAH_API_URL || metaUrl;
+      if (!apiUrl) throw new Error('URL API belum diatur. Isi meta bank-sampah-api atau sediakan js/api.js.');
+      const options = { method: method };
+      let url = apiUrl;
+      if (method === 'GET') {
+        const query = new URLSearchParams(Object.assign({ action: action }, data));
+        url += (apiUrl.indexOf('?') !== -1 ? '&' : '?') + query.toString();
+      } else {
+        options.headers = { 'Content-Type': 'text/plain;charset=UTF-8' };
+        options.body = JSON.stringify({ action: action, payload: data });
+      }
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error('API merespons HTTP ' + response.status + '.');
+      const result = await response.json();
+      if (!result.success) throw new Error(result.message || 'Permintaan API gagal.');
+      return result.data;
+    }
+
+    function logoutMember() {
+      if (!confirm('Keluar dari portal UMKM?')) return;
+      sessionStorage.removeItem('BANK_SAMPAH_UMKM_TOKEN');
+      sessionStorage.removeItem('BANK_SAMPAH_UMKM_SESSION');
+      window.location.replace('index.html');
+    }
+
+    function setDefaultDates() {
+      const today = dateKey(new Date());
+      document.getElementById('dashboardReferenceDate').value = today;
+      document.getElementById('reportReferenceDate').value = today;
+    }
+
+    function parseDate(input) {
+      if (!input) return null;
+      if (input instanceof Date) return Number.isNaN(input.getTime()) ? null : input;
+      const date = new Date(input);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function sortNewest(primaryKey, fallbackKey) {
+      return function (a, b) {
+        const aDate = parseDate(a[primaryKey] || a[fallbackKey]);
+        const bDate = parseDate(b[primaryKey] || b[fallbackKey]);
+        return Number(bDate || 0) - Number(aDate || 0);
+      };
+    }
+
+    function dateKey(date) {
+      const valueToShow = new Date(date);
+      return valueToShow.getFullYear() + '-' + String(valueToShow.getMonth() + 1).padStart(2, '0') + '-' + String(valueToShow.getDate()).padStart(2, '0');
+    }
+
+    function localDateTimeValue(date) {
+      const valueToShow = new Date(date);
+      return dateKey(valueToShow) + 'T' + String(valueToShow.getHours()).padStart(2, '0') + ':' + String(valueToShow.getMinutes()).padStart(2, '0');
+    }
+
+    function formatDate(input) {
+      const date = parseDate(input);
+      return date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(date) : '-';
+    }
+
+    function formatDateTime(input) {
+      const date = parseDate(input);
+      return date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date) : '-';
+    }
+
+    function formatDateCode(input) {
+      const date = parseDate(input) || new Date();
+      return date.getFullYear() + String(date.getMonth() + 1).padStart(2, '0') + String(date.getDate()).padStart(2, '0');
+    }
+
+    function formatNumber(input, decimals) {
+      return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: decimals === undefined ? 0 : decimals }).format(Number(input || 0));
+    }
+
+    function formatRupiah(input) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(input || 0));
+    }
+
+    function periodName(period) {
+      return ({ today: 'Hari ini', week: 'Minggu ini', month: 'Bulan ini', year: 'Tahun ini', all: 'Semua data' })[period] || 'Periode';
+    }
+
+    function weekdayShort(date) {
+      return new Intl.DateTimeFormat('id-ID', { weekday: 'short' }).format(date);
+    }
+
+    function monthShort(month) {
+      return new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(2026, month, 1));
+    }
+
+    function normalize(input) {
+      return String(input === undefined || input === null ? '' : input).trim().toUpperCase().replace(/\s+/g, '_');
+    }
+
+    function value(id) {
+      const element = document.getElementById(id);
+      return element && typeof element.value === 'string' ? element.value.trim() : '';
+    }
+
+    function sum(rows, mapper) {
+      return rows.reduce(function (total, item) { return total + Number(mapper(item) || 0); }, 0);
+    }
+
+    function round(input, decimals) {
+      const places = decimals === undefined ? 0 : decimals;
+      const factor = Math.pow(10, places);
+      return Math.round((Number(input || 0) + Number.EPSILON) * factor) / factor;
+    }
+
+    function firstName(name) {
+      return String(name || 'Anggota').trim().split(/\s+/)[0];
+    }
+
+    function safeFileName(input) {
+      return String(input || 'Laporan').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 80);
+    }
+
+    function safeDocumentCode(input) {
+      const clean = String(input || 'ANGGOTA').replace(/[^a-zA-Z0-9]/g, '');
+      return clean.slice(-12) || 'ANGGOTA';
+    }
+
+    function extractAccessToken(input) {
+      const text = String(input || '').trim();
+      if (!text) return '';
+      try {
+        const url = new URL(text, window.location.href);
+        return url.searchParams.get('token') || url.searchParams.get('access') || text;
+      } catch (error) {
+        return text;
+      }
+    }
+
+    function escapeHtml(input) {
+      const element = document.createElement('div');
+      element.textContent = String(input === undefined || input === null ? '' : input);
+      return element.innerHTML;
+    }
+
+    function parseJson(input) {
+      try {
+        return input ? JSON.parse(input) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b3b25">
+  <meta name="description" content="Dashboard admin Bank Sampah Kutanegara.">
+  <meta name="bank-sampah-api" content="">
+  <title>Admin | Bank Sampah Kutanegara</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="Navigasi admin">
+      <a class="sidebar-brand" href="admin.html">
+        <span class="sidebar-logo" aria-hidden="true">♻</span>
+        <span><strong>Bank Sampah</strong><small>Kutanegara</small></span>
+      </a>
+
+      <div class="sidebar-profile">
+        <span id="sidebarAvatar" class="profile-avatar">A</span>
+        <span><strong id="sidebarName">Administrator</strong><small>Panel pengelola</small></span>
+      </div>
+
+      <p class="nav-label">Ringkasan</p>
+      <nav class="nav-list">
+        <button class="nav-item is-active" type="button" data-view="dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
+        <button class="nav-item" type="button" data-view="leaderboard"><span class="nav-icon">★</span><span>Leaderboard</span></button>
+        <button class="nav-item" type="button" data-view="laporan"><span class="nav-icon">▤</span><span>Laporan PDF</span></button>
+      </nav>
+
+      <p class="nav-label">Data & transaksi</p>
+      <nav class="nav-list">
+        <button class="nav-item" type="button" data-view="pengguna"><span class="nav-icon">◎</span><span>Pengguna</span><span id="navPeopleCount" class="nav-count">0</span></button>
+        <button class="nav-item" type="button" data-view="setoran"><span class="nav-icon">⇩</span><span>Setoran</span></button>
+        <button class="nav-item" type="button" data-view="jenis"><span class="nav-icon">♻</span><span>Jenis Sampah</span></button>
+        <button class="nav-item" type="button" data-view="pengajuan"><span class="nav-icon">◫</span><span>Pengajuan</span><span id="navSubmissionCount" class="nav-count warning">0</span></button>
+        <button class="nav-item" type="button" data-view="pencairan"><span class="nav-icon">¤</span><span>Pencairan</span><span id="navWithdrawalCount" class="nav-count warning">0</span></button>
+        <button class="nav-item" type="button" data-view="penjualan"><span class="nav-icon">↗</span><span>Penjualan</span></button>
+        <button class="nav-item" type="button" data-view="akses"><span class="nav-icon">▦</span><span>Akses & QR</span></button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button type="button" onclick="logoutAdmin()"><span>↪</span>Keluar dari sistem</button>
+        <small>Bank Sampah Kutanegara · <span id="sidebarYear"></span></small>
+      </div>
+    </aside>
+
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Buka menu">☰</button>
+          <div class="page-heading">
+            <span id="pageEyebrow">Ringkasan sistem</span>
+            <h1 id="pageTitle">Dashboard</h1>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button id="apiStatusButton" class="api-pill is-checking" type="button" onclick="refreshCurrentView()">
+            <span></span><b id="apiStatusText">Memuat data...</b>
+          </button>
+          <button class="icon-button" type="button" onclick="refreshCurrentView()" title="Muat ulang">↻</button>
+          <button class="user-menu" type="button" onclick="navigateTo('pengguna')">
+            <span id="topbarAvatar" class="profile-avatar small">A</span>
+            <span><strong id="topbarName">Administrator</strong><small>ADMIN</small></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="view-dashboard" class="view is-active">
+          <div class="welcome-card">
+            <div>
+              <span class="welcome-kicker">Bank Sampah Kutanegara</span>
+              <h2>Selamat datang, <span id="welcomeName">Administrator</span>.</h2>
+              <p>Pantau kontribusi sampah, nilai transaksi, dan aktivitas anggota dari satu dashboard.</p>
+            </div>
+            <div class="welcome-actions">
+              <button class="button button-light" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+              <button class="button button-soft" type="button" onclick="downloadOverallReport()">↓ Laporan PDF</button>
+            </div>
+            <span class="welcome-recycle" aria-hidden="true">♻</span>
+          </div>
+
+          <div class="period-toolbar card-flat">
+            <div>
+              <span class="toolbar-label">Periode analitik</span>
+              <div id="dashboardPeriodTabs" class="period-tabs">
+                <button type="button" data-period="today">Hari ini</button>
+                <button type="button" data-period="week">Minggu ini</button>
+                <button class="is-active" type="button" data-period="month">Bulan ini</button>
+                <button type="button" data-period="year">Tahun ini</button>
+              </div>
+            </div>
+            <label class="compact-field">Tanggal acuan<input id="dashboardReferenceDate" type="date"></label>
+            <button class="button button-outline" type="button" onclick="renderDashboard()">Terapkan</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card green"><div class="metric-top"><span>Total sampah</span><i>kg</i></div><strong id="metricWeight">0 kg</strong><small id="metricWeightNote">Belum ada transaksi</small></article>
+            <article class="metric-card blue"><div class="metric-top"><span>Nilai setoran</span><i>Rp</i></div><strong id="metricValue">Rp0</strong><small id="metricValueNote">0 transaksi terverifikasi</small></article>
+            <article class="metric-card amber"><div class="metric-top"><span>Jenis terbanyak</span><i>♻</i></div><strong id="metricTopType">-</strong><small id="metricTopTypeNote">0 kg</small></article>
+            <article class="metric-card purple"><div class="metric-top"><span>Kontributor teratas</span><i>★</i></div><strong id="metricTopMember">-</strong><small id="metricTopMemberNote">0 kg</small></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel chart-panel trend-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">Perkembangan</span><h3 id="trendTitle">Berat sampah bulan ini</h3></div><span id="dashboardPeriodLabel" class="soft-badge">-</span></div>
+              <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+            </article>
+            <article class="panel chart-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">Komposisi</span><h3>Jenis sampah terbanyak</h3></div></div>
+              <div class="chart-wrap donut"><canvas id="typeChart"></canvas></div>
+              <div id="typeLegend" class="chart-legend"></div>
+            </article>
+          </div>
+
+          <div class="dashboard-grid lower">
+            <article class="panel">
+              <div class="panel-heading"><div><span class="panel-kicker">Peringkat</span><h3>Kontributor periode ini</h3></div><button class="text-button" type="button" onclick="navigateTo('leaderboard')">Lihat lengkap →</button></div>
+              <div id="dashboardLeaderboard" class="mini-ranking"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><span class="panel-kicker">Aktivitas</span><h3>Setoran terbaru</h3></div><button class="text-button" type="button" onclick="navigateTo('setoran')">Semua transaksi →</button></div>
+              <div id="recentDeposits" class="activity-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-pengguna" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Manajemen akun</span><h2>Pengguna & Anggota</h2><p>Admin, masyarakat, dan UMKM dikelola dalam satu halaman yang terpisah per kategori.</p></div>
+            <button id="addPersonButton" class="button" type="button" onclick="openPersonModal()">+ Tambah Pengguna</button>
+          </div>
+
+          <div class="role-summary-grid">
+            <button class="role-summary admin is-active" type="button" data-role-tab="ADMIN"><span>Admin</span><strong id="adminCount">0</strong><small>Akun pengelola sistem</small></button>
+            <button class="role-summary community" type="button" data-role-tab="MASYARAKAT"><span>Masyarakat</span><strong id="communityCount">0</strong><small>Anggota perorangan</small></button>
+            <button class="role-summary business" type="button" data-role-tab="UMKM"><span>UMKM</span><strong id="businessCount">0</strong><small>Anggota usaha</small></button>
+          </div>
+
+          <div class="panel">
+            <div class="data-toolbar">
+              <div class="search-box"><span>⌕</span><input id="peopleSearch" type="search" placeholder="Ketik nama, email, atau nomor HP..."><kbd>instan</kbd></div>
+              <select id="peopleStatus" class="select-control"><option value="">Semua status</option><option value="AKTIF">Aktif</option><option value="NONAKTIF">Nonaktif</option></select>
+              <button class="button button-outline" type="button" onclick="loadPeopleData()">↻ Muat ulang</button>
+            </div>
+            <div id="peopleResultInfo" class="result-info"></div>
+            <div id="peopleTable"></div>
+          </div>
+        </section>
+
+        <section id="view-leaderboard" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Program apresiasi</span><h2>Leaderboard Pengumpulan Sampah</h2><p>Peringkat dihitung dari total berat setoran terverifikasi. Masyarakat dan UMKM dinilai secara terpisah.</p></div>
+            <button class="button button-outline" type="button" onclick="downloadLeaderboardPdf()">↓ Unduh Peringkat</button>
+          </div>
+
+          <div class="period-toolbar card-flat">
+            <div>
+              <span class="toolbar-label">Periode perlombaan</span>
+              <div id="leaderboardPeriodTabs" class="period-tabs">
+                <button type="button" data-period="today">Hari ini</button>
+                <button type="button" data-period="week">Minggu ini</button>
+                <button class="is-active" type="button" data-period="month">Bulan ini</button>
+                <button type="button" data-period="year">Tahun ini</button>
+              </div>
+            </div>
+            <label class="compact-field">Tanggal acuan<input id="leaderboardReferenceDate" type="date"></label>
+            <button class="button" type="button" onclick="renderLeaderboards()">Tampilkan</button>
+          </div>
+
+          <div class="leaderboard-grid">
+            <article class="ranking-card community">
+              <div class="ranking-header"><span class="ranking-icon">M</span><div><span>Masyarakat</span><h3>Peringkat anggota perorangan</h3></div><strong id="communityParticipants">0 peserta</strong></div>
+              <div id="communityPodium" class="podium"></div>
+              <div id="communityLeaderboard" class="ranking-table"></div>
+            </article>
+            <article class="ranking-card business">
+              <div class="ranking-header"><span class="ranking-icon">U</span><div><span>UMKM</span><h3>Peringkat anggota usaha</h3></div><strong id="businessParticipants">0 peserta</strong></div>
+              <div id="businessPodium" class="podium"></div>
+              <div id="businessLeaderboard" class="ranking-table"></div>
+            </article>
+          </div>
+          <div class="fairness-note"><span>i</span><p><strong>Dasar peringkat:</strong> hanya setoran berstatus TERVERIFIKASI yang dihitung. Jika berat sama, peserta dengan transaksi lebih banyak ditempatkan lebih tinggi. Laporan PDF dapat digunakan sebagai bukti data.</p></div>
+        </section>
+
+        <section id="view-setoran" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Transaksi masuk</span><h2>Data Setoran</h2><p>Catat dan periksa seluruh setoran sampah yang telah diverifikasi.</p></div>
+            <button class="button" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+          </div>
+          <div class="panel">
+            <div class="data-toolbar">
+              <div class="search-box"><span>⌕</span><input id="depositSearch" type="search" placeholder="Cari anggota, jenis, atau transaksi..."></div>
+              <select id="depositPeriod" class="select-control"><option value="all">Semua periode</option><option value="today">Hari ini</option><option value="week">Minggu ini</option><option value="month">Bulan ini</option><option value="year">Tahun ini</option></select>
+              <select id="depositStatus" class="select-control"><option value="">Semua status</option><option value="TERVERIFIKASI">Terverifikasi</option><option value="DIBATALKAN">Dibatalkan</option></select>
+            </div>
+            <div id="depositTable"></div>
+          </div>
+        </section>
+
+        <section id="view-jenis" class="view">
+          <div class="section-head">
+            <div><span class="section-kicker">Data master</span><h2>Jenis & Harga Sampah</h2><p>Atur nama jenis, satuan, harga beli, harga jual, dan status penerimaan.</p></div>
+            <button class="button" type="button" onclick="openTypeModal()">+ Tambah Jenis</button>
+          </div>
+          <div class="panel">
+            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="typeSearch" type="search" placeholder="Cari nama atau kode jenis sampah..."></div><button class="button button-outline" type="button" onclick="loadTypes()">↻ Muat ulang</button></div>
+            <div id="typeTable"></div>
+          </div>
+        </section>
+
+        <section id="view-pengajuan" class="view">
+          <div class="section-head"><div><span class="section-kicker">Permintaan anggota</span><h2>Pengajuan Setoran</h2><p>Verifikasi berat aktual atau tolak pengajuan yang tidak sesuai.</p></div></div>
+          <div class="panel">
+            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="submissionSearch" type="search" placeholder="Cari anggota atau jenis sampah..."></div><select id="submissionStatus" class="select-control"><option value="">Semua status</option><option value="MENUNGGU">Menunggu</option><option value="TERVERIFIKASI">Terverifikasi</option><option value="DITOLAK">Ditolak</option></select><button class="button button-outline" type="button" onclick="loadSubmissions()">↻ Muat ulang</button></div>
+            <div id="submissionTable"></div>
+          </div>
+        </section>
+
+        <section id="view-pencairan" class="view">
+          <div class="section-head"><div><span class="section-kicker">Saldo anggota</span><h2>Pengajuan Pencairan</h2><p>Setujui atau tolak pencairan berdasarkan saldo valid anggota.</p></div></div>
+          <div class="panel">
+            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="withdrawalSearch" type="search" placeholder="Cari anggota atau pencairan..."></div><select id="withdrawalStatus" class="select-control"><option value="">Semua status</option><option value="DIAJUKAN">Diajukan</option><option value="DISETUJUI">Disetujui</option><option value="DITOLAK">Ditolak</option><option value="DIBATALKAN">Dibatalkan</option></select><button class="button button-outline" type="button" onclick="loadWithdrawals()">↻ Muat ulang</button></div>
+            <div id="withdrawalTable"></div>
+          </div>
+        </section>
+
+        <section id="view-penjualan" class="view">
+          <div class="section-head"><div><span class="section-kicker">Transaksi keluar</span><h2>Penjualan Sampah</h2><p>Catat penjualan kepada pengepul beserta rincian jenis, berat, dan harga.</p></div><button class="button" type="button" onclick="openSaleModal()">+ Catat Penjualan</button></div>
+          <div class="panel">
+            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="saleSearch" type="search" placeholder="Cari pembeli atau transaksi penjualan..."></div><select id="salePeriod" class="select-control"><option value="all">Semua periode</option><option value="month">Bulan ini</option><option value="year">Tahun ini</option></select></div>
+            <div id="saleTable"></div>
+          </div>
+        </section>
+
+        <section id="view-laporan" class="view">
+          <div class="section-head"><div><span class="section-kicker">Dokumen terverifikasi</span><h2>Pusat Laporan PDF</h2><p>Buat laporan keseluruhan atau laporan per anggota sebagai bukti transaksi yang dapat disimpan dan dicetak.</p></div></div>
+
+          <div class="report-config panel">
+            <div class="report-config-main">
+              <div><span class="panel-kicker">Atur dokumen</span><h3>Pilih periode laporan</h3><p>PDF hanya menghitung setoran berstatus terverifikasi pada periode terpilih.</p></div>
+              <div class="report-controls">
+                <label>Periode<select id="reportPeriod" class="select-control"><option value="today">Hari ini</option><option value="week">Minggu ini</option><option value="month" selected>Bulan ini</option><option value="year">Tahun ini</option></select></label>
+                <label>Tanggal acuan<input id="reportReferenceDate" class="input-control" type="date"></label>
+                <button class="button button-outline" type="button" onclick="refreshReportPreview()">Tampilkan data</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-card-grid">
+            <article class="report-card overall">
+              <span class="report-icon">▤</span>
+              <div><span class="panel-kicker">Laporan keseluruhan</span><h3>Rekap Bank Sampah</h3><p>Berisi ringkasan total, komposisi jenis, dan seluruh rincian transaksi pada periode terpilih.</p></div>
+              <div id="overallReportStats" class="report-stats"></div>
+              <button class="button" type="button" onclick="downloadOverallReport()">↓ Unduh PDF Keseluruhan</button>
+            </article>
+            <article class="report-card individual">
+              <span class="report-icon">◎</span>
+              <div><span class="panel-kicker">Laporan per anggota</span><h3>Bukti Transaksi Anggota</h3><p>Pilih masyarakat atau UMKM untuk menghasilkan laporan individual beserta ruang tanda tangan.</p></div>
+              <label class="member-select-label">Cari dan pilih anggota<input id="reportMemberSearch" class="input-control" type="search" placeholder="Ketik nama anggota..."></label>
+              <select id="reportMemberSelect" class="select-control" size="4"></select>
+              <button id="memberReportButton" class="button button-blue" type="button" onclick="downloadSelectedMemberReport()">↓ Unduh PDF Anggota</button>
+            </article>
+          </div>
+
+          <div class="panel report-preview-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">Pratinjau data</span><h3 id="reportPreviewTitle">Ringkasan bulan ini</h3></div><span id="reportTransactionCount" class="soft-badge">0 transaksi</span></div>
+            <div id="reportPreview"></div>
+          </div>
+        </section>
+
+        <section id="view-akses" class="view">
+          <div class="section-head"><div><span class="section-kicker">Keamanan akun</span><h2>Akses & QR</h2><p>Buat ulang, lihat, aktifkan, atau nonaktifkan QR untuk admin, masyarakat, dan UMKM.</p></div></div>
+          <div class="panel">
+            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="qrSearch" type="search" placeholder="Cari nama atau role..."></div><select id="qrRole" class="select-control"><option value="">Semua role</option><option value="ADMIN">Admin</option><option value="MASYARAKAT">Masyarakat</option><option value="UMKM">UMKM</option></select></div>
+            <div id="qrTable"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="personModal" class="modal-backdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="personModalTitle">
+      <header class="modal-header"><div><span class="panel-kicker">Data pengguna</span><h3 id="personModalTitle">Tambah Pengguna</h3></div><button class="modal-close" type="button" onclick="closeModal('personModal')" aria-label="Tutup">×</button></header>
+      <form id="personForm">
+        <div class="modal-body">
+          <input id="personRecordId" type="hidden">
+          <div class="form-grid">
+            <label class="field"><span>Role</span><select id="personRole" class="select-control" required><option value="ADMIN">Admin</option><option value="MASYARAKAT">Masyarakat</option><option value="UMKM">UMKM</option></select></label>
+            <label class="field"><span>Status</span><select id="personStatus" class="select-control"><option value="AKTIF">Aktif</option><option value="NONAKTIF">Nonaktif</option></select></label>
+            <label class="field full"><span id="personNameLabel">Nama lengkap</span><input id="personName" class="input-control" required></label>
+            <label class="field umkm-only"><span>Nama UMKM</span><input id="personBusinessName" class="input-control"></label>
+            <label class="field umkm-only"><span>Penanggung jawab</span><input id="personResponsible" class="input-control"></label>
+            <label class="field"><span>Username</span><input id="personUsername" class="input-control" autocomplete="off"></label>
+            <label class="field"><span>Email</span><input id="personEmail" class="input-control" type="email" autocomplete="off"></label>
+            <label class="field full"><span>Password <small id="passwordHint">wajib untuk admin</small></span><input id="personPassword" class="input-control" type="password" minlength="6" autocomplete="new-password" placeholder="Kosongkan jika tidak diubah"></label>
+            <label class="field member-only"><span>Nomor HP</span><input id="personPhone" class="input-control" inputmode="tel"></label>
+            <div class="field member-only"><span>RT / RW</span><div class="split-input"><input id="personRt" class="input-control" placeholder="RT"><input id="personRw" class="input-control" placeholder="RW"></div></div>
+            <label class="field full member-only"><span>Alamat</span><textarea id="personAddress" class="textarea-control" rows="3"></textarea></label>
+          </div>
+        </div>
+        <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('personModal')">Batal</button><button id="personSubmitButton" class="button" type="submit">Simpan Pengguna</button></footer>
+      </form>
+    </section>
+  </div>
+
+  <div id="typeModal" class="modal-backdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="typeModalTitle">
+      <header class="modal-header"><div><span class="panel-kicker">Master sampah</span><h3 id="typeModalTitle">Tambah Jenis Sampah</h3></div><button class="modal-close" type="button" onclick="closeModal('typeModal')">×</button></header>
+      <form id="typeForm">
+        <div class="modal-body"><input id="typeId" type="hidden"><div class="form-grid">
+          <label class="field"><span>Kode asal</span><input id="typeCode" class="input-control"></label>
+          <label class="field"><span>Status</span><select id="typeStatus" class="select-control"><option value="AKTIF">Aktif</option><option value="NONAKTIF">Nonaktif</option></select></label>
+          <label class="field full"><span>Nama jenis sampah</span><input id="typeName" class="input-control" required></label>
+          <label class="field"><span>Harga beli / kg</span><input id="typeBuy" class="input-control" type="number" min="0" required></label>
+          <label class="field"><span>Harga jual / kg</span><input id="typeSell" class="input-control" type="number" min="0" required></label>
+          <label class="field"><span>Satuan</span><select id="typeUnit" class="select-control"><option value="kg">kg</option><option value="pcs">pcs</option></select></label>
+          <label class="field"><span>Catatan</span><input id="typeNote" class="input-control"></label>
+        </div></div>
+        <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('typeModal')">Batal</button><button id="typeSubmitButton" class="button" type="submit">Simpan Jenis</button></footer>
+      </form>
+    </section>
+  </div>
+
+  <div id="depositModal" class="modal-backdrop" role="presentation">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="depositModalTitle">
+      <header class="modal-header"><div><span class="panel-kicker">Transaksi masuk</span><h3 id="depositModalTitle">Catat Setoran</h3></div><button class="modal-close" type="button" onclick="closeModal('depositModal')">×</button></header>
+      <form id="depositForm">
+        <div class="modal-body">
+          <div class="form-grid"><label class="field"><span>Anggota</span><select id="depositMember" class="select-control" required></select></label><label class="field"><span>Tanggal setoran</span><input id="depositDate" class="input-control" type="datetime-local" required></label></div>
+          <div class="repeater-head"><div><span class="panel-kicker">Rincian sampah</span><h4>Jenis dan berat setoran</h4></div><button class="button button-outline button-small" type="button" onclick="addDepositItem()">+ Tambah baris</button></div>
+          <div id="depositItems" class="repeater-list"></div>
+          <div class="transaction-total"><span>Estimasi total</span><strong id="depositTotalWeight">0 kg</strong><strong id="depositTotalValue">Rp0</strong></div>
+        </div>
+        <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('depositModal')">Batal</button><button id="depositSubmitButton" class="button" type="submit">Simpan Setoran</button></footer>
+      </form>
+    </section>
+  </div>
+
+  <div id="saleModal" class="modal-backdrop" role="presentation">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="saleModalTitle">
+      <header class="modal-header"><div><span class="panel-kicker">Transaksi keluar</span><h3 id="saleModalTitle">Catat Penjualan</h3></div><button class="modal-close" type="button" onclick="closeModal('saleModal')">×</button></header>
+      <form id="saleForm">
+        <div class="modal-body">
+          <div class="form-grid">
+            <label class="field"><span>Pembeli / pengepul</span><input id="saleBuyer" class="input-control" required></label>
+            <label class="field"><span>Tanggal penjualan</span><input id="saleDate" class="input-control" type="datetime-local" required></label>
+            <label class="field"><span>Penyerah</span><input id="saleSender" class="input-control"></label>
+            <label class="field"><span>Penerima</span><input id="saleReceiver" class="input-control"></label>
+            <label class="field full"><span>Catatan</span><input id="saleNote" class="input-control"></label>
+          </div>
+          <div class="repeater-head"><div><span class="panel-kicker">Rincian penjualan</span><h4>Jenis, berat, dan harga jual</h4></div><button class="button button-outline button-small" type="button" onclick="addSaleItem()">+ Tambah baris</button></div>
+          <div id="saleItems" class="repeater-list"></div>
+          <div class="transaction-total"><span>Total penjualan</span><strong id="saleTotalWeight">0 kg</strong><strong id="saleTotalValue">Rp0</strong></div>
+        </div>
+        <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('saleModal')">Batal</button><button id="saleSubmitButton" class="button" type="submit">Simpan Penjualan</button></footer>
+      </form>
+    </section>
+  </div>
+
+  <div id="processModal" class="modal-backdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="processModalTitle">
+      <header class="modal-header"><div><span class="panel-kicker">Tindakan admin</span><h3 id="processModalTitle">Proses Data</h3></div><button class="modal-close" type="button" onclick="closeModal('processModal')">×</button></header>
+      <form id="processForm"><div id="processModalBody" class="modal-body"></div><footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('processModal')">Batal</button><button id="processSubmitButton" class="button" type="submit">Simpan Keputusan</button></footer></form>
+    </section>
+  </div>
+
+  <div id="qrModal" class="modal-backdrop" role="presentation">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+      <header class="modal-header"><div><span class="panel-kicker">Akses pengguna</span><h3 id="qrModalTitle">QR Akses</h3></div><button class="modal-close" type="button" onclick="closeModal('qrModal')">×</button></header>
+      <div class="modal-body qr-modal-layout"><div id="qrImage" class="qr-image-box"></div><div><div id="qrDetails" class="detail-list"></div><div class="modal-inline-actions"><button class="button button-blue" type="button" onclick="copyCurrentQr()">Salin tautan</button><button class="button" type="button" onclick="downloadCurrentQr()">Simpan QR</button></div></div></div>
+    </section>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script src="js/api.js"></script>
+  <script>
+    'use strict';
+
+    const state = {
+      currentView: 'dashboard',
+      currentUser: null,
+      accessToken: '',
+      members: [],
+      users: [],
+      types: [],
+      deposits: [],
+      submissions: [],
+      withdrawals: [],
+      sales: [],
+      peopleRole: 'ADMIN',
+      dashboardPeriod: 'month',
+      leaderboardPeriod: 'month',
+      trendChart: null,
+      typeChart: null,
+      currentQr: null,
+      processMode: '',
+      processId: '',
+      pageSize: 10,
+      pagination: {
+        people: 1,
+        deposits: 1,
+        types: 1,
+        submissions: 1,
+        withdrawals: 1,
+        sales: 1,
+        qr: 1,
+        communityLeaderboard: 1,
+        businessLeaderboard: 1
+      },
+      apiReady: false
+    };
+
+    const pageMeta = {
+      dashboard: ['Dashboard', 'Ringkasan dan analitik bank sampah'],
+      pengguna: ['Pengguna & Anggota', 'Admin, masyarakat, dan UMKM'],
+      leaderboard: ['Leaderboard', 'Peringkat pengumpulan sampah'],
+      setoran: ['Data Setoran', 'Seluruh transaksi sampah masuk'],
+      jenis: ['Jenis Sampah', 'Master jenis dan harga'],
+      pengajuan: ['Pengajuan Setoran', 'Verifikasi permintaan anggota'],
+      pencairan: ['Pencairan Saldo', 'Persetujuan saldo anggota'],
+      penjualan: ['Penjualan Sampah', 'Transaksi sampah ke pengepul'],
+      laporan: ['Laporan PDF', 'Dokumen keseluruhan dan per anggota'],
+      akses: ['Akses & QR', 'Kelola token QR pengguna']
+    };
+
+    document.addEventListener('DOMContentLoaded', initializeAdmin);
+
+    async function initializeAdmin() {
+      setDefaultDates();
+      bindNavigation();
+      bindFilters();
+      bindForms();
+      document.getElementById('sidebarYear').textContent = new Date().getFullYear();
+
+      try {
+        await authenticateAdmin();
+        renderCurrentUser();
+        await loadAllData();
+        setApiState(true);
+        renderDashboard();
+      } catch (error) {
+        setApiState(false);
+        showToast(error.message || 'Gagal membuka dashboard admin.', 'error');
+        if (/akses|login|admin/i.test(error.message || '')) {
+          window.setTimeout(() => window.location.replace('index.html'), 1200);
+        }
+      }
+    }
+
+    function bindNavigation() {
+      document.querySelectorAll('.nav-item').forEach((button) => button.addEventListener('click', () => navigateTo(button.dataset.view)));
+      document.getElementById('menuButton').addEventListener('click', openSidebar);
+      document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+    }
+
+    function bindFilters() {
+      bindPeriodTabs('dashboardPeriodTabs', (period) => { state.dashboardPeriod = period; renderDashboard(); });
+      bindPeriodTabs('leaderboardPeriodTabs', (period) => { state.leaderboardPeriod = period; resetPagination('communityLeaderboard', 'businessLeaderboard'); renderLeaderboards(); });
+      document.querySelectorAll('[data-role-tab]').forEach((button) => button.addEventListener('click', () => switchPeopleRole(button.dataset.roleTab)));
+      bindPagedFilters(['peopleSearch', 'peopleStatus'], 'people', renderPeopleTable);
+      bindPagedFilters(['depositSearch', 'depositPeriod', 'depositStatus'], 'deposits', renderDepositTable);
+      bindPagedFilters(['typeSearch'], 'types', renderTypeTable);
+      bindPagedFilters(['submissionSearch', 'submissionStatus'], 'submissions', renderSubmissionTable);
+      bindPagedFilters(['withdrawalSearch', 'withdrawalStatus'], 'withdrawals', renderWithdrawalTable);
+      bindPagedFilters(['saleSearch', 'salePeriod'], 'sales', renderSaleTable);
+      bindPagedFilters(['qrSearch', 'qrRole'], 'qr', renderQrTable);
+      document.getElementById('leaderboardReferenceDate').addEventListener('change', () => { resetPagination('communityLeaderboard', 'businessLeaderboard'); renderLeaderboards(); });
+      document.getElementById('reportMemberSearch').addEventListener('input', renderReportMemberOptions);
+      document.getElementById('reportPeriod').addEventListener('change', refreshReportPreview);
+      document.getElementById('reportReferenceDate').addEventListener('change', refreshReportPreview);
+      document.getElementById('personRole').addEventListener('change', syncPersonFormVisibility);
+    }
+
+    function bindPagedFilters(ids, pageKey, renderer) {
+      ids.forEach((id) => document.getElementById(id).addEventListener('input', () => {
+        resetPagination(pageKey);
+        renderer();
+      }));
+    }
+
+    function bindForms() {
+      document.getElementById('personForm').addEventListener('submit', submitPerson);
+      document.getElementById('typeForm').addEventListener('submit', submitType);
+      document.getElementById('depositForm').addEventListener('submit', submitDeposit);
+      document.getElementById('saleForm').addEventListener('submit', submitSale);
+      document.getElementById('processForm').addEventListener('submit', submitProcess);
+      document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.addEventListener('click', (event) => {
+        if (event.target === backdrop) closeModal(backdrop.id);
+      }));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') document.querySelectorAll('.modal-backdrop.is-open').forEach((modal) => closeModal(modal.id));
+      });
+    }
+
+    function bindPeriodTabs(containerId, callback) {
+      document.querySelectorAll(`#${containerId} [data-period]`).forEach((button) => button.addEventListener('click', () => {
+        document.querySelectorAll(`#${containerId} [data-period]`).forEach((item) => item.classList.toggle('is-active', item === button));
+        callback(button.dataset.period);
+      }));
+    }
+
+    async function authenticateAdmin() {
+      const queryToken = new URLSearchParams(window.location.search).get('access');
+      const savedToken = sessionStorage.getItem('BANK_SAMPAH_ADMIN_TOKEN');
+      const token = queryToken || savedToken;
+      const savedSession = parseJson(sessionStorage.getItem('BANK_SAMPAH_ADMIN_SESSION'));
+
+      if (token) {
+        const access = await apiGet('access.token', { token });
+        if (normalize(access.role || access.user?.ROLE) !== 'ADMIN') throw new Error('Akses ini bukan milik admin.');
+        state.accessToken = token;
+        state.currentUser = access.user;
+        sessionStorage.setItem('BANK_SAMPAH_ADMIN_TOKEN', token);
+        sessionStorage.setItem('BANK_SAMPAH_ADMIN_SESSION', JSON.stringify({ role: 'ADMIN', user: access.user, method: access.method, loggedInAt: new Date().toISOString() }));
+        return;
+      }
+
+      if (savedSession && normalize(savedSession.role || savedSession.user?.ROLE) === 'ADMIN') {
+        state.currentUser = savedSession.user;
+        return;
+      }
+      throw new Error('Sesi login admin tidak ditemukan. Silakan login kembali.');
+    }
+
+    async function loadAllData() {
+      setApiState(null);
+      const [members, users, types, deposits, submissions, withdrawals, sales] = await Promise.all([
+        apiGet('anggota.list', { limit: 500 }),
+        apiGet('pengguna.list', { limit: 500 }),
+        apiGet('jenis.list', { limit: 500 }),
+        apiGet('setoran.list', { limit: 500 }),
+        apiGet('pengajuan.list', { limit: 500 }),
+        apiGet('pencairan.list', { limit: 500 }),
+        apiGet('penjualan.list', { limit: 500 })
+      ]);
+      state.members = members || [];
+      state.users = users || [];
+      state.types = types || [];
+      state.deposits = deposits || [];
+      state.submissions = submissions || [];
+      state.withdrawals = withdrawals || [];
+      state.sales = sales || [];
+      updateNavigationCounts();
+      renderReportMemberOptions();
+    }
+
+    async function refreshCurrentView() {
+      try {
+        await loadAllData();
+        setApiState(true);
+        renderView(state.currentView);
+        showToast('Data berhasil diperbarui.');
+      } catch (error) {
+        setApiState(false);
+        showToast(error.message, 'error');
+      }
+    }
+
+    function renderView(view) {
+      if (view === 'dashboard') renderDashboard();
+      if (view === 'pengguna') renderPeopleTable();
+      if (view === 'leaderboard') renderLeaderboards();
+      if (view === 'setoran') renderDepositTable();
+      if (view === 'jenis') renderTypeTable();
+      if (view === 'pengajuan') renderSubmissionTable();
+      if (view === 'pencairan') renderWithdrawalTable();
+      if (view === 'penjualan') renderSaleTable();
+      if (view === 'laporan') refreshReportPreview();
+      if (view === 'akses') renderQrTable();
+    }
+
+    function navigateTo(view) {
+      if (!pageMeta[view]) return;
+      state.currentView = view;
+      document.querySelectorAll('.view').forEach((section) => section.classList.toggle('is-active', section.id === `view-${view}`));
+      document.querySelectorAll('.nav-item').forEach((button) => button.classList.toggle('is-active', button.dataset.view === view));
+      document.getElementById('pageTitle').textContent = pageMeta[view][0];
+      document.getElementById('pageEyebrow').textContent = pageMeta[view][1];
+      renderView(view);
+      closeSidebar();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('is-open');
+      document.getElementById('sidebarOverlay').classList.add('is-open');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('is-open');
+      document.getElementById('sidebarOverlay').classList.remove('is-open');
+    }
+
+    function renderCurrentUser() {
+      const name = state.currentUser?.NAMA_TAMPIL || state.currentUser?.NAMA_USER || 'Administrator';
+      const initial = name.charAt(0).toUpperCase();
+      ['sidebarName', 'topbarName'].forEach((id) => document.getElementById(id).textContent = name);
+      ['sidebarAvatar', 'topbarAvatar'].forEach((id) => document.getElementById(id).textContent = initial);
+      document.getElementById('welcomeName').textContent = name.split(' ')[0];
+    }
+
+    function setApiState(ready) {
+      state.apiReady = ready === true;
+      const pill = document.getElementById('apiStatusButton');
+      const text = document.getElementById('apiStatusText');
+      pill.classList.remove('is-checking', 'is-connected', 'is-failed');
+      pill.classList.add(ready === null ? 'is-checking' : ready ? 'is-connected' : 'is-failed');
+      text.textContent = ready === null ? 'Memuat data...' : ready ? 'API terhubung' : 'API bermasalah';
+    }
+
+    function updateNavigationCounts() {
+      document.getElementById('navPeopleCount').textContent = state.users.length;
+      document.getElementById('navSubmissionCount').textContent = state.submissions.filter((item) => normalize(item.STATUS || item.STATUS_PENGAJUAN) === 'MENUNGGU').length;
+      document.getElementById('navWithdrawalCount').textContent = state.withdrawals.filter((item) => normalize(item.STATUS || item.STATUS_PENCAIRAN) === 'DIAJUKAN').length;
+      document.getElementById('adminCount').textContent = state.users.filter((item) => normalize(item.ROLE) === 'ADMIN').length;
+      document.getElementById('communityCount').textContent = state.members.filter((item) => normalize(item.KATEGORI) === 'MASYARAKAT').length;
+      document.getElementById('businessCount').textContent = state.members.filter((item) => normalize(item.KATEGORI) === 'UMKM').length;
+    }
+
+    function renderDashboard() {
+      const reference = document.getElementById('dashboardReferenceDate').valueAsDate || new Date();
+      const range = getPeriodRange(state.dashboardPeriod, reference);
+      const rows = getVerifiedDeposits(range);
+      const analytics = summarizeDeposits(rows);
+      const ranking = buildLeaderboard(rows);
+
+      document.getElementById('metricWeight').textContent = `${formatNumber(analytics.totalWeight, 2)} kg`;
+      document.getElementById('metricWeightNote').textContent = analytics.count ? `${analytics.count} baris setoran terverifikasi` : 'Belum ada transaksi';
+      document.getElementById('metricValue').textContent = formatRupiah(analytics.totalValue);
+      document.getElementById('metricValueNote').textContent = `${analytics.memberCount} anggota berkontribusi`;
+      document.getElementById('metricTopType').textContent = analytics.topType?.name || '-';
+      document.getElementById('metricTopTypeNote').textContent = `${formatNumber(analytics.topType?.weight || 0, 2)} kg pada periode ini`;
+      document.getElementById('metricTopMember').textContent = ranking[0]?.name || '-';
+      document.getElementById('metricTopMemberNote').textContent = `${formatNumber(ranking[0]?.weight || 0, 2)} kg`;
+      document.getElementById('dashboardPeriodLabel').textContent = range.label;
+      document.getElementById('trendTitle').textContent = `Berat sampah ${periodName(state.dashboardPeriod).toLowerCase()}`;
+      renderTrendChart(rows, range);
+      renderTypeChart(analytics.byType);
+      renderMiniRanking(ranking.slice(0, 5));
+      renderRecentDeposits();
+    }
+
+    function renderTrendChart(rows, range) {
+      const points = buildTrendPoints(rows, state.dashboardPeriod, range);
+      if (state.trendChart) state.trendChart.destroy();
+      if (typeof Chart === 'undefined') return;
+      const context = document.getElementById('trendChart');
+      state.trendChart = new Chart(context, {
+        type: 'line',
+        data: { labels: points.labels, datasets: [{ label: 'Berat (kg)', data: points.values, borderColor: '#1b8b4b', backgroundColor: 'rgba(37,169,91,.13)', pointBackgroundColor: '#fff', pointBorderColor: '#1b8b4b', pointBorderWidth: 2, pointRadius: 3, tension: .35, fill: true }] },
+        options: chartOptions('kg')
+      });
+    }
+
+    function renderTypeChart(byType) {
+      const entries = Object.values(byType).sort((a, b) => b.weight - a.weight).slice(0, 7);
+      const colors = ['#17733f', '#2ea866', '#66c987', '#f1b84b', '#4f83d1', '#8b6cc7', '#db7d65'];
+      if (state.typeChart) state.typeChart.destroy();
+      if (typeof Chart !== 'undefined') {
+        state.typeChart = new Chart(document.getElementById('typeChart'), {
+          type: 'doughnut',
+          data: { labels: entries.map((item) => item.name), datasets: [{ data: entries.map((item) => round(item.weight, 2)), backgroundColor: colors, borderWidth: 0, hoverOffset: 5 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => ` ${context.label}: ${formatNumber(context.raw, 2)} kg` } } } }
+        });
+      }
+      document.getElementById('typeLegend').innerHTML = entries.length ? entries.map((item, index) => `<span><i style="background:${colors[index]}"></i><b>${escapeHtml(item.name)}</b><small>${formatNumber(item.weight, 2)} kg</small></span>`).join('') : '<div class="empty-state compact">Belum ada data pada periode ini.</div>';
+    }
+
+    function renderMiniRanking(rows) {
+      document.getElementById('dashboardLeaderboard').innerHTML = rows.length ? rows.map((item, index) => `<div class="mini-rank-row"><span class="rank-number ${index < 3 ? `top-${index + 1}` : ''}">${index + 1}</span><span class="member-avatar">${escapeHtml(item.name.charAt(0).toUpperCase())}</span><span class="rank-person"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.category)}</small></span><b>${formatNumber(item.weight, 2)} kg</b></div>`).join('') : '<div class="empty-state">Belum ada peringkat pada periode ini.</div>';
+    }
+
+    function renderRecentDeposits() {
+      const rows = state.deposits.slice().sort((a, b) => dateValue(b.TANGGAL || b.TANGGAL_SETORAN) - dateValue(a.TANGGAL || a.TANGGAL_SETORAN)).slice(0, 5);
+      document.getElementById('recentDeposits').innerHTML = rows.length ? rows.map((item) => `<div class="activity-item"><span class="activity-icon">⇩</span><span><strong>${escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))}</strong><small>${escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-')} · ${formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN)}</small></span><b>${formatNumber(item.BERAT_KG || item.BERAT, 2)} kg</b></div>`).join('') : '<div class="empty-state">Belum ada setoran.</div>';
+    }
+
+    function switchPeopleRole(role) {
+      state.peopleRole = role;
+      resetPagination('people');
+      document.querySelectorAll('[data-role-tab]').forEach((button) => button.classList.toggle('is-active', button.dataset.roleTab === role));
+      document.getElementById('addPersonButton').textContent = `+ Tambah ${role === 'ADMIN' ? 'Admin' : role === 'UMKM' ? 'UMKM' : 'Masyarakat'}`;
+      renderPeopleTable();
+    }
+
+    async function loadPeopleData() {
+      try {
+        const [members, users] = await Promise.all([apiGet('anggota.list', { limit: 500 }), apiGet('pengguna.list', { limit: 500 })]);
+        state.members = members || [];
+        state.users = users || [];
+        updateNavigationCounts();
+        renderReportMemberOptions();
+        renderPeopleTable();
+        showToast('Data pengguna diperbarui.');
+      } catch (error) { showToast(error.message, 'error'); }
+    }
+
+    function renderPeopleTable() {
+      const keyword = document.getElementById('peopleSearch').value.trim().toLowerCase();
+      const status = normalize(document.getElementById('peopleStatus').value);
+      let rows;
+
+      if (state.peopleRole === 'ADMIN') {
+        rows = state.users.filter((item) => normalize(item.ROLE) === 'ADMIN').map((item) => ({ kind: 'admin', id: item.USER_ID || item.ID_USER, name: item.NAMA_TAMPIL || item.NAMA_USER, subtitle: item.EMAIL || item.EMAIL_USERNAME || item.USERNAME || '-', username: item.USERNAME || '-', email: item.EMAIL || '-', phone: '-', status: normalize(item.STATUS || item.STATUS_USER), balance: null, qrStatus: item.QR_STATUS, source: item }));
+      } else {
+        rows = state.members.filter((item) => normalize(item.KATEGORI) === state.peopleRole).map((item) => {
+          const user = state.users.find((account) => (account.ANGGOTA_ID || '') === (item.ANGGOTA_ID || item.ID_ANGGOTA)) || {};
+          const displayName = state.peopleRole === 'UMKM' && item.NAMA_UMKM ? item.NAMA_UMKM : item.NAMA || item.NAMA_ANGGOTA;
+          return { kind: 'member', id: item.ANGGOTA_ID || item.ID_ANGGOTA, name: displayName, subtitle: state.peopleRole === 'UMKM' ? (item.PENANGGUNG_JAWAB || item.NAMA || '-') : (item.ALAMAT || '-'), username: user.USERNAME || '-', email: user.EMAIL || '-', phone: item.NO_HP || '-', status: normalize(item.STATUS || item.STATUS_ANGGOTA), balance: Number(item.SALDO_RP ?? item.SALDO ?? 0), qrStatus: item.QR_STATUS, source: item };
+        });
+      }
+
+      rows = rows.filter((item) => (!status || item.status === status) && (!keyword || [item.id, item.name, item.subtitle, item.username, item.email, item.phone].join(' ').toLowerCase().includes(keyword)));
+      document.getElementById('peopleResultInfo').textContent = `${rows.length} data ${state.peopleRole.toLowerCase()} ditemukan${keyword ? ` untuk “${keyword}”` : ''}.`;
+      const container = document.getElementById('peopleTable');
+      if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada pengguna yang cocok dengan pencarian.</div>'; return; }
+
+      const paging = paginateRows('people', rows);
+
+      container.innerHTML = tableHtml(['No.', 'Nama / identitas', 'Akun', state.peopleRole === 'ADMIN' ? 'Role' : 'Saldo', 'Status', 'QR', 'Aksi'], paging.items.map((item, index) => [
+        String(paging.start + index + 1),
+        `<div class="identity-cell"><span class="member-avatar">${escapeHtml(item.name.charAt(0).toUpperCase())}</span><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.subtitle)}</small></span></div>`,
+        `<strong>${escapeHtml(item.username)}</strong><br><small>${escapeHtml(item.email)}</small>`,
+        item.kind === 'admin' ? '<span class="role-chip admin">ADMIN</span>' : formatRupiah(item.balance),
+        statusBadge(item.status),
+        statusBadge(item.qrStatus || 'BELUM DIBUAT'),
+        `<div class="row-actions"><button class="action-button" onclick="editPerson('${item.kind}','${jsString(item.id)}')">Edit</button>${item.kind === 'member' ? `<button class="action-button blue" onclick="downloadMemberReport('${jsString(item.id)}')">PDF</button>` : ''}<button class="action-button amber" onclick="togglePersonStatus('${item.kind}','${jsString(item.id)}','${item.status === 'AKTIF' ? 'NONAKTIF' : 'AKTIF'}')">${item.status === 'AKTIF' ? 'Nonaktifkan' : 'Aktifkan'}</button><button class="action-button red" onclick="deletePerson('${item.kind}','${jsString(item.id)}')">Hapus</button></div>`
+      ])) + paginationHtml(paging);
+    }
+
+    function openPersonModal(record = null, kind = '') {
+      document.getElementById('personForm').reset();
+      const role = record ? normalize(record.ROLE || record.KATEGORI) : state.peopleRole;
+      const isAdmin = (kind || (role === 'ADMIN' ? 'admin' : 'member')) === 'admin';
+      document.getElementById('personRecordId').value = record ? (isAdmin ? record.USER_ID || record.ID_USER : record.ANGGOTA_ID || record.ID_ANGGOTA) : '';
+      const roleSelect = document.getElementById('personRole');
+      roleSelect.value = role || state.peopleRole;
+      [...roleSelect.options].forEach((option) => {
+        option.disabled = Boolean(record) && (isAdmin ? option.value !== 'ADMIN' : option.value === 'ADMIN');
+      });
+      document.getElementById('personStatus').value = normalize(record?.STATUS || record?.STATUS_USER || record?.STATUS_ANGGOTA || 'AKTIF');
+      document.getElementById('personName').value = isAdmin ? (record?.NAMA_TAMPIL || record?.NAMA_USER || '') : (record?.NAMA || record?.NAMA_ANGGOTA || '');
+      document.getElementById('personBusinessName').value = record?.NAMA_UMKM || '';
+      document.getElementById('personResponsible').value = record?.PENANGGUNG_JAWAB || '';
+      const account = isAdmin ? record : state.users.find((item) => item.ANGGOTA_ID === (record?.ANGGOTA_ID || record?.ID_ANGGOTA));
+      document.getElementById('personUsername').value = account?.USERNAME || '';
+      document.getElementById('personEmail').value = account?.EMAIL || '';
+      document.getElementById('personPhone').value = record?.NO_HP || '';
+      document.getElementById('personRt').value = record?.RT || '';
+      document.getElementById('personRw').value = record?.RW || '';
+      document.getElementById('personAddress').value = record?.ALAMAT || '';
+      document.getElementById('personModalTitle').textContent = `${record ? 'Edit' : 'Tambah'} ${role === 'ADMIN' ? 'Admin' : role === 'UMKM' ? 'UMKM' : 'Masyarakat'}`;
+      document.getElementById('passwordHint').textContent = record ? 'kosongkan jika tidak diubah' : role === 'ADMIN' ? 'wajib untuk admin' : 'opsional';
+      syncPersonFormVisibility();
+      openModal('personModal');
+    }
+
+    function editPerson(kind, id) {
+      const record = kind === 'admin' ? state.users.find((item) => (item.USER_ID || item.ID_USER) === id) : state.members.find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === id);
+      if (record) openPersonModal(record, kind);
+    }
+
+    function syncPersonFormVisibility() {
+      const role = document.getElementById('personRole').value;
+      document.querySelectorAll('.member-only').forEach((element) => element.classList.toggle('is-hidden', role === 'ADMIN'));
+      document.querySelectorAll('.umkm-only').forEach((element) => element.classList.toggle('is-hidden', role !== 'UMKM'));
+      document.getElementById('personNameLabel').textContent = role === 'UMKM' ? 'Nama pemilik / anggota' : 'Nama lengkap';
+    }
+
+    async function submitPerson(event) {
+      event.preventDefault();
+      const button = document.getElementById('personSubmitButton');
+      setButtonLoading(button, true, 'Menyimpan...');
+      const id = document.getElementById('personRecordId').value;
+      const role = document.getElementById('personRole').value;
+      const common = { username: value('personUsername'), email: value('personEmail'), password: value('personPassword'), status: value('personStatus'), role };
+      try {
+        if (role === 'ADMIN') {
+          const savedUser = await apiPost(id ? 'pengguna.update' : 'pengguna.create', { userId: id, namaTampil: value('personName'), ...common });
+          if (id && id === currentUserId()) {
+            state.currentUser = savedUser;
+            renderCurrentUser();
+          }
+        } else {
+          await apiPost(id ? 'anggota.update' : 'anggota.create', { idAnggota: id, nama: value('personName'), kategori: role, namaUmkm: value('personBusinessName'), penanggungJawab: value('personResponsible'), noHp: value('personPhone'), rt: value('personRt'), rw: value('personRw'), alamat: value('personAddress'), ...common });
+        }
+        closeModal('personModal');
+        await loadPeopleData();
+        switchPeopleRole(role);
+        showToast('Data pengguna berhasil disimpan.');
+      } catch (error) { showToast(error.message, 'error'); }
+      finally { setButtonLoading(button, false, 'Simpan Pengguna'); }
+    }
+
+    async function togglePersonStatus(kind, id, status) {
+      if (!confirm(`Ubah status menjadi ${status}?`)) return;
+      try {
+        await apiPost(kind === 'admin' ? 'pengguna.status' : 'anggota.status', kind === 'admin' ? { userId: id, status } : { idAnggota: id, status });
+        await loadPeopleData();
+        showToast('Status berhasil diperbarui.');
+      } catch (error) { showToast(error.message, 'error'); }
+    }
+
+    async function deletePerson(kind, id) {
+      if (!confirm('Hapus data ini? Data yang telah memiliki transaksi tidak dapat dihapus.')) return;
+      try {
+        await apiPost(kind === 'admin' ? 'pengguna.delete' : 'anggota.delete', kind === 'admin' ? { userId: id } : { idAnggota: id });
+        await loadPeopleData();
+        showToast('Data berhasil dihapus.');
+      } catch (error) { showToast(error.message, 'error'); }
+    }
+
+    function renderLeaderboards() {
+      const reference = document.getElementById('leaderboardReferenceDate').valueAsDate || new Date();
+      const range = getPeriodRange(state.leaderboardPeriod, reference);
+      const all = buildLeaderboard(getVerifiedDeposits(range));
+      const community = all.filter((item) => item.category === 'MASYARAKAT');
+      const business = all.filter((item) => item.category === 'UMKM');
+      document.getElementById('communityParticipants').textContent = `${community.length} peserta`;
+      document.getElementById('businessParticipants').textContent = `${business.length} peserta`;
+      renderPodium('communityPodium', community);
+      renderPodium('businessPodium', business);
+      renderFullRanking('communityLeaderboard', community, 'communityLeaderboard');
+      renderFullRanking('businessLeaderboard', business, 'businessLeaderboard');
+    }
+
+    function renderPodium(containerId, rows) {
+      const ordered = [rows[1], rows[0], rows[2]];
+      document.getElementById(containerId).innerHTML = rows.length ? ordered.map((item, position) => item ? `<div class="podium-person place-${position === 1 ? 1 : position === 0 ? 2 : 3}"><span class="podium-medal">${position === 1 ? '1' : position === 0 ? '2' : '3'}</span><span class="podium-avatar">${escapeHtml(item.name.charAt(0))}</span><strong>${escapeHtml(item.name)}</strong><small>${formatNumber(item.weight, 2)} kg</small></div>` : '<div></div>').join('') : '<div class="empty-state compact">Belum ada peserta pada periode ini.</div>';
+    }
+
+    function renderFullRanking(containerId, rows, pageKey) {
+      if (!rows.length) { document.getElementById(containerId).innerHTML = ''; return; }
+      const paging = paginateRows(pageKey, rows);
+      document.getElementById(containerId).innerHTML = paging.items.map((item, index) => {
+        const position = paging.start + index + 1;
+        return `<div class="ranking-row"><span class="rank-number ${position <= 3 ? `top-${position}` : ''}">${position}</span><span class="ranking-person"><strong>${escapeHtml(item.name)}</strong><small>${item.transactions} transaksi · ${escapeHtml(item.topType || '-')}</small></span><b>${formatNumber(item.weight, 2)} kg</b></div>`;
+      }).join('') + paginationHtml(paging, true);
+    }
+
+    function renderDepositTable() {
+      const keyword = value('depositSearch').toLowerCase();
+      const status = normalize(value('depositStatus'));
+      const period = value('depositPeriod');
+      const range = period === 'all' ? null : getPeriodRange(period, new Date());
+      const rows = state.deposits.filter((item) => {
+        const itemStatus = normalize(item.STATUS || item.STATUS_TRANSAKSI);
+        const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+        const haystack = [item.SETORAN_ID || item.ID_SETORAN, item.NAMA_SNAPSHOT, memberName(item.ANGGOTA_ID || item.ID_ANGGOTA), item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH].join(' ').toLowerCase();
+        return (!keyword || haystack.includes(keyword)) && (!status || itemStatus === status) && (!range || isDateInRange(date, range));
+      });
+      const container = document.getElementById('depositTable');
+      if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada transaksi setoran yang cocok.</div>'; return; }
+      const paging = paginateRows('deposits', rows);
+      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Anggota', 'Jenis', 'Berat', 'Nilai', 'Status', 'Aksi'], paging.items.map((item, index) => {
+        const id = item.SETORAN_ID || item.ID_SETORAN;
+        const itemStatus = normalize(item.STATUS || item.STATUS_TRANSAKSI);
+        return [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN), escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'), `${formatNumber(item.BERAT_KG || item.BERAT, 2)} kg`, formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI), statusBadge(itemStatus), itemStatus === 'TERVERIFIKASI' ? `<button class="action-button red" onclick="cancelDeposit('${jsString(id)}')">Batalkan</button>` : '-'];
+      })) + paginationHtml(paging);
+    }
+
+    function openDepositModal() {
+      document.getElementById('depositForm').reset();
+      document.getElementById('depositDate').value = toLocalInputValue(new Date());
+      document.getElementById('depositMember').innerHTML = activeMembers().map((item) => `<option value="${escapeHtml(item.ANGGOTA_ID || item.ID_ANGGOTA)}">${escapeHtml(memberDisplayName(item))} · ${escapeHtml(item.KATEGORI)}</option>`).join('');
+      document.getElementById('depositItems').replaceChildren();
+      addDepositItem();
+      calculateDepositTotals();
+      openModal('depositModal');
+    }
+
+    function addDepositItem(data = {}) {
+      const row = document.createElement('div');
+      row.className = 'repeater-row deposit-item-row';
+      row.innerHTML = `<label><span>Jenis sampah</span><select class="select-control item-type" required>${activeTypes().map((item) => `<option value="${escapeHtml(item.JENIS_ID || item.ID_JENIS)}" data-buy="${Number(item.HARGA_BELI_KG ?? item.HARGA_BELI ?? 0)}" ${data.idJenis === (item.JENIS_ID || item.ID_JENIS) ? 'selected' : ''}>${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</option>`).join('')}</select></label><label><span>Berat (kg)</span><input class="input-control item-weight" type="number" min="0.01" step="0.01" value="${data.berat || ''}" required></label><label><span>Harga beli</span><input class="input-control item-price" readonly></label><label><span>Subtotal</span><input class="input-control item-subtotal" readonly></label><button class="remove-row" type="button" title="Hapus baris">×</button>`;
+      row.querySelectorAll('select,input').forEach((element) => element.addEventListener('input', calculateDepositTotals));
+      row.querySelector('.remove-row').addEventListener('click', () => { row.remove(); calculateDepositTotals(); });
+      document.getElementById('depositItems').appendChild(row);
+      calculateDepositTotals();
+    }
+
+    function calculateDepositTotals() {
+      let weight = 0;
+      let total = 0;
+      document.querySelectorAll('.deposit-item-row').forEach((row) => {
+        const select = row.querySelector('.item-type');
+        const price = Number(select.selectedOptions[0]?.dataset.buy || 0);
+        const itemWeight = Number(row.querySelector('.item-weight').value || 0);
+        const subtotal = price * itemWeight;
+        row.querySelector('.item-price').value = formatRupiah(price);
+        row.querySelector('.item-subtotal').value = formatRupiah(subtotal);
+        weight += itemWeight;
+        total += subtotal;
+      });
+      document.getElementById('depositTotalWeight').textContent = `${formatNumber(weight, 2)} kg`;
+      document.getElementById('depositTotalValue').textContent = formatRupiah(total);
+    }
+
+    async function submitDeposit(event) {
+      event.preventDefault();
+      const items = [...document.querySelectorAll('.deposit-item-row')].map((row) => ({ idJenis: row.querySelector('.item-type').value, beratKg: row.querySelector('.item-weight').value }));
+      if (!items.length) return showToast('Minimal satu jenis sampah harus diisi.', 'warning');
+      const button = document.getElementById('depositSubmitButton');
+      setButtonLoading(button, true, 'Menyimpan...');
+      try {
+        await apiPost('setoran.create', { idAnggota: value('depositMember'), tanggal: value('depositDate'), items, adminId: currentUserId(), sumberData: 'INPUT_ADMIN' });
+        closeModal('depositModal');
+        state.deposits = await apiGet('setoran.list', { limit: 500 });
+        state.members = await apiGet('anggota.list', { limit: 500 });
+        renderDepositTable();
+        showToast('Setoran berhasil dicatat.');
+      } catch (error) { showToast(error.message, 'error'); }
+      finally { setButtonLoading(button, false, 'Simpan Setoran'); }
+    }
+
+    async function cancelDeposit(id) {
+      const reason = prompt('Alasan pembatalan setoran:', 'Koreksi data oleh admin.');
+      if (reason === null) return;
+      try { await apiPost('setoran.cancel', { setoranId: id, alasan: reason }); state.deposits = await apiGet('setoran.list', { limit: 500 }); state.members = await apiGet('anggota.list', { limit: 500 }); renderDepositTable(); showToast('Setoran dibatalkan.'); }
+      catch (error) { showToast(error.message, 'error'); }
+    }
+
+    async function loadTypes() {
+      try { state.types = await apiGet('jenis.list', { limit: 500 }); renderTypeTable(); showToast('Jenis sampah diperbarui.'); }
+      catch (error) { showToast(error.message, 'error'); }
+    }
+
+    function renderTypeTable() {
+      const keyword = value('typeSearch').toLowerCase();
+      const rows = state.types.filter((item) => !keyword || [item.JENIS_ID || item.ID_JENIS, item.KODE_ASAL, item.NAMA_JENIS || item.NAMA_SAMPAH].join(' ').toLowerCase().includes(keyword));
+      const container = document.getElementById('typeTable');
+      if (!rows.length) { container.innerHTML = '<div class="empty-state large">Jenis sampah tidak ditemukan.</div>'; return; }
+      const paging = paginateRows('types', rows);
+      container.innerHTML = tableHtml(['No.', 'Kode', 'Jenis sampah', 'Harga beli', 'Harga jual', 'Satuan', 'Status', 'Aksi'], paging.items.map((item, index) => { const id = item.JENIS_ID || item.ID_JENIS; const status = normalize(item.STATUS || item.STATUS_JENIS); return [String(paging.start + index + 1), escapeHtml(item.KODE_ASAL || '-'), `<strong>${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</strong><br><small>${escapeHtml(item.CATATAN || '-')}</small>`, formatRupiah(item.HARGA_BELI_KG ?? item.HARGA_BELI), formatRupiah(item.HARGA_JUAL_KG ?? item.ESTIMASI_HARGA_JUAL), escapeHtml(item.SATUAN || 'kg'), statusBadge(status), `<div class="row-actions"><button class="action-button" onclick="editType('${jsString(id)}')">Edit</button><button class="action-button amber" onclick="toggleTypeStatus('${jsString(id)}','${status === 'AKTIF' ? 'NONAKTIF' : 'AKTIF'}')">${status === 'AKTIF' ? 'Nonaktifkan' : 'Aktifkan'}</button><button class="action-button red" onclick="deleteType('${jsString(id)}')">Hapus</button></div>`]; })) + paginationHtml(paging);
+    }
+
+    function openTypeModal(item = null) {
+      document.getElementById('typeForm').reset();
+      document.getElementById('typeId').value = item?.JENIS_ID || item?.ID_JENIS || '';
+      document.getElementById('typeCode').value = item?.KODE_ASAL || '';
+      document.getElementById('typeName').value = item?.NAMA_JENIS || item?.NAMA_SAMPAH || '';
+      document.getElementById('typeBuy').value = item?.HARGA_BELI_KG ?? item?.HARGA_BELI ?? '';
+      document.getElementById('typeSell').value = item?.HARGA_JUAL_KG ?? item?.ESTIMASI_HARGA_JUAL ?? '';
+      document.getElementById('typeUnit').value = String(item?.SATUAN || 'kg').toLowerCase();
+      document.getElementById('typeStatus').value = normalize(item?.STATUS || item?.STATUS_JENIS || 'AKTIF');
+      document.getElementById('typeNote').value = item?.CATATAN || '';
+      document.getElementById('typeModalTitle').textContent = item ? 'Edit Jenis Sampah' : 'Tambah Jenis Sampah';
+      openModal('typeModal');
+    }
+
+    function editType(id) { const item = state.types.find((row) => (row.JENIS_ID || row.ID_JENIS) === id); if (item) openTypeModal(item); }
+
+    async function submitType(event) {
+      event.preventDefault();
+      const id = value('typeId');
+      const button = document.getElementById('typeSubmitButton');
+      setButtonLoading(button, true, 'Menyimpan...');
+      try { await apiPost(id ? 'jenis.update' : 'jenis.create', { idJenis: id, kodeAsal: value('typeCode'), namaJenis: value('typeName'), hargaBeliKg: value('typeBuy'), hargaJualKg: value('typeSell'), satuan: value('typeUnit'), status: value('typeStatus'), catatan: value('typeNote') }); closeModal('typeModal'); await loadTypes(); }
+      catch (error) { showToast(error.message, 'error'); }
+      finally { setButtonLoading(button, false, 'Simpan Jenis'); }
+    }
+
+    async function toggleTypeStatus(id, status) { if (!confirm(`Ubah status jenis menjadi ${status}?`)) return; try { await apiPost('jenis.status', { idJenis: id, status }); await loadTypes(); } catch (error) { showToast(error.message, 'error'); } }
+    async function deleteType(id) { if (!confirm('Hapus jenis sampah ini? Data yang sudah memiliki transaksi tidak dapat dihapus.')) return; try { await apiPost('jenis.delete', { idJenis: id }); await loadTypes(); } catch (error) { showToast(error.message, 'error'); } }
+
+    async function loadSubmissions() { try { state.submissions = await apiGet('pengajuan.list', { limit: 500 }); updateNavigationCounts(); renderSubmissionTable(); } catch (error) { showToast(error.message, 'error'); } }
+
+    function renderSubmissionTable() {
+      const keyword = value('submissionSearch').toLowerCase(); const status = normalize(value('submissionStatus'));
+      const rows = state.submissions.filter((item) => { const itemStatus = normalize(item.STATUS || item.STATUS_PENGAJUAN); return (!status || itemStatus === status) && (!keyword || [item.PENGAJUAN_ID || item.ID_PENGAJUAN, item.NAMA_ANGGOTA, item.NAMA_SAMPAH].join(' ').toLowerCase().includes(keyword)); });
+      const container = document.getElementById('submissionTable');
+      if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada pengajuan yang cocok.</div>'; return; }
+      const paging = paginateRows('submissions', rows);
+      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Anggota', 'Jenis', 'Perkiraan', 'Metode', 'Status', 'Aksi'], paging.items.map((item, index) => { const id = item.PENGAJUAN_ID || item.ID_PENGAJUAN; const itemStatus = normalize(item.STATUS || item.STATUS_PENGAJUAN); return [String(paging.start + index + 1), formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN), escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)), `${formatNumber(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT, 2)} kg`, escapeHtml(item.METODE_SETOR || '-'), statusBadge(itemStatus), itemStatus === 'MENUNGGU' ? `<div class="row-actions"><button class="action-button blue" onclick="openSubmissionProcess('${jsString(id)}')">Verifikasi</button><button class="action-button red" onclick="rejectSubmission('${jsString(id)}')">Tolak</button></div>` : '-']; })) + paginationHtml(paging);
+    }
+
+    function openSubmissionProcess(id) {
+      const item = state.submissions.find((row) => (row.PENGAJUAN_ID || row.ID_PENGAJUAN) === id); if (!item) return;
+      state.processMode = 'submission'; state.processId = id;
+      document.getElementById('processModalTitle').textContent = 'Verifikasi Pengajuan';
+      document.getElementById('processModalBody').innerHTML = `<div class="form-grid"><label class="field full"><span>Anggota</span><input class="input-control" value="${escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))}" readonly></label><label class="field"><span>Jenis sampah</span><select id="processType" class="select-control">${activeTypes().map((type) => `<option value="${escapeHtml(type.JENIS_ID || type.ID_JENIS)}" ${(type.JENIS_ID || type.ID_JENIS) === (item.JENIS_ID || item.ID_JENIS) ? 'selected' : ''}>${escapeHtml(type.NAMA_JENIS || type.NAMA_SAMPAH)}</option>`).join('')}</select></label><label class="field"><span>Berat final (kg)</span><input id="processWeight" class="input-control" type="number" min="0.01" step="0.01" value="${Number(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT || 0)}" required></label><label class="field full"><span>Catatan admin</span><textarea id="processNote" class="textarea-control"></textarea></label></div>`;
+      openModal('processModal');
+    }
+
+    async function rejectSubmission(id) { const note = prompt('Alasan penolakan:', 'Data atau sampah belum sesuai ketentuan.'); if (note === null) return; try { await apiPost('pengajuan.reject', { idPengajuan: id, adminId: currentUserId(), catatanAdmin: note }); await loadSubmissions(); showToast('Pengajuan ditolak.'); } catch (error) { showToast(error.message, 'error'); } }
+
+    async function loadWithdrawals() { try { state.withdrawals = await apiGet('pencairan.list', { limit: 500 }); updateNavigationCounts(); renderWithdrawalTable(); } catch (error) { showToast(error.message, 'error'); } }
+
+    function renderWithdrawalTable() {
+      const keyword = value('withdrawalSearch').toLowerCase(); const status = normalize(value('withdrawalStatus'));
+      const rows = state.withdrawals.filter((item) => { const itemStatus = normalize(item.STATUS || item.STATUS_PENCAIRAN); return (!status || itemStatus === status) && (!keyword || [item.PENCAIRAN_ID || item.ID_PENCAIRAN, item.NAMA_ANGGOTA, memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)].join(' ').toLowerCase().includes(keyword)); });
+      const container = document.getElementById('withdrawalTable'); if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada pencairan yang cocok.</div>'; return; }
+      const paging = paginateRows('withdrawals', rows);
+      container.innerHTML = tableHtml(['No.', 'Diajukan', 'Anggota', 'Nominal', 'Status', 'Diproses', 'Aksi'], paging.items.map((item, index) => { const id = item.PENCAIRAN_ID || item.ID_PENCAIRAN; const itemStatus = normalize(item.STATUS || item.STATUS_PENCAIRAN); return [String(paging.start + index + 1), formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN), escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), formatRupiah(item.JUMLAH_RP || item.NOMINAL), statusBadge(itemStatus), item.DIPROSES_PADA || item.TANGGAL_PROSES ? formatDateTime(item.DIPROSES_PADA || item.TANGGAL_PROSES) : '-', itemStatus === 'DIAJUKAN' ? `<button class="action-button blue" onclick="openWithdrawalProcess('${jsString(id)}')">Proses</button>` : '-']; })) + paginationHtml(paging);
+    }
+
+    function openWithdrawalProcess(id) {
+      const item = state.withdrawals.find((row) => (row.PENCAIRAN_ID || row.ID_PENCAIRAN) === id); if (!item) return;
+      state.processMode = 'withdrawal'; state.processId = id;
+      document.getElementById('processModalTitle').textContent = 'Proses Pencairan';
+      document.getElementById('processModalBody').innerHTML = `<div class="form-grid"><label class="field full"><span>Anggota dan nominal</span><input class="input-control" value="${escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))} - ${formatRupiah(item.JUMLAH_RP || item.NOMINAL)}" readonly></label><label class="field"><span>Keputusan</span><select id="processStatus" class="select-control"><option value="DISETUJUI">Disetujui</option><option value="DITOLAK">Ditolak</option><option value="DIBATALKAN">Dibatalkan</option></select></label><label class="field full"><span>Catatan admin</span><textarea id="processNote" class="textarea-control"></textarea></label></div>`;
+      openModal('processModal');
+    }
+
+    async function submitProcess(event) {
+      event.preventDefault(); const button = document.getElementById('processSubmitButton'); setButtonLoading(button, true, 'Memproses...');
+      try {
+        if (state.processMode === 'submission') { await apiPost('pengajuan.verify', { idPengajuan: state.processId, idJenis: value('processType'), beratFinal: value('processWeight'), adminId: currentUserId(), catatanAdmin: value('processNote') }); await loadSubmissions(); state.deposits = await apiGet('setoran.list', { limit: 500 }); }
+        else { await apiPost('pencairan.process', { idPencairan: state.processId, status: value('processStatus'), adminId: currentUserId(), catatan: value('processNote') }); await loadWithdrawals(); state.members = await apiGet('anggota.list', { limit: 500 }); }
+        closeModal('processModal'); showToast('Data berhasil diproses.');
+      } catch (error) { showToast(error.message, 'error'); }
+      finally { setButtonLoading(button, false, 'Simpan Keputusan'); }
+    }
+
+    function renderSaleTable() {
+      const keyword = value('saleSearch').toLowerCase(); const period = value('salePeriod'); const range = period === 'all' ? null : getPeriodRange(period, new Date());
+      const rows = state.sales.filter((item) => (!keyword || [item.PENJUALAN_ID || item.ID_PENJUALAN, item.PEMBELI || item.NAMA_PENGEPUL].join(' ').toLowerCase().includes(keyword)) && (!range || isDateInRange(parseDate(item.TANGGAL || item.TANGGAL_PENJUALAN), range)));
+      const container = document.getElementById('saleTable'); if (!rows.length) { container.innerHTML = '<div class="empty-state large">Belum ada penjualan pada filter ini.</div>'; return; }
+      const paging = paginateRows('sales', rows);
+      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Pembeli', 'Total berat', 'Total nilai', 'Rincian', 'Status'], paging.items.map((item, index) => [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_PENJUALAN), escapeHtml(item.PEMBELI || item.NAMA_PENGEPUL), `${formatNumber(item.TOTAL_BERAT_KG, 2)} kg`, formatRupiah(item.TOTAL_RP || item.TOTAL_KOTOR), `${(item.DETAIL || []).length} jenis`, statusBadge(item.STATUS || 'SELESAI')])) + paginationHtml(paging);
+    }
+
+    function openSaleModal() {
+      document.getElementById('saleForm').reset(); document.getElementById('saleDate').value = toLocalInputValue(new Date()); document.getElementById('saleSender').value = state.currentUser?.NAMA_TAMPIL || state.currentUser?.NAMA_USER || ''; document.getElementById('saleItems').replaceChildren(); addSaleItem(); calculateSaleTotals(); openModal('saleModal');
+    }
+
+    function addSaleItem(data = {}) {
+      const row = document.createElement('div'); row.className = 'repeater-row sale-item-row';
+      row.innerHTML = `<label><span>Jenis sampah</span><select class="select-control item-type" required>${state.types.map((item) => `<option value="${escapeHtml(item.JENIS_ID || item.ID_JENIS)}" data-sell="${Number(item.HARGA_JUAL_KG ?? item.ESTIMASI_HARGA_JUAL ?? 0)}">${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</option>`).join('')}</select></label><label><span>Berat (kg)</span><input class="input-control item-weight" type="number" min="0.01" step="0.01" value="${data.berat || ''}" required></label><label><span>Harga jual / kg</span><input class="input-control item-price" type="number" min="0" required></label><label><span>Subtotal</span><input class="input-control item-subtotal" readonly></label><button class="remove-row" type="button">×</button>`;
+      const select = row.querySelector('.item-type'); const price = row.querySelector('.item-price'); price.value = select.selectedOptions[0]?.dataset.sell || 0;
+      select.addEventListener('change', () => { price.value = select.selectedOptions[0]?.dataset.sell || 0; calculateSaleTotals(); });
+      row.querySelectorAll('input').forEach((element) => element.addEventListener('input', calculateSaleTotals)); row.querySelector('.remove-row').addEventListener('click', () => { row.remove(); calculateSaleTotals(); });
+      document.getElementById('saleItems').appendChild(row); calculateSaleTotals();
+    }
+
+    function calculateSaleTotals() {
+      let weight = 0; let total = 0;
+      document.querySelectorAll('.sale-item-row').forEach((row) => { const itemWeight = Number(row.querySelector('.item-weight').value || 0); const price = Number(row.querySelector('.item-price').value || 0); row.querySelector('.item-subtotal').value = formatRupiah(itemWeight * price); weight += itemWeight; total += itemWeight * price; });
+      document.getElementById('saleTotalWeight').textContent = `${formatNumber(weight, 2)} kg`; document.getElementById('saleTotalValue').textContent = formatRupiah(total);
+    }
+
+    async function submitSale(event) {
+      event.preventDefault(); const items = [...document.querySelectorAll('.sale-item-row')].map((row) => ({ idJenis: row.querySelector('.item-type').value, beratKg: row.querySelector('.item-weight').value, hargaJualKg: row.querySelector('.item-price').value })); const button = document.getElementById('saleSubmitButton'); setButtonLoading(button, true, 'Menyimpan...');
+      try { await apiPost('penjualan.create', { pembeli: value('saleBuyer'), tanggal: value('saleDate'), penyetor: value('saleSender'), penerima: value('saleReceiver'), catatan: value('saleNote'), adminId: currentUserId(), items }); closeModal('saleModal'); state.sales = await apiGet('penjualan.list', { limit: 500 }); renderSaleTable(); showToast('Penjualan berhasil dicatat.'); }
+      catch (error) { showToast(error.message, 'error'); }
+      finally { setButtonLoading(button, false, 'Simpan Penjualan'); }
+    }
+
+    function refreshReportPreview() {
+      const range = getReportRange(); const rows = getVerifiedDeposits(range); const summary = summarizeDeposits(rows);
+      document.getElementById('reportPreviewTitle').textContent = `Ringkasan ${range.label.toLowerCase()}`; document.getElementById('reportTransactionCount').textContent = `${rows.length} transaksi`;
+      document.getElementById('overallReportStats').innerHTML = `<span><small>Total berat</small><strong>${formatNumber(summary.totalWeight, 2)} kg</strong></span><span><small>Total nilai</small><strong>${formatRupiah(summary.totalValue)}</strong></span><span><small>Anggota</small><strong>${summary.memberCount}</strong></span>`;
+      const topTypes = Object.values(summary.byType).sort((a, b) => b.weight - a.weight).slice(0, 8);
+      document.getElementById('reportPreview').innerHTML = topTypes.length ? tableHtml(['Jenis sampah', 'Berat', 'Nilai', 'Persentase'], topTypes.map((item) => [escapeHtml(item.name), `${formatNumber(item.weight, 2)} kg`, formatRupiah(item.value), `${summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : 0}%`])) : '<div class="empty-state large">Belum ada data terverifikasi pada periode ini.</div>';
+      renderReportMemberOptions();
+    }
+
+    function renderReportMemberOptions() {
+      const select = document.getElementById('reportMemberSelect'); if (!select) return;
+      const selected = select.value; const keyword = value('reportMemberSearch').toLowerCase();
+      const rows = state.members.filter((item) => !keyword || [memberDisplayName(item), item.NAMA, item.NAMA_UMKM, item.ANGGOTA_ID || item.ID_ANGGOTA].join(' ').toLowerCase().includes(keyword)).sort((a, b) => memberDisplayName(a).localeCompare(memberDisplayName(b), 'id'));
+      select.innerHTML = rows.map((item) => `<option value="${escapeHtml(item.ANGGOTA_ID || item.ID_ANGGOTA)}">${escapeHtml(memberDisplayName(item))} · ${escapeHtml(item.KATEGORI)}</option>`).join('');
+      if (rows.some((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === selected)) select.value = selected;
+    }
+
+    function downloadOverallReport() { generateReportPdf({ memberId: '', range: getReportRange(), title: 'LAPORAN KESELURUHAN BANK SAMPAH' }); }
+    function downloadSelectedMemberReport() { const id = value('reportMemberSelect'); if (!id) return showToast('Pilih anggota terlebih dahulu.', 'warning'); downloadMemberReport(id); }
+    function downloadMemberReport(id) { generateReportPdf({ memberId: id, range: getReportRange(), title: 'LAPORAN TRANSAKSI ANGGOTA' }); }
+
+    function generateReportPdf({ memberId, range, title }) {
+      if (!window.jspdf?.jsPDF) return showToast('Library PDF belum berhasil dimuat.', 'error');
+      const member = memberId ? state.members.find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === memberId) : null;
+      const rows = getVerifiedDeposits(range).filter((item) => !memberId || (item.ANGGOTA_ID || item.ID_ANGGOTA) === memberId);
+      const summary = summarizeDeposits(rows);
+      const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit: 'mm', format: 'a4' }); const pageWidth = doc.internal.pageSize.getWidth();
+      const reportId = `BSK-${formatDateCode(new Date())}-${memberId || 'ALL'}`;
+
+      doc.setFillColor(11, 59, 37); doc.rect(0, 0, pageWidth, 34, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('BANK SAMPAH KUTANEGARA', 14, 14); doc.setFontSize(10); doc.text(title, 14, 22); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(`No. Dokumen: ${reportId}`, 14, 28); doc.text(`Dibuat: ${formatDateTime(new Date())}`, pageWidth - 14, 28, { align: 'right' });
+      doc.setTextColor(30, 41, 59); doc.setFontSize(9); let y = 43;
+      const metadata = member ? [['ID Anggota', memberId], ['Nama', memberDisplayName(member)], ['Kategori', normalize(member.KATEGORI)], ['Alamat', [member.ALAMAT, member.RT ? `RT ${member.RT}` : '', member.RW ? `RW ${member.RW}` : ''].filter(Boolean).join(', ') || '-'], ['Periode', range.label]] : [['Jenis laporan', 'Rekap keseluruhan'], ['Periode', range.label], ['Jumlah anggota', String(summary.memberCount)], ['Status data', 'Hanya transaksi TERVERIFIKASI']];
+      doc.autoTable({ startY: y, body: metadata, theme: 'plain', styles: { fontSize: 8, cellPadding: 1.4 }, columnStyles: { 0: { fontStyle: 'bold', textColor: [71, 85, 105], cellWidth: 35 } }, margin: { left: 14, right: 14 } });
+      y = doc.lastAutoTable.finalY + 6;
+      doc.autoTable({ startY: y, head: [['TOTAL BERAT', 'TOTAL NILAI', 'TRANSAKSI', 'JENIS SAMPAH']], body: [[`${formatNumber(summary.totalWeight, 2)} kg`, formatRupiah(summary.totalValue), String(rows.length), String(Object.keys(summary.byType).length)]], theme: 'grid', headStyles: { fillColor: [23, 115, 63], fontSize: 8, halign: 'center' }, bodyStyles: { fontSize: 10, fontStyle: 'bold', halign: 'center', cellPadding: 4 }, margin: { left: 14, right: 14 } });
+      y = doc.lastAutoTable.finalY + 7;
+      const typeRows = Object.values(summary.byType).sort((a, b) => b.weight - a.weight).map((item, index) => [String(index + 1), item.name, `${formatNumber(item.weight, 2)} kg`, formatRupiah(item.value), `${summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : 0}%`]);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('Ringkasan per Jenis Sampah', 14, y); y += 3;
+      doc.autoTable({ startY: y, head: [['No', 'Jenis Sampah', 'Berat', 'Nilai', 'Porsi']], body: typeRows.length ? typeRows : [['-', 'Tidak ada data', '0 kg', 'Rp0', '0%']], theme: 'striped', headStyles: { fillColor: [226, 239, 231], textColor: [11, 59, 37], fontStyle: 'bold' }, styles: { fontSize: 7.5, cellPadding: 2 }, margin: { left: 14, right: 14 } });
+      y = doc.lastAutoTable.finalY + 7;
+      doc.setFontSize(10); doc.text('Rincian Transaksi Terverifikasi', 14, y); y += 3;
+      const detailRows = rows.map((item, index) => [String(index + 1), formatDate(item.TANGGAL || item.TANGGAL_SETORAN), item.SETORAN_ID || item.ID_SETORAN, memberDisplayNameById(item.ANGGOTA_ID || item.ID_ANGGOTA), item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-', formatNumber(item.BERAT_KG || item.BERAT, 2), formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI)]);
+      doc.autoTable({ startY: y, head: [['No', 'Tanggal', 'ID', 'Anggota', 'Jenis', 'Kg', 'Nilai']], body: detailRows.length ? detailRows : [['-', '-', '-', 'Tidak ada transaksi', '-', '0', 'Rp0']], theme: 'grid', headStyles: { fillColor: [11, 59, 37] }, styles: { fontSize: 6.8, cellPadding: 1.6, overflow: 'linebreak' }, columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 19 }, 2: { cellWidth: 34 }, 5: { cellWidth: 13, halign: 'right' }, 6: { cellWidth: 24, halign: 'right' } }, margin: { left: 10, right: 10 } });
+      y = doc.lastAutoTable.finalY + 10; if (y > 245) { doc.addPage(); y = 25; }
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(71, 85, 105); doc.text('Dokumen ini dihasilkan dari database Bank Sampah Kutanegara dan hanya memuat transaksi terverifikasi.', 14, y); y += 12;
+      doc.setTextColor(30, 41, 59); doc.text('Mengetahui,', 36, y); doc.text(member ? 'Anggota / Penanggung Jawab,' : 'Petugas Penyusun,', pageWidth - 55, y); y += 23; doc.setFont('helvetica', 'bold'); doc.text('(________________________)', 36, y, { align: 'center' }); doc.text('(________________________)', pageWidth - 55, y, { align: 'center' }); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('Admin Bank Sampah Kutanegara', 36, y + 5, { align: 'center' }); doc.text(member ? memberDisplayName(member) : (state.currentUser?.NAMA_TAMPIL || 'Administrator'), pageWidth - 55, y + 5, { align: 'center' });
+      addPdfFooters(doc, reportId);
+      const fileName = `Laporan_${memberId ? safeFileName(memberDisplayName(member)) : 'Keseluruhan'}_${safeFileName(range.label)}.pdf`; doc.save(fileName); showToast('Laporan PDF berhasil dibuat.');
+    }
+
+    function downloadLeaderboardPdf() {
+      if (!window.jspdf?.jsPDF) return showToast('Library PDF belum berhasil dimuat.', 'error');
+      const reference = document.getElementById('leaderboardReferenceDate').valueAsDate || new Date(); const range = getPeriodRange(state.leaderboardPeriod, reference); const rows = buildLeaderboard(getVerifiedDeposits(range)); const { jsPDF } = window.jspdf; const doc = new jsPDF();
+      doc.setFillColor(11, 59, 37); doc.rect(0, 0, 210, 31, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text('LEADERBOARD BANK SAMPAH KUTANEGARA', 14, 14); doc.setFontSize(9); doc.text(range.label, 14, 22); let y = 40;
+      ['MASYARAKAT', 'UMKM'].forEach((role) => { const roleRows = rows.filter((item) => item.category === role); doc.setTextColor(30, 41, 59); doc.setFontSize(11); doc.text(`Peringkat ${role}`, 14, y); y += 3; doc.autoTable({ startY: y, head: [['Peringkat', 'Nama', 'Total Berat', 'Transaksi', 'Jenis Dominan']], body: roleRows.length ? roleRows.map((item, index) => [String(index + 1), item.name, `${formatNumber(item.weight, 2)} kg`, String(item.transactions), item.topType || '-']) : [['-', 'Belum ada peserta', '0 kg', '0', '-']], headStyles: { fillColor: role === 'UMKM' ? [47, 91, 150] : [23, 115, 63] }, styles: { fontSize: 8 }, margin: { left: 14, right: 14 } }); y = doc.lastAutoTable.finalY + 11; if (y > 245 && role === 'MASYARAKAT') { doc.addPage(); y = 25; } });
+      addPdfFooters(doc, `BSK-LB-${formatDateCode(new Date())}`); doc.save(`Leaderboard_${safeFileName(range.label)}.pdf`); showToast('PDF leaderboard berhasil dibuat.');
+    }
+
+    function addPdfFooters(doc, reportId) { const pages = doc.getNumberOfPages(); for (let page = 1; page <= pages; page += 1) { doc.setPage(page); doc.setDrawColor(220, 231, 223); doc.line(14, 286, 196, 286); doc.setFontSize(7); doc.setTextColor(100, 116, 105); doc.text(reportId, 14, 291); doc.text(`Halaman ${page} dari ${pages}`, 196, 291, { align: 'right' }); } }
+
+    function renderQrTable() {
+      const keyword = value('qrSearch').toLowerCase(); const role = normalize(value('qrRole'));
+      const rows = [];
+      state.users.filter((item) => normalize(item.ROLE) === 'ADMIN').forEach((item) => rows.push({ type: 'admin', role: 'ADMIN', id: item.USER_ID || item.ID_USER, name: item.NAMA_TAMPIL || item.NAMA_USER, token: item.TOKEN_QR || item.QR_TOKEN, status: item.QR_STATUS || (normalize(item.LOGIN_QR_AKTIF) === 'YA' ? 'AKTIF' : 'NONAKTIF') }));
+      state.members.forEach((item) => rows.push({ type: normalize(item.KATEGORI).toLowerCase(), role: normalize(item.KATEGORI), id: item.ANGGOTA_ID || item.ID_ANGGOTA, name: memberDisplayName(item), token: item.QR_TOKEN, status: item.QR_STATUS || 'BELUM DIBUAT' }));
+      const filtered = rows.filter((item) => (!role || item.role === role) && (!keyword || [item.id, item.name, item.role].join(' ').toLowerCase().includes(keyword)));
+      const container = document.getElementById('qrTable'); if (!filtered.length) { container.innerHTML = '<div class="empty-state large">Data QR tidak ditemukan.</div>'; return; }
+      const paging = paginateRows('qr', filtered);
+      container.innerHTML = tableHtml(['No.', 'Pengguna', 'Role', 'Status QR', 'Token', 'Aksi'], paging.items.map((item, index) => [String(paging.start + index + 1), `<strong>${escapeHtml(item.name)}</strong>`, `<span class="role-chip ${item.role.toLowerCase()}">${escapeHtml(item.role)}</span>`, statusBadge(item.status), item.token ? `<code class="token-preview">${escapeHtml(item.token.slice(0, 12))}...</code>` : '-', `<div class="row-actions"><button class="action-button" onclick="generateQr('${item.type}','${jsString(item.id)}')">${item.token ? 'Buat ulang' : 'Buat QR'}</button>${item.token ? `<button class="action-button blue" onclick="showExistingQr('${item.type}','${jsString(item.id)}')">Lihat</button><button class="action-button amber" onclick="changeQrStatus('${item.type}','${jsString(item.id)}','${normalize(item.status) === 'AKTIF' ? 'NONAKTIF' : 'AKTIF'}')">${normalize(item.status) === 'AKTIF' ? 'Nonaktifkan' : 'Aktifkan'}</button><button class="action-button red" onclick="deleteQr('${item.type}','${jsString(item.id)}')">Hapus</button>` : ''}</div>`])) + paginationHtml(paging);
+    }
+
+    async function generateQr(type, id) { try { const result = await apiPost('qr.generate', { type, id }); await loadPeopleData(); showQr({ type: result.type || type, id, token: result.token, status: result.status, url: result.url || buildQrUrl(type, result.token) }); } catch (error) { showToast(error.message, 'error'); } }
+    function showExistingQr(type, id) { const row = type === 'admin' ? state.users.find((item) => (item.USER_ID || item.ID_USER) === id) : state.members.find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === id); const token = row?.TOKEN_QR || row?.QR_TOKEN; if (!token) return; showQr({ type, id, token, status: row.QR_STATUS, url: buildQrUrl(type, token) }); }
+    function showQr(data) { state.currentQr = data; const container = document.getElementById('qrImage'); container.replaceChildren(); if (typeof QRCode !== 'undefined') new QRCode(container, { text: data.url, width: 230, height: 230, correctLevel: QRCode.CorrectLevel.H }); document.getElementById('qrDetails').innerHTML = detailRows([['Tipe', data.type], ['Status', data.status], ['Token', data.token], ['Tautan', data.url]]); openModal('qrModal'); }
+    async function changeQrStatus(type, id, status) { try { await apiPost('qr.status', { type, id, status }); await loadPeopleData(); renderQrTable(); showToast('Status QR diperbarui.'); } catch (error) { showToast(error.message, 'error'); } }
+    async function deleteQr(type, id) { if (!confirm('Hapus token QR ini? Data pengguna tidak akan terhapus.')) return; try { await apiPost('qr.delete', { type, id }); await loadPeopleData(); renderQrTable(); showToast('Token QR dihapus.'); } catch (error) { showToast(error.message, 'error'); } }
+    async function copyCurrentQr() { try { await navigator.clipboard.writeText(state.currentQr.url); showToast('Tautan QR disalin.'); } catch (error) { showToast('Tautan tidak dapat disalin otomatis.', 'warning'); } }
+    function downloadCurrentQr() { const canvas = document.querySelector('#qrImage canvas'); const image = document.querySelector('#qrImage img'); const dataUrl = canvas?.toDataURL('image/png') || image?.src; if (!dataUrl) return showToast('Gambar QR belum tersedia.', 'error'); const link = document.createElement('a'); link.href = dataUrl; link.download = `QR_${state.currentQr.type}_${state.currentQr.id}.png`; link.click(); }
+    function buildQrUrl(type, token) { const accessType = String(type || '').toLowerCase(); const isAdmin = accessType === 'admin'; const fileName = isAdmin ? 'admin.html' : accessType === 'umkm' ? 'umkm.html' : 'masyarakat.html'; return new URL(fileName + '?' + (isAdmin ? 'access' : 'token') + '=' + encodeURIComponent(token), window.location.href).href; }
+
+    function summarizeDeposits(rows) {
+      const byType = {}; const members = new Set(); let totalWeight = 0; let totalValue = 0;
+      rows.forEach((item) => { const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS); const weight = Number(item.BERAT_KG ?? item.BERAT ?? 0); const itemValue = Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); if (!byType[name]) byType[name] = { name, weight: 0, value: 0 }; byType[name].weight += weight; byType[name].value += itemValue; totalWeight += weight; totalValue += itemValue; members.add(item.ANGGOTA_ID || item.ID_ANGGOTA); });
+      const topType = Object.values(byType).sort((a, b) => b.weight - a.weight)[0] || null;
+      return { count: rows.length, totalWeight: round(totalWeight, 2), totalValue: round(totalValue, 0), memberCount: [...members].filter(Boolean).length, byType, topType };
+    }
+
+    function buildLeaderboard(rows) {
+      const result = {};
+      rows.forEach((item) => { const id = item.ANGGOTA_ID || item.ID_ANGGOTA; if (!id) return; const member = state.members.find((row) => (row.ANGGOTA_ID || row.ID_ANGGOTA) === id); if (!member) return; if (!result[id]) result[id] = { id, name: memberDisplayName(member), category: normalize(member.KATEGORI), weight: 0, value: 0, transactions: 0, types: {} }; const weight = Number(item.BERAT_KG ?? item.BERAT ?? 0); const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'; result[id].weight += weight; result[id].value += Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); result[id].transactions += 1; result[id].types[name] = (result[id].types[name] || 0) + weight; });
+      return Object.values(result).map((item) => ({ ...item, weight: round(item.weight, 2), topType: Object.entries(item.types).sort((a, b) => b[1] - a[1])[0]?.[0] || '-' })).sort((a, b) => b.weight - a.weight || b.transactions - a.transactions || a.name.localeCompare(b.name, 'id'));
+    }
+
+    function buildTrendPoints(rows, period, range) {
+      const map = {};
+      if (period === 'year') { for (let month = 0; month < 12; month += 1) map[`${range.start.getFullYear()}-${String(month + 1).padStart(2, '0')}`] = 0; rows.forEach((item) => { const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN); const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; map[key] = (map[key] || 0) + Number(item.BERAT_KG ?? item.BERAT ?? 0); }); return { labels: Object.keys(map).map((key) => monthShort(Number(key.slice(-2)) - 1)), values: Object.values(map).map((value) => round(value, 2)) }; }
+      if (period === 'today') { for (let hour = 0; hour < 24; hour += 3) map[String(hour).padStart(2, '0')] = 0; rows.forEach((item) => { const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN); const bucket = Math.floor(date.getHours() / 3) * 3; const key = String(bucket).padStart(2, '0'); map[key] = (map[key] || 0) + Number(item.BERAT_KG ?? item.BERAT ?? 0); }); return { labels: Object.keys(map).map((key) => `${key}:00`), values: Object.values(map).map((value) => round(value, 2)) }; }
+      const cursor = new Date(range.start); while (cursor <= range.end) { map[dateKey(cursor)] = 0; cursor.setDate(cursor.getDate() + 1); }
+      rows.forEach((item) => { const key = dateKey(parseDate(item.TANGGAL || item.TANGGAL_SETORAN)); map[key] = (map[key] || 0) + Number(item.BERAT_KG ?? item.BERAT ?? 0); });
+      return { labels: Object.keys(map).map((key) => period === 'week' ? weekdayShort(parseDate(`${key}T00:00:00`)) : key.slice(-2)), values: Object.values(map).map((value) => round(value, 2)) };
+    }
+
+    function getVerifiedDeposits(range) { return state.deposits.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI' && (!range || isDateInRange(parseDate(item.TANGGAL || item.TANGGAL_SETORAN), range))); }
+    function getPeriodRange(period, referenceInput) { const reference = new Date(referenceInput); reference.setHours(0, 0, 0, 0); let start = new Date(reference); let end = new Date(reference); if (period === 'week') { const day = (reference.getDay() + 6) % 7; start.setDate(reference.getDate() - day); end = new Date(start); end.setDate(start.getDate() + 6); } else if (period === 'month') { start = new Date(reference.getFullYear(), reference.getMonth(), 1); end = new Date(reference.getFullYear(), reference.getMonth() + 1, 0); } else if (period === 'year') { start = new Date(reference.getFullYear(), 0, 1); end = new Date(reference.getFullYear(), 11, 31); } end.setHours(23, 59, 59, 999); return { start, end, label: period === 'today' ? formatDate(reference) : `${formatDate(start)} - ${formatDate(end)}` }; }
+    function getReportRange() { const period = value('reportPeriod') || 'month'; const reference = document.getElementById('reportReferenceDate')?.valueAsDate || new Date(); return getPeriodRange(period, reference); }
+    function isDateInRange(date, range) { return date && !Number.isNaN(date.getTime()) && date >= range.start && date <= range.end; }
+
+    function resetPagination(...keys) {
+      keys.forEach((key) => { state.pagination[key] = 1; });
+    }
+
+    function paginateRows(key, rows) {
+      const totalItems = rows.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
+      const currentPage = Math.min(Math.max(Number(state.pagination[key]) || 1, 1), totalPages);
+      const start = (currentPage - 1) * state.pageSize;
+      state.pagination[key] = currentPage;
+      return {
+        key,
+        items: rows.slice(start, start + state.pageSize),
+        start,
+        end: Math.min(start + state.pageSize, totalItems),
+        totalItems,
+        totalPages,
+        currentPage
+      };
+    }
+
+    function paginationHtml(paging, compact = false) {
+      const pages = paginationNumbers(paging.currentPage, paging.totalPages);
+      return `<nav class="pagination-bar ${compact ? 'compact' : ''}" data-pagination="${escapeHtml(paging.key)}" aria-label="Navigasi halaman">
+        <span class="pagination-info">${paging.start + 1}-${paging.end} dari ${paging.totalItems} data</span>
+        <div class="pagination-controls">
+          <button class="page-direction" type="button" onclick="goToPage('${paging.key}',${paging.currentPage - 1})" ${paging.currentPage === 1 ? 'disabled' : ''} aria-label="Halaman sebelumnya">‹ <span>Sebelumnya</span></button>
+          <div class="page-numbers">${pages.map((page) => page === 'ellipsis' ? '<span class="page-ellipsis">…</span>' : `<button class="page-number ${page === paging.currentPage ? 'is-active' : ''}" type="button" onclick="goToPage('${paging.key}',${page})" ${page === paging.currentPage ? 'aria-current="page"' : ''}>${page}</button>`).join('')}</div>
+          <button class="page-direction" type="button" onclick="goToPage('${paging.key}',${paging.currentPage + 1})" ${paging.currentPage === paging.totalPages ? 'disabled' : ''} aria-label="Halaman selanjutnya"><span>Selanjutnya</span> ›</button>
+        </div>
+      </nav>`;
+    }
+
+    function paginationNumbers(currentPage, totalPages) {
+      if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+      if (currentPage <= 4) return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
+      if (currentPage >= totalPages - 3) return [1, 'ellipsis', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      return [1, 'ellipsis', currentPage - 1, currentPage, currentPage + 1, 'ellipsis', totalPages];
+    }
+
+    function goToPage(key, page) {
+      state.pagination[key] = Math.max(1, Number(page) || 1);
+      const renderers = {
+        people: renderPeopleTable,
+        deposits: renderDepositTable,
+        types: renderTypeTable,
+        submissions: renderSubmissionTable,
+        withdrawals: renderWithdrawalTable,
+        sales: renderSaleTable,
+        qr: renderQrTable,
+        communityLeaderboard: renderLeaderboards,
+        businessLeaderboard: renderLeaderboards
+      };
+      if (renderers[key]) renderers[key]();
+      requestAnimationFrame(() => document.querySelector(`[data-pagination="${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+    }
+
+    function chartOptions(unit) { return { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, scales: { x: { grid: { display: false }, ticks: { color: '#7a887f', font: { size: 9 } } }, y: { beginAtZero: true, grid: { color: 'rgba(220,231,223,.7)' }, ticks: { color: '#7a887f', font: { size: 9 }, callback: (value) => `${value} ${unit}` } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0b3b25', padding: 10, callbacks: { label: (context) => ` ${formatNumber(context.raw, 2)} ${unit}` } } } }; }
+    function tableHtml(headers, rows) { return `<div class="table-wrap"><table><thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead><tbody>${rows.map((cells) => `<tr>${cells.map((cell, index) => `<td data-label="${escapeHtml(headers[index])}">${cell ?? '-'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
+    function detailRows(rows) { return rows.map(([label, content]) => `<div class="detail-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(content || '-')}</strong></div>`).join(''); }
+    function statusBadge(status) { const value = normalize(status || '-'); let className = 'status-badge'; if (['AKTIF', 'TERVERIFIKASI', 'SELESAI', 'DISETUJUI'].includes(value)) className += ' success'; else if (['MENUNGGU', 'DIAJUKAN', 'DIPROSES'].includes(value)) className += ' warning'; else if (['NONAKTIF', 'DITOLAK', 'DIBATALKAN'].includes(value)) className += ' danger'; else className += ' neutral'; return `<span class="${className}">${escapeHtml(value.replaceAll('_', ' '))}</span>`; }
+    function memberName(id) { const member = state.members.find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === id); return member ? memberDisplayName(member) : id || '-'; }
+    function memberDisplayNameById(id) { return memberName(id); }
+    function memberDisplayName(item) { return normalize(item.KATEGORI) === 'UMKM' && item.NAMA_UMKM ? item.NAMA_UMKM : item.NAMA || item.NAMA_ANGGOTA || '-'; }
+    function typeName(id) { const item = state.types.find((type) => (type.JENIS_ID || type.ID_JENIS) === id); return item ? item.NAMA_JENIS || item.NAMA_SAMPAH : id || '-'; }
+    function activeMembers() { return state.members.filter((item) => normalize(item.STATUS || item.STATUS_ANGGOTA) === 'AKTIF'); }
+    function activeTypes() { return state.types.filter((item) => normalize(item.STATUS || item.STATUS_JENIS) === 'AKTIF'); }
+    function currentUserId() { return state.currentUser?.USER_ID || state.currentUser?.ID_USER || 'USR-ADM-001'; }
+
+    function setDefaultDates() { const today = dateKey(new Date()); ['dashboardReferenceDate', 'leaderboardReferenceDate', 'reportReferenceDate'].forEach((id) => document.getElementById(id).value = today); }
+    function toLocalInputValue(date) { const offset = date.getTimezoneOffset() * 60000; return new Date(date.getTime() - offset).toISOString().slice(0, 16); }
+    function parseDate(value) { if (!value) return null; const date = value instanceof Date ? new Date(value) : new Date(value); return Number.isNaN(date.getTime()) ? null : date; }
+    function dateValue(value) { return parseDate(value)?.getTime() || 0; }
+    function dateKey(date) { const value = new Date(date); return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`; }
+    function formatDate(value) { const date = parseDate(value); return date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(date) : '-'; }
+    function formatDateTime(value) { const date = parseDate(value); return date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date) : '-'; }
+    function formatDateCode(value) { const date = parseDate(value) || new Date(); return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`; }
+    function formatNumber(value, decimals = 0) { return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: decimals }).format(Number(value || 0)); }
+    function formatRupiah(value) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value || 0)); }
+    function periodName(period) { return ({ today: 'Hari ini', week: 'Minggu ini', month: 'Bulan ini', year: 'Tahun ini' })[period] || 'Periode'; }
+    function weekdayShort(date) { return new Intl.DateTimeFormat('id-ID', { weekday: 'short' }).format(date); }
+    function monthShort(month) { return new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(2026, month, 1)); }
+    function round(value, decimals = 0) { const factor = 10 ** decimals; return Math.round((Number(value || 0) + Number.EPSILON) * factor) / factor; }
+    function normalize(value) { return String(value ?? '').trim().toUpperCase().replace(/\s+/g, '_'); }
+    function value(id) { return document.getElementById(id)?.value?.trim() || ''; }
+    function jsString(value) { return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/[\r\n]/g, ' '); }
+    function safeFileName(value) { return String(value || 'Laporan').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 80); }
+    function escapeHtml(value) { const element = document.createElement('div'); element.textContent = String(value ?? ''); return element.innerHTML; }
+    function parseJson(value) { try { return value ? JSON.parse(value) : null; } catch (error) { return null; } }
+
+    function openModal(id) { document.getElementById(id).classList.add('is-open'); document.body.classList.add('modal-open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('is-open'); if (!document.querySelector('.modal-backdrop.is-open')) document.body.classList.remove('modal-open'); }
+    function setButtonLoading(button, loading, label) { button.disabled = loading; button.classList.toggle('is-loading', loading); button.dataset.originalLabel ||= button.textContent; button.textContent = loading ? label : button.dataset.originalLabel; }
+    function showToast(message, type = 'success') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<span>${type === 'error' ? '!' : type === 'warning' ? 'i' : '✓'}</span><p>${escapeHtml(message)}</p>`; document.getElementById('toastContainer').appendChild(toast); setTimeout(() => toast.classList.add('is-hiding'), 3500); setTimeout(() => toast.remove(), 3800); }
+
+    async function apiGet(action, params = {}) { if (window.BankSampahAPI?.apiGet) return window.BankSampahAPI.apiGet(action, params); return rawApiRequest('GET', action, params); }
+    async function apiPost(action, payload = {}) { if (window.BankSampahAPI?.apiPost) return window.BankSampahAPI.apiPost(action, payload); return rawApiRequest('POST', action, payload); }
+    async function rawApiRequest(method, action, data) { const metaUrl = document.querySelector('meta[name="bank-sampah-api"]').content.trim(); const apiUrl = window.BANK_SAMPAH_API_URL || metaUrl; if (!apiUrl) throw new Error('URL API belum diatur. Pastikan js/api.js tersedia.'); const options = { method }; let url = apiUrl; if (method === 'GET') { const query = new URLSearchParams({ action, ...data }); url += `${apiUrl.includes('?') ? '&' : '?'}${query}`; } else { options.headers = { 'Content-Type': 'text/plain;charset=UTF-8' }; options.body = JSON.stringify({ action, payload: data }); } const response = await fetch(url, options); if (!response.ok) throw new Error(`API merespons HTTP ${response.status}.`); const result = await response.json(); if (!result.success) throw new Error(result.message || 'Permintaan API gagal.'); return result.data; }
+    function logoutAdmin() { if (!confirm('Keluar dari dashboard admin?')) return; sessionStorage.removeItem('BANK_SAMPAH_ADMIN_TOKEN'); sessionStorage.removeItem('BANK_SAMPAH_ADMIN_SESSION'); window.location.replace('index.html'); }
+  </script>
+</body>
+</html>
