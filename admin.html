@@ -1,19 +1,29 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" data-theme="light" data-dashboard-design="v3">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b3b25">
   <meta name="description" content="Dashboard admin Bank Sampah Kutanegara.">
-  <meta name="bank-sampah-api" content="https://script.google.com/macros/s/AKfycbxQD5Dg5-ndXT-vef5xo5bFvtiD5DCHXr4V6__gGENJNBRkz1pI4lF8-eOt3N7515Xa/exec">
+  <meta name="bank-sampah-api" content="">
   <title>Admin | Bank Sampah Kutanegara</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <script>
+    (() => {
+      try {
+        const savedTheme = localStorage.getItem('BANK_SAMPAH_ADMIN_THEME_V3');
+        document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/admin.css?v3=20260722-2238">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </head>
-<body>
+<body class="dashboard-v3">
   <div class="app-shell">
     <aside id="sidebar" class="sidebar" aria-label="Navigasi admin">
       <a class="sidebar-brand" href="admin.html">
@@ -58,14 +68,30 @@
           <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Buka menu">☰</button>
           <div class="page-heading">
             <span id="pageEyebrow">Ringkasan sistem</span>
-            <h1 id="pageTitle">Dashboard</h1>
+            <h1 id="pageTitle">Overview</h1>
           </div>
         </div>
         <div class="topbar-right">
+          <div class="topbar-quick-actions" aria-label="Aksi cepat">
+            <button class="button topbar-primary" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+            <button class="button button-outline topbar-report" type="button" onclick="downloadOverallReport()">Laporan PDF</button>
+          </div>
+          <label class="topbar-search" for="globalSearch">
+            <span aria-hidden="true">⌕</span>
+            <input id="globalSearch" type="search" autocomplete="off" placeholder="Cari menu atau data...">
+          </label>
           <button id="apiStatusButton" class="api-pill is-checking" type="button" onclick="refreshCurrentView()">
             <span></span><b id="apiStatusText">Memuat data...</b>
           </button>
-          <button class="icon-button" type="button" onclick="refreshCurrentView()" title="Muat ulang">↻</button>
+          <button class="icon-button refresh-button" type="button" onclick="refreshCurrentView()" title="Muat ulang">↻</button>
+          <button id="themeToggle" class="icon-button theme-toggle" type="button" onclick="toggleTheme()" aria-label="Aktifkan mode terang" aria-pressed="true" title="Ganti tema">
+            <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+            <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+          </button>
+          <button id="notificationButton" class="icon-button notification-button" type="button" onclick="showToast('Tidak ada notifikasi baru.', 'success')" aria-label="Lihat notifikasi" title="Notifikasi">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+            <i aria-hidden="true"></i>
+          </button>
           <button class="user-menu" type="button" onclick="navigateTo('pengguna')">
             <span id="topbarAvatar" class="profile-avatar small">A</span>
             <span><strong id="topbarName">Administrator</strong><small>ADMIN</small></span>
@@ -75,17 +101,54 @@
 
       <main class="content">
         <section id="view-dashboard" class="view is-active">
-          <div class="welcome-card">
-            <div>
-              <span class="welcome-kicker">Bank Sampah Kutanegara</span>
-              <h2>Selamat datang, <span id="welcomeName">Administrator</span>.</h2>
-              <p>Pantau kontribusi sampah, nilai transaksi, dan aktivitas anggota dari satu dashboard.</p>
+          <div class="welcome-grid">
+            <div class="welcome-card">
+              <div class="welcome-copy">
+                <span class="welcome-kicker">Bank Sampah Kutanegara</span>
+                <h2>Selamat Datang, <span id="welcomeName">Admin</span>!</h2>
+                <p>Berikut adalah ringkasan aktivitas bank sampah hari ini.</p>
+              </div>
+              <div class="welcome-actions">
+                <button class="button button-light" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+                <button class="button button-soft" type="button" onclick="downloadOverallReport()">↓ Laporan PDF</button>
+              </div>
+              <div class="welcome-illustration" aria-hidden="true">
+                <svg viewBox="0 0 210 120" role="img">
+                  <ellipse class="illustration-shadow" cx="110" cy="103" rx="77" ry="9"></ellipse>
+                  <g class="eco-bin">
+                    <path class="bin-lid" d="M74 44h66l-5-12H79z"></path>
+                    <path class="bin-body" d="M80 44h54l-5 56H85z"></path>
+                    <path class="bin-line" d="M96 55v34M118 55v34"></path>
+                    <circle class="bin-wheel" cx="91" cy="103" r="5"></circle>
+                    <circle class="bin-wheel" cx="124" cy="103" r="5"></circle>
+                  </g>
+                  <g class="recycle-wheel">
+                    <circle cx="107" cy="69" r="19"></circle>
+                    <path d="M103 55l7-4 5 8M120 70l1 8-9 1M99 82l-8-2 3-9"></path>
+                  </g>
+                  <g class="plant plant-left">
+                    <path d="M49 99c1-21 1-34-5-48"></path>
+                    <path d="M44 67c-14-3-18-12-15-21 12 2 18 9 15 21Z"></path>
+                    <path d="M48 79c13-4 20-13 18-23-13 2-20 10-18 23Z"></path>
+                  </g>
+                  <g class="plant plant-right">
+                    <path d="M161 101c-1-18 1-30 7-42"></path>
+                    <path d="M166 72c-10-4-14-12-10-20 10 3 15 10 10 20Z"></path>
+                    <path d="M163 84c11-2 18-10 18-18-11 0-18 7-18 18Z"></path>
+                  </g>
+                  <circle class="eco-spark spark-one" cx="57" cy="31" r="4"></circle>
+                  <circle class="eco-spark spark-two" cx="164" cy="35" r="3"></circle>
+                  <path class="eco-spark spark-three" d="M181 55h10M186 50v10"></path>
+                </svg>
+              </div>
             </div>
-            <div class="welcome-actions">
-              <button class="button button-light" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
-              <button class="button button-soft" type="button" onclick="downloadOverallReport()">↓ Laporan PDF</button>
-            </div>
-            <span class="welcome-recycle" aria-hidden="true">♻</span>
+
+            <aside class="time-card" aria-label="Waktu Bank Sampah Kutanegara">
+              <span class="clock-orbit" aria-hidden="true"><i></i><i></i><i></i></span>
+              <strong id="liveClock">00:00</strong>
+              <span id="liveDate">Memuat tanggal...</span>
+              <small id="liveTimezone">WIB · UTC+7</small>
+            </aside>
           </div>
 
           <div class="period-toolbar card-flat">
@@ -94,8 +157,8 @@
               <div id="dashboardPeriodTabs" class="period-tabs">
                 <button type="button" data-period="today">Hari ini</button>
                 <button type="button" data-period="week">Minggu ini</button>
-                <button class="is-active" type="button" data-period="month">Bulan ini</button>
-                <button type="button" data-period="year">Tahun ini</button>
+                <button type="button" data-period="month">Bulan ini</button>
+                <button class="is-active" type="button" data-period="year">Tahun ini</button>
               </div>
             </div>
             <label class="compact-field">Tanggal acuan<input id="dashboardReferenceDate" type="date"></label>
@@ -111,7 +174,7 @@
 
           <div class="dashboard-grid">
             <article class="panel chart-panel trend-panel">
-              <div class="panel-heading"><div><span class="panel-kicker">Perkembangan</span><h3 id="trendTitle">Berat sampah bulan ini</h3></div><span id="dashboardPeriodLabel" class="soft-badge">-</span></div>
+              <div class="panel-heading"><div><span class="panel-kicker">Perkembangan</span><h3 id="trendTitle">Berat sampah tahun ini</h3></div><span id="dashboardPeriodLabel" class="soft-badge">-</span></div>
               <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
             </article>
             <article class="panel chart-panel">
@@ -399,7 +462,7 @@
       withdrawals: [],
       sales: [],
       peopleRole: 'ADMIN',
-      dashboardPeriod: 'month',
+      dashboardPeriod: 'year',
       leaderboardPeriod: 'month',
       trendChart: null,
       typeChart: null,
@@ -422,7 +485,7 @@
     };
 
     const pageMeta = {
-      dashboard: ['Dashboard', 'Ringkasan dan analitik bank sampah'],
+      dashboard: ['Overview', 'Ringkasan dan analitik bank sampah'],
       pengguna: ['Pengguna & Anggota', 'Admin, masyarakat, dan UMKM'],
       leaderboard: ['Leaderboard', 'Peringkat pengumpulan sampah'],
       setoran: ['Data Setoran', 'Seluruh transaksi sampah masuk'],
@@ -434,13 +497,19 @@
       akses: ['Akses & QR', 'Kelola token QR pengguna']
     };
 
+    let dashboardClockTimer = null;
+
     document.addEventListener('DOMContentLoaded', initializeAdmin);
+    window.addEventListener('pagehide', () => window.clearInterval(dashboardClockTimer));
 
     async function initializeAdmin() {
+      initializeTheme();
+      startDashboardClock();
       setDefaultDates();
       bindNavigation();
       bindFilters();
       bindForms();
+      bindGlobalSearch();
       document.getElementById('sidebarYear').textContent = new Date().getFullYear();
 
       try {
@@ -456,6 +525,114 @@
           window.setTimeout(() => window.location.replace('index.html'), 1200);
         }
       }
+    }
+
+    function startDashboardClock() {
+      updateDashboardClock();
+      window.clearInterval(dashboardClockTimer);
+      dashboardClockTimer = window.setInterval(updateDashboardClock, 1000);
+    }
+
+    function updateDashboardClock() {
+      const clock = document.getElementById('liveClock');
+      const dateLabel = document.getElementById('liveDate');
+      const timezoneLabel = document.getElementById('liveTimezone');
+      if (!clock || !dateLabel || !timezoneLabel) return;
+
+      const now = new Date();
+      clock.textContent = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(now).replace('.', ':');
+      dateLabel.textContent = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(now);
+      timezoneLabel.textContent = 'WIB · UTC+7';
+
+      clock.classList.remove('is-ticking');
+      void clock.offsetWidth;
+      clock.classList.add('is-ticking');
+    }
+
+    function initializeTheme() {
+      const theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+      applyTheme(theme, false);
+    }
+
+    function toggleTheme() {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme, true);
+      if (state.currentView === 'dashboard' && (state.trendChart || state.typeChart)) renderDashboard();
+    }
+
+    function applyTheme(theme, persist = true) {
+      const safeTheme = theme === 'light' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = safeTheme;
+
+      const toggle = document.getElementById('themeToggle');
+      if (toggle) {
+        const isDark = safeTheme === 'dark';
+        toggle.setAttribute('aria-pressed', String(isDark));
+        toggle.setAttribute('aria-label', isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+        toggle.title = isDark ? 'Gunakan mode terang' : 'Gunakan mode gelap';
+      }
+
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.content = safeTheme === 'dark' ? '#07150f' : '#f3f7f4';
+
+      if (persist) {
+        try {
+          localStorage.setItem('BANK_SAMPAH_ADMIN_THEME_V3', safeTheme);
+        } catch (error) {
+          console.warn('Pilihan tema tidak dapat disimpan.', error);
+        }
+      }
+    }
+
+    function bindGlobalSearch() {
+      const input = document.getElementById('globalSearch');
+      if (!input) return;
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        const query = normalize(input.value);
+        if (!query) return;
+
+        const destinations = [
+          { view: 'pengguna', input: 'peopleSearch', words: ['PENGGUNA', 'ANGGOTA', 'ADMIN', 'MASYARAKAT', 'UMKM'] },
+          { view: 'setoran', input: 'depositSearch', words: ['SETORAN', 'TRANSAKSI', 'SAMPAH MASUK'] },
+          { view: 'jenis', input: 'typeSearch', words: ['JENIS', 'HARGA', 'SAMPAH'] },
+          { view: 'pengajuan', input: 'submissionSearch', words: ['PENGAJUAN', 'VERIFIKASI'] },
+          { view: 'pencairan', input: 'withdrawalSearch', words: ['PENCAIRAN', 'SALDO'] },
+          { view: 'penjualan', input: 'saleSearch', words: ['PENJUALAN', 'PENGEPUL'] },
+          { view: 'akses', input: 'qrSearch', words: ['AKSES', 'TOKEN', 'QR'] },
+          { view: 'leaderboard', input: '', words: ['LEADERBOARD', 'PERINGKAT'] },
+          { view: 'laporan', input: 'reportMemberSearch', words: ['LAPORAN', 'PDF'] }
+        ];
+
+        const destination = destinations.find((item) => item.words.some((word) => query.includes(word))) || destinations.find((item) => item.view === state.currentView);
+        if (!destination) {
+          showToast('Pilih menu data terlebih dahulu untuk melakukan pencarian.', 'warning');
+          return;
+        }
+
+        navigateTo(destination.view);
+        if (destination.input) {
+          const target = document.getElementById(destination.input);
+          if (target) {
+            target.value = input.value.trim();
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+            target.focus();
+          }
+        }
+      });
     }
 
     function bindNavigation() {
@@ -653,12 +830,13 @@
 
     function renderTrendChart(rows, range) {
       const points = buildTrendPoints(rows, state.dashboardPeriod, range);
+      const palette = chartThemePalette();
       if (state.trendChart) state.trendChart.destroy();
       if (typeof Chart === 'undefined') return;
       const context = document.getElementById('trendChart');
       state.trendChart = new Chart(context, {
         type: 'line',
-        data: { labels: points.labels, datasets: [{ label: 'Berat (kg)', data: points.values, borderColor: '#1b8b4b', backgroundColor: 'rgba(37,169,91,.13)', pointBackgroundColor: '#fff', pointBorderColor: '#1b8b4b', pointBorderWidth: 2, pointRadius: 3, tension: .35, fill: true }] },
+        data: { labels: points.labels, datasets: [{ label: 'Berat (kg)', data: points.values, borderColor: palette.accent, backgroundColor: palette.fill, pointBackgroundColor: palette.surface, pointBorderColor: palette.accent, borderWidth: 2, pointBorderWidth: 2, pointRadius: 3.5, pointHoverRadius: 5, tension: .28, fill: true }] },
         options: chartOptions('kg')
       });
     }
@@ -666,12 +844,13 @@
     function renderTypeChart(byType) {
       const entries = Object.values(byType).sort((a, b) => b.weight - a.weight).slice(0, 7);
       const colors = ['#17733f', '#2ea866', '#66c987', '#f1b84b', '#4f83d1', '#8b6cc7', '#db7d65'];
+      const palette = chartThemePalette();
       if (state.typeChart) state.typeChart.destroy();
       if (typeof Chart !== 'undefined') {
         state.typeChart = new Chart(document.getElementById('typeChart'), {
           type: 'doughnut',
-          data: { labels: entries.map((item) => item.name), datasets: [{ data: entries.map((item) => round(item.weight, 2)), backgroundColor: colors, borderWidth: 0, hoverOffset: 5 }] },
-          options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => ` ${context.label}: ${formatNumber(context.raw, 2)} kg` } } } }
+          data: { labels: entries.map((item) => item.name), datasets: [{ data: entries.map((item) => round(item.weight, 2)), backgroundColor: colors, borderColor: palette.surface, borderWidth: 2, hoverOffset: 5 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { backgroundColor: palette.tooltip, titleColor: palette.text, bodyColor: palette.text, callbacks: { label: (context) => ` ${context.label}: ${formatNumber(context.raw, 2)} kg` } } } }
         });
       }
       document.getElementById('typeLegend').innerHTML = entries.length ? entries.map((item, index) => `<span><i style="background:${colors[index]}"></i><b>${escapeHtml(item.name)}</b><small>${formatNumber(item.weight, 2)} kg</small></span>`).join('') : '<div class="empty-state compact">Belum ada data pada periode ini.</div>';
@@ -1221,7 +1400,13 @@
       requestAnimationFrame(() => document.querySelector(`[data-pagination="${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
     }
 
-    function chartOptions(unit) { return { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, scales: { x: { grid: { display: false }, ticks: { color: '#7a887f', font: { size: 9 } } }, y: { beginAtZero: true, grid: { color: 'rgba(220,231,223,.7)' }, ticks: { color: '#7a887f', font: { size: 9 }, callback: (value) => `${value} ${unit}` } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0b3b25', padding: 10, callbacks: { label: (context) => ` ${formatNumber(context.raw, 2)} ${unit}` } } } }; }
+    function chartThemePalette() {
+      const dark = document.documentElement.dataset.theme === 'dark';
+      return dark
+        ? { accent: '#a6d8c0', fill: 'rgba(166,216,192,.13)', surface: '#12231b', text: '#e7f0eb', muted: '#9baba2', grid: 'rgba(149,173,160,.13)', tooltip: '#1d3328' }
+        : { accent: '#17733f', fill: 'rgba(37,169,91,.13)', surface: '#ffffff', text: '#18231d', muted: '#7a887f', grid: 'rgba(220,231,223,.7)', tooltip: '#0b3b25' };
+    }
+    function chartOptions(unit) { const palette = chartThemePalette(); return { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, layout: { padding: { top: 6, right: 4, bottom: 2, left: 2 } }, scales: { x: { grid: { display: false }, border: { color: palette.grid }, ticks: { color: palette.muted, padding: 8, font: { size: 11, weight: '600' }, maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, grid: { color: palette.grid }, border: { display: false }, ticks: { color: palette.muted, padding: 9, font: { size: 11, weight: '600' }, callback: (value) => `${value} ${unit}` } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: palette.tooltip, titleColor: palette.text, bodyColor: palette.text, padding: 11, titleFont: { size: 12 }, bodyFont: { size: 12 }, callbacks: { label: (context) => ` ${formatNumber(context.raw, 2)} ${unit}` } } } }; }
     function tableHtml(headers, rows) { return `<div class="table-wrap"><table><thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead><tbody>${rows.map((cells) => `<tr>${cells.map((cell, index) => `<td data-label="${escapeHtml(headers[index])}">${cell ?? '-'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
     function detailRows(rows) { return rows.map(([label, content]) => `<div class="detail-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(content || '-')}</strong></div>`).join(''); }
     function statusBadge(status) { const value = normalize(status || '-'); let className = 'status-badge'; if (['AKTIF', 'TERVERIFIKASI', 'SELESAI', 'DISETUJUI'].includes(value)) className += ' success'; else if (['MENUNGGU', 'DIAJUKAN', 'DIPROSES'].includes(value)) className += ' warning'; else if (['NONAKTIF', 'DITOLAK', 'DIBATALKAN'].includes(value)) className += ' danger'; else className += ' neutral'; return `<span class="${className}">${escapeHtml(value.replaceAll('_', ' '))}</span>`; }
