@@ -410,6 +410,7 @@
         identityError: document.getElementById("identityError"),
         passwordError: document.getElementById("passwordError"),
         togglePassword: document.getElementById("togglePassword"),
+        rememberLogin: document.getElementById("rememberLogin"),
         forgotPasswordButton: document.getElementById("forgotPasswordButton"),
         startScannerButton: document.getElementById("startScannerButton"),
         stopScannerButton: document.getElementById("stopScannerButton"),
@@ -444,6 +445,19 @@
       async function initializePage() {
         document.getElementById("currentYear").textContent =
           new Date().getFullYear();
+
+        try {
+          const rememberedIdentity = localStorage.getItem(
+            "BANK_SAMPAH_REMEMBERED_IDENTITY",
+          );
+          if (rememberedIdentity) {
+            elements.identity.value = rememberedIdentity;
+            elements.rememberLogin.checked = true;
+          }
+        } catch (error) {
+          console.warn("Preferensi login tidak dapat dimuat.", error);
+        }
+
         await checkApiHealth();
 
         const token = new URLSearchParams(window.location.search).get("access");
@@ -555,6 +569,20 @@
         setButtonLoading(elements.passwordButton, true, "Memeriksa akun...");
         try {
           const result = await apiPost("auth.login", { identity, password });
+
+          try {
+            if (elements.rememberLogin.checked) {
+              localStorage.setItem(
+                "BANK_SAMPAH_REMEMBERED_IDENTITY",
+                identity,
+              );
+            } else {
+              localStorage.removeItem("BANK_SAMPAH_REMEMBERED_IDENTITY");
+            }
+          } catch (error) {
+            console.warn("Preferensi login tidak dapat disimpan.", error);
+          }
+
           finishAdminLogin(
             result,
             result && result.user
