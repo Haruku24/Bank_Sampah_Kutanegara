@@ -2,7 +2,7 @@
   'use strict';
 
   const API_URL =
-    'https://script.google.com/macros/s/AKfycbxQD5Dg5-ndXT-vef5xo5bFvtiD5DCHXr4V6__gGENJNBRkz1pI4lF8-eOt3N7515Xa/exec';
+    'https://script.google.com/macros/s/AKfycbyY5RikrwjW7p9BQbDDJiqw2qS5cN999nEyKwweE6FpkSMSWUVPMV6i_l58GlyRKU1i/exec';
 
   const API_TIMEOUT_MS = 15000;
 
