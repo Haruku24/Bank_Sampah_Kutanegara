@@ -3566,7 +3566,7 @@ html[data-theme="light"] .fairness-note > span {
 }
 
 /* =========================================================
-   Precision pass based on the supplied 1918 Ãƒâ€” 1078 dashboard
+   Precision pass based on the supplied 1918 Ã— 1078 dashboard
    ========================================================= */
 
 :root {
@@ -4357,7 +4357,7 @@ td small {
 }
 
 /* =========================================================
-   Light animated dashboard Ã¢â‚¬â€ based on the latest reference
+   Light animated dashboard â€” based on the latest reference
    ========================================================= */
 
 :root {
@@ -5299,7 +5299,7 @@ html[data-theme="dark"] .time-card {
   }
 }
 
-/* V3 FINAL PRIORITY Ã¢â‚¬â€ keep this block at the very end of the file. */
+/* V3 FINAL PRIORITY â€” keep this block at the very end of the file. */
 html[data-dashboard-design="v3"] body.dashboard-v3 .sidebar {
   width: var(--sidebar-width);
   padding: 15px 14px 14px;
@@ -5451,7 +5451,7 @@ html[data-dashboard-design="v3"] body.dashboard-v3 .chart-wrap.donut { height: 2
 }
 
 /* =========================================================
-   V3.1 Ã¢â‚¬â€ larger typography, colored sidebar, full responsive pass
+   V3.1 â€” larger typography, colored sidebar, full responsive pass
    ========================================================= */
 
 html[data-dashboard-design="v3"] {
