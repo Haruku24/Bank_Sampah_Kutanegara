@@ -17,8 +17,9 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/admin.css?v3=20260722-2238">
+  <link rel="stylesheet" href="css/admin.css?v4=20260728-1200">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
@@ -40,7 +41,7 @@
       <nav class="nav-list">
         <button class="nav-item is-active" type="button" data-view="dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
         <button class="nav-item" type="button" data-view="leaderboard"><span class="nav-icon">★</span><span>Leaderboard</span></button>
-        <button class="nav-item" type="button" data-view="laporan"><span class="nav-icon">▤</span><span>Laporan PDF</span></button>
+        <button class="nav-item" type="button" data-view="laporan"><span class="nav-icon">▤</span><span>Laporan & Excel</span></button>
       </nav>
 
       <p class="nav-label">Data & transaksi</p>
@@ -74,6 +75,7 @@
         <div class="topbar-right">
           <div class="topbar-quick-actions" aria-label="Aksi cepat">
             <button class="button topbar-primary" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+            <button class="button button-outline topbar-excel" type="button" onclick="exportDatabaseExcel(this)">Backup Excel</button>
             <button class="button button-outline topbar-report" type="button" onclick="downloadOverallReport()">Laporan PDF</button>
           </div>
           <label class="topbar-search" for="globalSearch">
@@ -111,6 +113,7 @@
               <div class="welcome-actions">
                 <button class="button button-light" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
                 <button class="button button-soft" type="button" onclick="downloadOverallReport()">↓ Laporan PDF</button>
+                <button class="button button-soft" type="button" onclick="exportDatabaseExcel(this)">↓ Backup Excel</button>
               </div>
               <div class="welcome-illustration" aria-hidden="true">
                 <svg viewBox="0 0 210 120" role="img">
@@ -257,8 +260,31 @@
         <section id="view-setoran" class="view">
           <div class="section-head">
             <div><span class="section-kicker">Transaksi masuk</span><h2>Data Setoran</h2><p>Catat dan periksa seluruh setoran sampah yang telah diverifikasi.</p></div>
-            <button class="button" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+            <div class="section-actions">
+              <button class="button button-outline excel-button" type="button" onclick="exportFilteredDepositsExcel(this)">↓ Ekspor Setoran</button>
+              <button class="button" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
+            </div>
           </div>
+
+          <div class="deposit-insight-grid">
+            <article class="panel deposit-chart-panel">
+              <div class="panel-heading">
+                <div><span class="panel-kicker">Grafik setoran</span><h3>Perkembangan setoran terverifikasi</h3></div>
+                <span id="depositChartPeriodLabel" class="soft-badge">Semua periode</span>
+              </div>
+              <div class="chart-wrap deposit-chart-wrap"><canvas id="depositChart"></canvas></div>
+              <div class="deposit-chart-legend">
+                <span><i class="weight"></i>Berat sampah (kg)</span>
+                <span><i class="value"></i>Nilai setoran (Rp)</span>
+              </div>
+            </article>
+            <aside class="deposit-summary-stack">
+              <article class="deposit-summary-card green"><span>Setoran terverifikasi</span><strong id="depositSummaryCount">0</strong><small id="depositSummaryCountNote">transaksi pada filter</small></article>
+              <article class="deposit-summary-card blue"><span>Total berat</span><strong id="depositSummaryWeight">0 kg</strong><small>Sampah yang berhasil dicatat</small></article>
+              <article class="deposit-summary-card amber"><span>Total nilai</span><strong id="depositSummaryValue">Rp0</strong><small>Nilai setoran terverifikasi</small></article>
+            </aside>
+          </div>
+
           <div class="panel">
             <div class="data-toolbar">
               <div class="search-box"><span>⌕</span><input id="depositSearch" type="search" placeholder="Cari anggota, jenis, atau transaksi..."></div>
@@ -305,7 +331,7 @@
         </section>
 
         <section id="view-laporan" class="view">
-          <div class="section-head"><div><span class="section-kicker">Dokumen terverifikasi</span><h2>Pusat Laporan PDF</h2><p>Buat laporan keseluruhan atau laporan per anggota sebagai bukti transaksi yang dapat disimpan dan dicetak.</p></div></div>
+          <div class="section-head"><div><span class="section-kicker">Dokumen & data</span><h2>Pusat Laporan dan Excel</h2><p>Buat laporan PDF atau unduh salinan database dalam format Excel untuk pendataan lanjutan.</p></div></div>
 
           <div class="report-config panel">
             <div class="report-config-main">
@@ -331,6 +357,12 @@
               <label class="member-select-label">Cari dan pilih anggota<input id="reportMemberSearch" class="input-control" type="search" placeholder="Ketik nama anggota..."></label>
               <select id="reportMemberSelect" class="select-control" size="4"></select>
               <button id="memberReportButton" class="button button-blue" type="button" onclick="downloadSelectedMemberReport()">↓ Unduh PDF Anggota</button>
+            </article>
+            <article class="report-card excel">
+              <span class="report-icon">XLS</span>
+              <div><span class="panel-kicker">Backup spreadsheet</span><h3>Database Bank Sampah</h3><p>Mengunduh satu file Excel dengan sheet Ringkasan, Anggota, Pengguna, Jenis Sampah, Setoran, Pengajuan, Pencairan, Penjualan, dan Detail Penjualan.</p></div>
+              <div class="excel-sheet-list"><span>9 sheet</span><span>Data terbaru</span><span>Siap dibuka di Excel/Google Sheets</span></div>
+              <button class="button excel-download-button" type="button" onclick="exportDatabaseExcel(this)">↓ Unduh Database Excel</button>
             </article>
           </div>
 
@@ -466,6 +498,7 @@
       leaderboardPeriod: 'month',
       trendChart: null,
       typeChart: null,
+      depositChart: null,
       currentQr: null,
       processMode: '',
       processId: '',
@@ -493,7 +526,7 @@
       pengajuan: ['Pengajuan Setoran', 'Verifikasi permintaan anggota'],
       pencairan: ['Pencairan Saldo', 'Persetujuan saldo anggota'],
       penjualan: ['Penjualan Sampah', 'Transaksi sampah ke pengepul'],
-      laporan: ['Laporan PDF', 'Dokumen keseluruhan dan per anggota'],
+      laporan: ['Laporan & Excel', 'Dokumen PDF dan backup database'],
       akses: ['Akses & QR', 'Kelola token QR pengguna']
     };
 
@@ -569,6 +602,7 @@
       const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
       applyTheme(nextTheme, true);
       if (state.currentView === 'dashboard' && (state.trendChart || state.typeChart)) renderDashboard();
+      if (state.currentView === 'setoran' && state.depositChart) renderDepositTable();
     }
 
     function applyTheme(theme, persist = true) {
@@ -1028,17 +1062,22 @@
       }).join('') + paginationHtml(paging, true);
     }
 
-    function renderDepositTable() {
+    function getFilteredDepositRows() {
       const keyword = value('depositSearch').toLowerCase();
       const status = normalize(value('depositStatus'));
       const period = value('depositPeriod');
       const range = period === 'all' ? null : getPeriodRange(period, new Date());
-      const rows = state.deposits.filter((item) => {
+      return state.deposits.filter((item) => {
         const itemStatus = normalize(item.STATUS || item.STATUS_TRANSAKSI);
         const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
         const haystack = [item.SETORAN_ID || item.ID_SETORAN, item.NAMA_SNAPSHOT, memberName(item.ANGGOTA_ID || item.ID_ANGGOTA), item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH].join(' ').toLowerCase();
         return (!keyword || haystack.includes(keyword)) && (!status || itemStatus === status) && (!range || isDateInRange(date, range));
       });
+    }
+
+    function renderDepositTable() {
+      const rows = getFilteredDepositRows();
+      renderDepositAnalytics(rows);
       const container = document.getElementById('depositTable');
       if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada transaksi setoran yang cocok.</div>'; return; }
       const paging = paginateRows('deposits', rows);
@@ -1047,6 +1086,161 @@
         const itemStatus = normalize(item.STATUS || item.STATUS_TRANSAKSI);
         return [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN), escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'), `${formatNumber(item.BERAT_KG || item.BERAT, 2)} kg`, formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI), statusBadge(itemStatus), itemStatus === 'TERVERIFIKASI' ? `<button class="action-button red" onclick="cancelDeposit('${jsString(id)}')">Batalkan</button>` : '-'];
       })) + paginationHtml(paging);
+    }
+
+    function renderDepositAnalytics(filteredRows) {
+      const verifiedRows = filteredRows.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI');
+      const summary = summarizeDeposits(verifiedRows);
+      const period = value('depositPeriod') || 'all';
+      const points = buildDepositChartPoints(verifiedRows, period);
+      const palette = chartThemePalette();
+
+      document.getElementById('depositSummaryCount').textContent = formatNumber(summary.count);
+      document.getElementById('depositSummaryCountNote').textContent = `${formatNumber(filteredRows.length)} transaksi cocok dengan filter`;
+      document.getElementById('depositSummaryWeight').textContent = `${formatNumber(summary.totalWeight, 2)} kg`;
+      document.getElementById('depositSummaryValue').textContent = formatRupiah(summary.totalValue);
+      document.getElementById('depositChartPeriodLabel').textContent = period === 'all' ? 'Semua periode' : periodName(period);
+
+      if (state.depositChart) state.depositChart.destroy();
+      if (typeof Chart === 'undefined') return;
+
+      state.depositChart = new Chart(document.getElementById('depositChart'), {
+        data: {
+          labels: points.labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Berat (kg)',
+              data: points.weights,
+              yAxisID: 'yWeight',
+              backgroundColor: document.documentElement.dataset.theme === 'dark' ? 'rgba(74, 180, 119, .56)' : 'rgba(37, 169, 91, .58)',
+              borderColor: palette.accent,
+              borderWidth: 1,
+              borderRadius: 7,
+              maxBarThickness: 36
+            },
+            {
+              type: 'line',
+              label: 'Nilai setoran (Rp)',
+              data: points.values,
+              yAxisID: 'yValue',
+              borderColor: '#4f83d1',
+              backgroundColor: '#4f83d1',
+              pointBackgroundColor: palette.surface,
+              pointBorderColor: '#4f83d1',
+              pointBorderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+              tension: .3
+            }
+          ]
+        },
+        options: depositChartOptions()
+      });
+    }
+
+    function buildDepositChartPoints(rows, period) {
+      const buckets = {};
+      const validRows = rows.filter((item) => parseDate(item.TANGGAL || item.TANGGAL_SETORAN));
+      const addRow = (key, item) => {
+        if (!buckets[key]) buckets[key] = { weight: 0, value: 0 };
+        buckets[key].weight += Number(item.BERAT_KG ?? item.BERAT ?? 0);
+        buckets[key].value += Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0);
+      };
+
+      if (period === 'today') {
+        for (let hour = 0; hour < 24; hour += 3) buckets[String(hour).padStart(2, '0')] = { weight: 0, value: 0 };
+        validRows.forEach((item) => {
+          const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+          addRow(String(Math.floor(date.getHours() / 3) * 3).padStart(2, '0'), item);
+        });
+        return depositPointResult(buckets, (key) => `${key}:00`);
+      }
+
+      if (period === 'week' || period === 'month') {
+        const range = getPeriodRange(period, new Date());
+        const cursor = new Date(range.start);
+        while (cursor <= range.end) {
+          buckets[dateKey(cursor)] = { weight: 0, value: 0 };
+          cursor.setDate(cursor.getDate() + 1);
+        }
+        validRows.forEach((item) => addRow(dateKey(parseDate(item.TANGGAL || item.TANGGAL_SETORAN)), item));
+        return depositPointResult(buckets, (key) => period === 'week' ? weekdayShort(parseDate(`${key}T00:00:00`)) : key.slice(-2));
+      }
+
+      if (period === 'year') {
+        const year = new Date().getFullYear();
+        for (let month = 0; month < 12; month += 1) buckets[`${year}-${String(month + 1).padStart(2, '0')}`] = { weight: 0, value: 0 };
+        validRows.forEach((item) => {
+          const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+          addRow(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`, item);
+        });
+        return depositPointResult(buckets, (key) => monthShort(Number(key.slice(-2)) - 1));
+      }
+
+      validRows.forEach((item) => {
+        const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
+        addRow(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`, item);
+      });
+      return depositPointResult(buckets, (key) => {
+        const [year, month] = key.split('-');
+        return `${monthShort(Number(month) - 1)} ${year}`;
+      });
+    }
+
+    function depositPointResult(buckets, labelFormatter) {
+      const keys = Object.keys(buckets).sort();
+      if (!keys.length) return { labels: ['Belum ada data'], weights: [0], values: [0] };
+      return {
+        labels: keys.map(labelFormatter),
+        weights: keys.map((key) => round(buckets[key].weight, 2)),
+        values: keys.map((key) => round(buckets[key].value, 0))
+      };
+    }
+
+    function depositChartOptions() {
+      const palette = chartThemePalette();
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { color: palette.grid },
+            ticks: { color: palette.muted, padding: 8, font: { size: 11, weight: '600' }, maxRotation: 0, autoSkip: true, maxTicksLimit: 14 }
+          },
+          yWeight: {
+            beginAtZero: true,
+            position: 'left',
+            grid: { color: palette.grid },
+            border: { display: false },
+            ticks: { color: palette.muted, padding: 8, callback: (number) => `${formatNumber(number, 2)} kg` }
+          },
+          yValue: {
+            beginAtZero: true,
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            border: { display: false },
+            ticks: { color: '#4f83d1', padding: 8, callback: (number) => compactRupiah(number) }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: palette.tooltip,
+            titleColor: palette.text,
+            bodyColor: palette.text,
+            padding: 12,
+            callbacks: {
+              label: (context) => context.dataset.yAxisID === 'yValue'
+                ? ` Nilai: ${formatRupiah(context.raw)}`
+                : ` Berat: ${formatNumber(context.raw, 2)} kg`
+            }
+          }
+        }
+      };
     }
 
     function openDepositModal() {
@@ -1257,6 +1451,210 @@
     function downloadSelectedMemberReport() { const id = value('reportMemberSelect'); if (!id) return showToast('Pilih anggota terlebih dahulu.', 'warning'); downloadMemberReport(id); }
     function downloadMemberReport(id) { generateReportPdf({ memberId: id, range: getReportRange(), title: 'LAPORAN TRANSAKSI ANGGOTA' }); }
 
+    async function exportDatabaseExcel(button) {
+      if (typeof XLSX === 'undefined') return showToast('Library Excel belum berhasil dimuat. Periksa koneksi internet lalu coba lagi.', 'error');
+      if (button) setButtonLoading(button, true, 'Menyiapkan Excel...');
+      try {
+        const database = await fetchDatabaseForExport();
+        const workbook = XLSX.utils.book_new();
+        workbook.Props = {
+          Title: 'Backup Database Bank Sampah Kutanegara',
+          Subject: 'Salinan data administrasi bank sampah',
+          Author: state.currentUser?.NAMA_TAMPIL || state.currentUser?.NAMA_USER || 'Administrator',
+          CreatedDate: new Date()
+        };
+
+        appendDatabaseSummarySheet(workbook, database);
+        appendExcelSheet(workbook, 'ANGGOTA', database.members);
+        appendExcelSheet(workbook, 'PENGGUNA', database.users);
+        appendExcelSheet(workbook, 'JENIS_SAMPAH', database.types);
+        appendExcelSheet(workbook, 'SETORAN', database.deposits);
+        appendExcelSheet(workbook, 'PENGAJUAN', database.submissions);
+        appendExcelSheet(workbook, 'PENCAIRAN', database.withdrawals);
+        appendExcelSheet(workbook, 'PENJUALAN', database.sales);
+        appendExcelSheet(workbook, 'DETAIL_PENJUALAN', flattenSaleDetails(database.sales));
+
+        XLSX.writeFile(
+          workbook,
+          `Database_Bank_Sampah_Kutanegara_${formatDateCode(new Date())}_${formatTimeCode(new Date())}.xlsx`,
+          { compression: true }
+        );
+        showToast('Backup database Excel berhasil dibuat.');
+      } catch (error) {
+        showToast(error.message || 'Database Excel gagal dibuat.', 'error');
+      } finally {
+        if (button) setButtonLoading(button, false, 'Unduh Database Excel');
+      }
+    }
+
+    function exportFilteredDepositsExcel(button) {
+      if (typeof XLSX === 'undefined') return showToast('Library Excel belum berhasil dimuat. Periksa koneksi internet lalu coba lagi.', 'error');
+      const rows = getFilteredDepositRows();
+      if (!rows.length) return showToast('Tidak ada data setoran yang cocok dengan filter.', 'warning');
+      if (button) setButtonLoading(button, true, 'Membuat Excel...');
+
+      try {
+        const workbook = XLSX.utils.book_new();
+        const verifiedRows = rows.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI');
+        const summary = summarizeDeposits(verifiedRows);
+        const summarySheet = XLSX.utils.aoa_to_sheet([
+          ['REKAP SETORAN BANK SAMPAH KUTANEGARA', ''],
+          ['Dibuat pada', formatDateTime(new Date())],
+          ['Filter periode', value('depositPeriod') === 'all' ? 'Semua periode' : periodName(value('depositPeriod'))],
+          ['Filter status', value('depositStatus') || 'Semua status'],
+          ['Kata pencarian', value('depositSearch') || '-'],
+          [],
+          ['Jumlah baris hasil filter', rows.length],
+          ['Setoran terverifikasi', verifiedRows.length],
+          ['Total berat terverifikasi (kg)', summary.totalWeight],
+          ['Total nilai terverifikasi (Rp)', summary.totalValue]
+        ]);
+        summarySheet['!cols'] = [{ wch: 34 }, { wch: 28 }];
+        summarySheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+        XLSX.utils.book_append_sheet(workbook, summarySheet, 'RINGKASAN');
+        appendExcelSheet(workbook, 'SETORAN', rows.map((item, index) => depositExcelRow(item, index)));
+        XLSX.writeFile(workbook, `Data_Setoran_${formatDateCode(new Date())}_${formatTimeCode(new Date())}.xlsx`, { compression: true });
+        showToast('Data setoran sesuai filter berhasil diekspor.');
+      } catch (error) {
+        showToast(error.message || 'Data setoran gagal diekspor.', 'error');
+      } finally {
+        if (button) setButtonLoading(button, false, 'Ekspor Setoran');
+      }
+    }
+
+    async function fetchDatabaseForExport() {
+      const exportLimit = 10000;
+      const [members, users, types, deposits, submissions, withdrawals, sales] = await Promise.all([
+        apiGet('anggota.list', { limit: exportLimit }),
+        apiGet('pengguna.list', { limit: exportLimit }),
+        apiGet('jenis.list', { limit: exportLimit }),
+        apiGet('setoran.list', { limit: exportLimit }),
+        apiGet('pengajuan.list', { limit: exportLimit }),
+        apiGet('pencairan.list', { limit: exportLimit }),
+        apiGet('penjualan.list', { limit: exportLimit })
+      ]);
+      return {
+        members: Array.isArray(members) ? members : [],
+        users: Array.isArray(users) ? users : [],
+        types: Array.isArray(types) ? types : [],
+        deposits: Array.isArray(deposits) ? deposits : [],
+        submissions: Array.isArray(submissions) ? submissions : [],
+        withdrawals: Array.isArray(withdrawals) ? withdrawals : [],
+        sales: Array.isArray(sales) ? sales : []
+      };
+    }
+
+    function appendDatabaseSummarySheet(workbook, database) {
+      const verified = database.deposits.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI');
+      const summary = summarizeDepositRowsWithoutState(verified);
+      const rows = [
+        ['BACKUP DATABASE BANK SAMPAH KUTANEGARA', ''],
+        ['Dibuat pada', formatDateTime(new Date())],
+        ['Dibuat oleh', state.currentUser?.NAMA_TAMPIL || state.currentUser?.NAMA_USER || 'Administrator'],
+        ['Catatan keamanan', 'Password, hash, secret, dan token QR tidak dimasukkan ke file Excel.'],
+        [],
+        ['NAMA DATA', 'JUMLAH BARIS'],
+        ['Anggota', database.members.length],
+        ['Pengguna', database.users.length],
+        ['Jenis sampah', database.types.length],
+        ['Setoran', database.deposits.length],
+        ['Pengajuan', database.submissions.length],
+        ['Pencairan', database.withdrawals.length],
+        ['Penjualan', database.sales.length],
+        ['Detail penjualan', flattenSaleDetails(database.sales).length],
+        [],
+        ['RINGKASAN SETORAN TERVERIFIKASI', 'NILAI'],
+        ['Jumlah transaksi', verified.length],
+        ['Total berat (kg)', summary.totalWeight],
+        ['Total nilai (Rp)', summary.totalValue]
+      ];
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      worksheet['!cols'] = [{ wch: 39 }, { wch: 64 }];
+      worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'RINGKASAN');
+    }
+
+    function appendExcelSheet(workbook, sheetName, sourceRows) {
+      const rows = prepareRowsForExcel(sourceRows);
+      const safeRows = rows.length ? rows : [{ KETERANGAN: 'Belum ada data' }];
+      const worksheet = XLSX.utils.json_to_sheet(safeRows, { dateNF: 'yyyy-mm-dd hh:mm:ss' });
+      worksheet['!cols'] = calculateExcelColumnWidths(safeRows);
+      if (worksheet['!ref']) worksheet['!autofilter'] = { ref: worksheet['!ref'] };
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.slice(0, 31));
+    }
+
+    function prepareRowsForExcel(sourceRows) {
+      if (!Array.isArray(sourceRows)) return [];
+      const blockedField = /(PASSWORD|PASS_HASH|PASSWORD_HASH|TOKEN|SECRET|SALT|SESSION)/i;
+      const keys = [...new Set(sourceRows.flatMap((row) => Object.keys(row || {})))].filter((key) => !blockedField.test(key));
+      return sourceRows.map((row, index) => {
+        const output = { NO: index + 1 };
+        keys.forEach((key) => {
+          output[key] = sanitizeExcelValue(row?.[key]);
+        });
+        return output;
+      });
+    }
+
+    function sanitizeExcelValue(rawValue) {
+      if (rawValue === null || rawValue === undefined) return '';
+      if (rawValue instanceof Date) return rawValue;
+      if (typeof rawValue === 'number' || typeof rawValue === 'boolean') return rawValue;
+      const serialized = typeof rawValue === 'object' ? JSON.stringify(rawValue) : String(rawValue);
+      return /^[=+\-@]/.test(serialized.trimStart()) ? `'${serialized}` : serialized;
+    }
+
+    function calculateExcelColumnWidths(rows) {
+      const headers = Object.keys(rows[0] || {});
+      return headers.map((header) => {
+        const longest = rows.slice(0, 500).reduce((maximum, row) => Math.max(maximum, String(row[header] ?? '').length), header.length);
+        return { wch: Math.min(Math.max(longest + 2, 11), 42) };
+      });
+    }
+
+    function flattenSaleDetails(sales) {
+      return (sales || []).flatMap((sale) => {
+        const rawDetails = Array.isArray(sale.DETAIL) ? sale.DETAIL : parseJson(sale.DETAIL);
+        const details = Array.isArray(rawDetails) ? rawDetails : [];
+        return details.map((detail, index) => ({
+          PENJUALAN_ID: sale.PENJUALAN_ID || sale.ID_PENJUALAN || '',
+          TANGGAL_PENJUALAN: sale.TANGGAL || sale.TANGGAL_PENJUALAN || '',
+          PEMBELI: sale.PEMBELI || sale.NAMA_PENGEPUL || '',
+          NOMOR_DETAIL: index + 1,
+          ...detail
+        }));
+      });
+    }
+
+    function depositExcelRow(item, index) {
+      const memberId = item.ANGGOTA_ID || item.ID_ANGGOTA || '';
+      const member = state.members.find((row) => (row.ANGGOTA_ID || row.ID_ANGGOTA) === memberId);
+      return {
+        NO: index + 1,
+        ID_SETORAN: item.SETORAN_ID || item.ID_SETORAN || '',
+        TANGGAL: formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN),
+        ID_ANGGOTA: memberId,
+        NAMA_ANGGOTA: item.NAMA_SNAPSHOT || memberName(memberId),
+        KATEGORI: member?.KATEGORI || '',
+        ID_JENIS: item.JENIS_ID || item.ID_JENIS || '',
+        JENIS_SAMPAH: item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS),
+        BERAT_KG: Number(item.BERAT_KG ?? item.BERAT ?? 0),
+        HARGA_BELI_PER_KG: Number(item.HARGA_BELI_SNAPSHOT ?? item.HARGA_BELI_KG ?? item.HARGA_BELI ?? 0),
+        TOTAL_RP: Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0),
+        STATUS: normalize(item.STATUS || item.STATUS_TRANSAKSI),
+        SUMBER_DATA: item.SUMBER_DATA || item.SUMBER || '',
+        CATATAN: item.CATATAN || item.ALASAN_PEMBATALAN || ''
+      };
+    }
+
+    function summarizeDepositRowsWithoutState(rows) {
+      return rows.reduce((summary, item) => {
+        summary.totalWeight += Number(item.BERAT_KG ?? item.BERAT ?? 0);
+        summary.totalValue += Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0);
+        return summary;
+      }, { totalWeight: 0, totalValue: 0 });
+    }
+
     function generateReportPdf({ memberId, range, title }) {
       if (!window.jspdf?.jsPDF) return showToast('Library PDF belum berhasil dimuat.', 'error');
       const member = memberId ? state.members.find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === memberId) : null;
@@ -1426,8 +1824,10 @@
     function formatDate(value) { const date = parseDate(value); return date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(date) : '-'; }
     function formatDateTime(value) { const date = parseDate(value); return date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date) : '-'; }
     function formatDateCode(value) { const date = parseDate(value) || new Date(); return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`; }
+    function formatTimeCode(value) { const date = parseDate(value) || new Date(); return `${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`; }
     function formatNumber(value, decimals = 0) { return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: decimals }).format(Number(value || 0)); }
     function formatRupiah(value) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(value || 0)); }
+    function compactRupiah(value) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', notation: 'compact', maximumFractionDigits: 1 }).format(Number(value || 0)); }
     function periodName(period) { return ({ today: 'Hari ini', week: 'Minggu ini', month: 'Bulan ini', year: 'Tahun ini' })[period] || 'Periode'; }
     function weekdayShort(date) { return new Intl.DateTimeFormat('id-ID', { weekday: 'short' }).format(date); }
     function monthShort(month) { return new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(2026, month, 1)); }
