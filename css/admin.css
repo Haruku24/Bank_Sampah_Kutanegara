@@ -3566,7 +3566,7 @@ html[data-theme="light"] .fairness-note > span {
 }
 
 /* =========================================================
-   Precision pass based on the supplied 1918 Ã— 1078 dashboard
+   Precision pass based on the supplied 1918 Ãƒâ€” 1078 dashboard
    ========================================================= */
 
 :root {
@@ -4357,7 +4357,7 @@ td small {
 }
 
 /* =========================================================
-   Light animated dashboard â€” based on the latest reference
+   Light animated dashboard Ã¢â‚¬â€ based on the latest reference
    ========================================================= */
 
 :root {
@@ -5299,7 +5299,7 @@ html[data-theme="dark"] .time-card {
   }
 }
 
-/* V3 FINAL PRIORITY â€” keep this block at the very end of the file. */
+/* V3 FINAL PRIORITY Ã¢â‚¬â€ keep this block at the very end of the file. */
 html[data-dashboard-design="v3"] body.dashboard-v3 .sidebar {
   width: var(--sidebar-width);
   padding: 15px 14px 14px;
@@ -5451,7 +5451,7 @@ html[data-dashboard-design="v3"] body.dashboard-v3 .chart-wrap.donut { height: 2
 }
 
 /* =========================================================
-   V3.1 â€” larger typography, colored sidebar, full responsive pass
+   V3.1 Ã¢â‚¬â€ larger typography, colored sidebar, full responsive pass
    ========================================================= */
 
 html[data-dashboard-design="v3"] {
@@ -5913,7 +5913,7 @@ html[data-dashboard-design="v3"] body.dashboard-v3 .activity-item small {
   html[data-dashboard-design="v3"] body.dashboard-v3 .activity-item { align-items: flex-start; grid-template-columns: auto minmax(0, 1fr) auto; }
 }
 
-@media (max-width: 390px) {
+@media (max-width: 390px) { 
   html[data-dashboard-design="v3"] body.dashboard-v3 .content { padding-right: 9px; padding-left: 9px; }
   html[data-dashboard-design="v3"] body.dashboard-v3 .theme-toggle,
   html[data-dashboard-design="v3"] body.dashboard-v3 .notification-button { width: 35px; height: 35px; flex-basis: 35px; }
@@ -5925,4 +5925,253 @@ html[data-dashboard-design="v3"] body.dashboard-v3 .activity-item small {
   html[data-dashboard-design="v3"] body.dashboard-v3 .mini-ranking,
   html[data-dashboard-design="v3"] body.dashboard-v3 .activity-list { padding-right: 11px; padding-left: 11px; }
   html[data-dashboard-design="v3"] body.dashboard-v3 .activity-item > b { font-size: 11px; }
+}
+
+/* =========================================================
+   V4 - GRAFIK SETORAN & EKSPOR EXCEL
+   ========================================================= */
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .topbar-excel,
+html[data-dashboard-design="v3"] body.dashboard-v3 .excel-button,
+html[data-dashboard-design="v3"] body.dashboard-v3 .excel-download-button {
+  border-color: rgba(23, 115, 63, .28);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-insight-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(245px, .55fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-wrap {
+  height: 315px;
+  padding: 4px 20px 4px 12px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 5px 22px 20px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-legend i {
+  width: 11px;
+  height: 11px;
+  border-radius: 4px;
+  background: #25a95b;
+  box-shadow: 0 0 0 3px rgba(37, 169, 91, .12);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-legend i.value {
+  border-radius: 999px;
+  background: #4f83d1;
+  box-shadow: 0 0 0 3px rgba(79, 131, 209, .12);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-stack {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 115px;
+  overflow: hidden;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card::after {
+  position: absolute;
+  top: -26px;
+  right: -26px;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+  opacity: .07;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card.green { color: #17733f; }
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card.blue { color: #315f9d; }
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card.amber { color: #9a5b0a; }
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card > strong {
+  position: relative;
+  z-index: 1;
+  margin-top: 7px;
+  color: currentColor;
+  font-size: clamp(24px, 2vw, 31px);
+  line-height: 1.1;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card > small {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .report-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .report-card.excel {
+  border-color: rgba(23, 115, 63, .22);
+  background:
+    radial-gradient(circle at 100% 0, rgba(37, 169, 91, .11), transparent 38%),
+    var(--surface);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .report-card.excel .report-icon {
+  width: 54px;
+  border-radius: 16px;
+  background: #e4f7eb;
+  color: #17733f;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .excel-sheet-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .excel-sheet-list span {
+  padding: 6px 9px;
+  border: 1px solid rgba(23, 115, 63, .14);
+  border-radius: 999px;
+  background: rgba(37, 169, 91, .07);
+  color: #17733f;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .report-card.excel .excel-download-button {
+  width: 100%;
+  margin-top: 18px;
+  background: #17733f;
+  color: #fff;
+}
+
+html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .report-card.excel .report-icon {
+  background: rgba(37, 169, 91, .16);
+  color: #8fd9ad;
+}
+
+html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .excel-sheet-list span {
+  border-color: rgba(143, 217, 173, .16);
+  background: rgba(37, 169, 91, .1);
+  color: #a6d8c0;
+}
+
+@media (max-width: 1180px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 .report-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .report-card.excel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1000px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-stack {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+}
+
+@media (max-width: 900px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 .topbar-excel {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 .section-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .section-actions .button {
+    flex: 1 1 180px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-stack {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-wrap {
+    height: 285px;
+    padding-right: 7px;
+    padding-left: 2px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .report-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .report-card.excel {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-legend {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card {
+    min-height: 108px;
+  }
 }
