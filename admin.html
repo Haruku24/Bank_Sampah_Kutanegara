@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b3b25">
-  <meta name="description" content="Dashboard admin Bank Sampah Kutanegara.">
+  <meta name="description" content="Dashboard admin Bank Sampah Sejahtera Baru Kutanegara.">
   <meta name="bank-sampah-api" content="">
-  <title>Admin | Bank Sampah Kutanegara</title>
+  <title>Admin | Bank Sampah Sejahtera Baru Kutanegara</title>
   <script>
     (() => {
       try {
@@ -17,7 +17,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/admin.css?v4=20260728-1200">
+  <link rel="stylesheet" href="./css/admin.css?v=20260728-3">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
@@ -29,7 +29,7 @@
     <aside id="sidebar" class="sidebar" aria-label="Navigasi admin">
       <a class="sidebar-brand" href="admin.html">
         <span class="sidebar-logo" aria-hidden="true">♻</span>
-        <span><strong>Bank Sampah</strong><small>Kutanegara</small></span>
+        <span><strong>Bank Sampah</strong><small>Sejahtera Baru Kutanegara</small></span>
       </a>
 
       <div class="sidebar-profile">
@@ -57,7 +57,7 @@
 
       <div class="sidebar-footer">
         <button type="button" onclick="logoutAdmin()"><span>↪</span>Keluar dari sistem</button>
-        <small>Bank Sampah Kutanegara · <span id="sidebarYear"></span></small>
+        <small>Bank Sampah Sejahtera Baru Kutanegara · <span id="sidebarYear"></span></small>
       </div>
     </aside>
 
@@ -106,7 +106,7 @@
           <div class="welcome-grid">
             <div class="welcome-card">
               <div class="welcome-copy">
-                <span class="welcome-kicker">Bank Sampah Kutanegara</span>
+                <span class="welcome-kicker">Bank Sampah Sejahtera Baru Kutanegara</span>
                 <h2>Selamat Datang, <span id="welcomeName">Admin</span>!</h2>
                 <p>Berikut adalah ringkasan aktivitas bank sampah hari ini.</p>
               </div>
@@ -146,7 +146,7 @@
               </div>
             </div>
 
-            <aside class="time-card" aria-label="Waktu Bank Sampah Kutanegara">
+            <aside class="time-card" aria-label="Waktu Bank Sampah Sejahtera Baru Kutanegara">
               <span class="clock-orbit" aria-hidden="true"><i></i><i></i><i></i></span>
               <strong id="liveClock">00:00</strong>
               <span id="liveDate">Memuat tanggal...</span>
@@ -346,21 +346,27 @@
 
           <div class="report-card-grid">
             <article class="report-card overall">
-              <span class="report-icon">▤</span>
-              <div><span class="panel-kicker">Laporan keseluruhan</span><h3>Rekap Bank Sampah</h3><p>Berisi ringkasan total, komposisi jenis, dan seluruh rincian transaksi pada periode terpilih.</p></div>
+              <div class="report-card-heading">
+                <span class="report-icon">▤</span>
+                <div class="report-card-copy"><span class="panel-kicker">Laporan keseluruhan</span><h3>Rekap Bank Sampah</h3><p>Berisi ringkasan total, komposisi jenis, dan seluruh rincian transaksi pada periode terpilih.</p></div>
+              </div>
               <div id="overallReportStats" class="report-stats"></div>
               <button class="button" type="button" onclick="downloadOverallReport()">↓ Unduh PDF Keseluruhan</button>
             </article>
             <article class="report-card individual">
-              <span class="report-icon">◎</span>
-              <div><span class="panel-kicker">Laporan per anggota</span><h3>Bukti Transaksi Anggota</h3><p>Pilih masyarakat atau UMKM untuk menghasilkan laporan individual beserta ruang tanda tangan.</p></div>
+              <div class="report-card-heading">
+                <span class="report-icon">◎</span>
+                <div class="report-card-copy"><span class="panel-kicker">Laporan per anggota</span><h3>Bukti Transaksi Anggota</h3><p>Pilih masyarakat atau UMKM untuk menghasilkan laporan individual beserta ruang tanda tangan.</p></div>
+              </div>
               <label class="member-select-label">Cari dan pilih anggota<input id="reportMemberSearch" class="input-control" type="search" placeholder="Ketik nama anggota..."></label>
               <select id="reportMemberSelect" class="select-control" size="4"></select>
               <button id="memberReportButton" class="button button-blue" type="button" onclick="downloadSelectedMemberReport()">↓ Unduh PDF Anggota</button>
             </article>
             <article class="report-card excel">
-              <span class="report-icon">XLS</span>
-              <div><span class="panel-kicker">Backup spreadsheet</span><h3>Database Bank Sampah</h3><p>Mengunduh satu file Excel dengan sheet Ringkasan, Anggota, Pengguna, Jenis Sampah, Setoran, Pengajuan, Pencairan, Penjualan, dan Detail Penjualan.</p></div>
+              <div class="report-card-heading">
+                <span class="report-icon">XLS</span>
+                <div class="report-card-copy"><span class="panel-kicker">Backup spreadsheet</span><h3>Database Bank Sampah</h3><p>Mengunduh satu file Excel dengan sheet Ringkasan, Anggota, Pengguna, Jenis Sampah, Setoran, Pengajuan, Pencairan, Penjualan, dan Detail Penjualan.</p></div>
+              </div>
               <div class="excel-sheet-list"><span>9 sheet</span><span>Data terbaru</span><span>Siap dibuka di Excel/Google Sheets</span></div>
               <button class="button excel-download-button" type="button" onclick="exportDatabaseExcel(this)">↓ Unduh Database Excel</button>
             </article>
@@ -469,6 +475,33 @@
     </section>
   </div>
 
+  <div id="deletePersonModal" class="modal-backdrop" role="presentation">
+    <section class="modal delete-person-modal" role="dialog" aria-modal="true" aria-labelledby="deletePersonModalTitle">
+      <header class="modal-header danger-header">
+        <div><span class="panel-kicker">Zona berbahaya</span><h3 id="deletePersonModalTitle">Hapus Pengguna Permanen</h3></div>
+        <button class="modal-close" type="button" onclick="closeDeletePersonModal()">×</button>
+      </header>
+      <form id="deletePersonForm">
+        <div class="modal-body">
+          <div class="delete-danger-alert">
+            <span aria-hidden="true">!</span>
+            <div><strong>Tindakan ini tidak dapat dibatalkan</strong><p>Profil, akun login, setoran, pengajuan, dan pencairan milik pengguna ini akan dihapus permanen dari database.</p></div>
+          </div>
+          <div id="deletePersonIdentity" class="delete-person-identity"></div>
+          <div id="deletePersonCounts" class="delete-count-grid"><div class="delete-preview-loading">Menghitung data terkait...</div></div>
+          <label class="field delete-confirm-field">
+            <span>Untuk melanjutkan, ketik <code id="deleteConfirmationPhrase">-</code></span>
+            <input id="deleteConfirmationInput" class="input-control" type="text" autocomplete="off" spellcheck="false" placeholder="Ketik kalimat konfirmasi" required>
+          </label>
+        </div>
+        <footer class="modal-footer">
+          <button class="button button-outline" type="button" onclick="closeDeletePersonModal()">Batalkan</button>
+          <button id="deletePersonSubmitButton" class="button button-danger" type="submit" disabled>Hapus Permanen</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
   <div id="qrModal" class="modal-backdrop" role="presentation">
     <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
       <header class="modal-header"><div><span class="panel-kicker">Akses pengguna</span><h3 id="qrModalTitle">QR Akses</h3></div><button class="modal-close" type="button" onclick="closeModal('qrModal')">×</button></header>
@@ -502,6 +535,8 @@
       currentQr: null,
       processMode: '',
       processId: '',
+      deleteTarget: null,
+      deletePreview: null,
       pageSize: 10,
       pagination: {
         people: 1,
@@ -706,11 +741,19 @@
       document.getElementById('depositForm').addEventListener('submit', submitDeposit);
       document.getElementById('saleForm').addEventListener('submit', submitSale);
       document.getElementById('processForm').addEventListener('submit', submitProcess);
+      document.getElementById('deletePersonForm').addEventListener('submit', submitPermanentDeletePerson);
+      document.getElementById('deleteConfirmationInput').addEventListener('input', syncDeleteConfirmation);
       document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.addEventListener('click', (event) => {
-        if (event.target === backdrop) closeModal(backdrop.id);
+        if (event.target !== backdrop) return;
+        if (backdrop.id === 'deletePersonModal') closeDeletePersonModal();
+        else closeModal(backdrop.id);
       }));
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') document.querySelectorAll('.modal-backdrop.is-open').forEach((modal) => closeModal(modal.id));
+        if (event.key !== 'Escape') return;
+        document.querySelectorAll('.modal-backdrop.is-open').forEach((modal) => {
+          if (modal.id === 'deletePersonModal') closeDeletePersonModal();
+          else closeModal(modal.id);
+        });
       });
     }
 
@@ -1026,12 +1069,95 @@
     }
 
     async function deletePerson(kind, id) {
-      if (!confirm('Hapus data ini? Data yang telah memiliki transaksi tidak dapat dihapus.')) return;
+      if (kind !== 'admin') {
+        await openPermanentDeletePerson(id);
+        return;
+      }
+      if (!confirm('Hapus akun admin ini? Akun utama tidak dapat dihapus.')) return;
       try {
-        await apiPost(kind === 'admin' ? 'pengguna.delete' : 'anggota.delete', kind === 'admin' ? { userId: id } : { idAnggota: id });
+        await apiPost('pengguna.delete', { userId: id });
         await loadPeopleData();
-        showToast('Data berhasil dihapus.');
+        showToast('Akun admin berhasil dihapus.');
       } catch (error) { showToast(error.message, 'error'); }
+    }
+
+    async function openPermanentDeletePerson(id) {
+      const record = state.members.find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === id);
+      if (!record) return showToast('Data pengguna tidak ditemukan.', 'error');
+
+      state.deleteTarget = { id, name: memberDisplayName(record), category: normalize(record.KATEGORI) };
+      state.deletePreview = null;
+      document.getElementById('deletePersonIdentity').innerHTML = `<span class="member-avatar large">${escapeHtml(state.deleteTarget.name.charAt(0).toUpperCase())}</span><div><small>Pengguna yang akan dihapus</small><strong>${escapeHtml(state.deleteTarget.name)}</strong><span>${escapeHtml(id)} · ${escapeHtml(state.deleteTarget.category)}</span></div>`;
+      document.getElementById('deletePersonCounts').innerHTML = '<div class="delete-preview-loading">Menghitung seluruh data terkait...</div>';
+      document.getElementById('deleteConfirmationPhrase').textContent = '-';
+      document.getElementById('deleteConfirmationInput').value = '';
+      document.getElementById('deleteConfirmationInput').disabled = true;
+      document.getElementById('deletePersonSubmitButton').disabled = true;
+      openModal('deletePersonModal');
+
+      try {
+        const preview = await apiGet('anggota.delete.preview', { idAnggota: id });
+        if (!state.deleteTarget || state.deleteTarget.id !== id) return;
+        state.deletePreview = preview;
+        const counts = preview.counts || {};
+        document.getElementById('deletePersonIdentity').innerHTML = `<span class="member-avatar large">${escapeHtml((preview.nama || state.deleteTarget.name).charAt(0).toUpperCase())}</span><div><small>Pengguna yang akan dihapus</small><strong>${escapeHtml(preview.nama || state.deleteTarget.name)}</strong><span>${escapeHtml(preview.idAnggota || id)} · ${escapeHtml(preview.kategori || state.deleteTarget.category)}</span></div>`;
+        document.getElementById('deletePersonCounts').innerHTML = [
+          ['Setoran', counts.setoran || 0],
+          ['Pengajuan', counts.pengajuan || 0],
+          ['Pencairan', counts.pencairan || 0],
+          ['Akun & profil', Number(counts.pengguna || 0) + Number(counts.anggota || 0)]
+        ].map(([label, count]) => `<span><small>${escapeHtml(label)}</small><strong>${formatNumber(count)}</strong></span>`).join('');
+        document.getElementById('deleteConfirmationPhrase').textContent = preview.konfirmasi;
+        document.getElementById('deleteConfirmationInput').disabled = false;
+        document.getElementById('deleteConfirmationInput').focus();
+      } catch (error) {
+        document.getElementById('deletePersonCounts').innerHTML = `<div class="delete-preview-error">${escapeHtml(error.message)}</div>`;
+        showToast(error.message, 'error');
+      }
+    }
+
+    function syncDeleteConfirmation() {
+      const expected = normalizeConfirmation(state.deletePreview?.konfirmasi);
+      const actual = normalizeConfirmation(value('deleteConfirmationInput'));
+      const matches = Boolean(expected && actual === expected);
+      document.getElementById('deletePersonSubmitButton').disabled = !matches;
+      document.getElementById('deleteConfirmationInput').classList.toggle('is-confirmed', matches);
+    }
+
+    async function submitPermanentDeletePerson(event) {
+      event.preventDefault();
+      if (!state.deleteTarget || !state.deletePreview) return;
+      const confirmation = value('deleteConfirmationInput');
+      if (normalizeConfirmation(confirmation) !== normalizeConfirmation(state.deletePreview.konfirmasi)) {
+        return showToast(`Ketik tepat: ${state.deletePreview.konfirmasi}`, 'warning');
+      }
+
+      const button = document.getElementById('deletePersonSubmitButton');
+      setButtonLoading(button, true, 'Menghapus...');
+      try {
+        const result = await apiPost('anggota.delete.permanent', {
+          idAnggota: state.deleteTarget.id,
+          konfirmasi: confirmation,
+          adminId: currentUserId()
+        });
+        closeDeletePersonModal();
+        await loadAllData();
+        renderPeopleTable();
+        showToast(`${result.nama || 'Pengguna'} dan ${formatNumber(result.deletedCounts?.total || 0)} data terkait berhasil dihapus permanen.`);
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        setButtonLoading(button, false, 'Hapus Permanen');
+        syncDeleteConfirmation();
+      }
+    }
+
+    function closeDeletePersonModal() {
+      closeModal('deletePersonModal');
+      state.deleteTarget = null;
+      state.deletePreview = null;
+      document.getElementById('deleteConfirmationInput').value = '';
+      document.getElementById('deleteConfirmationInput').classList.remove('is-confirmed');
     }
 
     function renderLeaderboards() {
@@ -1458,7 +1584,7 @@
         const database = await fetchDatabaseForExport();
         const workbook = XLSX.utils.book_new();
         workbook.Props = {
-          Title: 'Backup Database Bank Sampah Kutanegara',
+          Title: 'Backup Database Bank Sampah Sejahtera Baru Kutanegara',
           Subject: 'Salinan data administrasi bank sampah',
           Author: state.currentUser?.NAMA_TAMPIL || state.currentUser?.NAMA_USER || 'Administrator',
           CreatedDate: new Date()
@@ -1498,7 +1624,7 @@
         const verifiedRows = rows.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI');
         const summary = summarizeDeposits(verifiedRows);
         const summarySheet = XLSX.utils.aoa_to_sheet([
-          ['REKAP SETORAN BANK SAMPAH KUTANEGARA', ''],
+          ['REKAP SETORAN BANK SAMPAH SEJAHTERA BARU KUTANEGARA', ''],
           ['Dibuat pada', formatDateTime(new Date())],
           ['Filter periode', value('depositPeriod') === 'all' ? 'Semua periode' : periodName(value('depositPeriod'))],
           ['Filter status', value('depositStatus') || 'Semua status'],
@@ -1548,7 +1674,7 @@
       const verified = database.deposits.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI');
       const summary = summarizeDepositRowsWithoutState(verified);
       const rows = [
-        ['BACKUP DATABASE BANK SAMPAH KUTANEGARA', ''],
+        ['BACKUP DATABASE BANK SAMPAH SEJAHTERA BARU KUTANEGARA', ''],
         ['Dibuat pada', formatDateTime(new Date())],
         ['Dibuat oleh', state.currentUser?.NAMA_TAMPIL || state.currentUser?.NAMA_USER || 'Administrator'],
         ['Catatan keamanan', 'Password, hash, secret, dan token QR tidak dimasukkan ke file Excel.'],
@@ -1663,7 +1789,7 @@
       const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit: 'mm', format: 'a4' }); const pageWidth = doc.internal.pageSize.getWidth();
       const reportId = `BSK-${formatDateCode(new Date())}-${memberId || 'ALL'}`;
 
-      doc.setFillColor(11, 59, 37); doc.rect(0, 0, pageWidth, 34, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('BANK SAMPAH KUTANEGARA', 14, 14); doc.setFontSize(10); doc.text(title, 14, 22); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(`No. Dokumen: ${reportId}`, 14, 28); doc.text(`Dibuat: ${formatDateTime(new Date())}`, pageWidth - 14, 28, { align: 'right' });
+      doc.setFillColor(11, 59, 37); doc.rect(0, 0, pageWidth, 34, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('BANK SAMPAH SEJAHTERA BARU KUTANEGARA', 14, 14); doc.setFontSize(10); doc.text(title, 14, 22); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(`No. Dokumen: ${reportId}`, 14, 28); doc.text(`Dibuat: ${formatDateTime(new Date())}`, pageWidth - 14, 28, { align: 'right' });
       doc.setTextColor(30, 41, 59); doc.setFontSize(9); let y = 43;
       const metadata = member ? [['ID Anggota', memberId], ['Nama', memberDisplayName(member)], ['Kategori', normalize(member.KATEGORI)], ['Alamat', [member.ALAMAT, member.RT ? `RT ${member.RT}` : '', member.RW ? `RW ${member.RW}` : ''].filter(Boolean).join(', ') || '-'], ['Periode', range.label]] : [['Jenis laporan', 'Rekap keseluruhan'], ['Periode', range.label], ['Jumlah anggota', String(summary.memberCount)], ['Status data', 'Hanya transaksi TERVERIFIKASI']];
       doc.autoTable({ startY: y, body: metadata, theme: 'plain', styles: { fontSize: 8, cellPadding: 1.4 }, columnStyles: { 0: { fontStyle: 'bold', textColor: [71, 85, 105], cellWidth: 35 } }, margin: { left: 14, right: 14 } });
@@ -1678,8 +1804,8 @@
       const detailRows = rows.map((item, index) => [String(index + 1), formatDate(item.TANGGAL || item.TANGGAL_SETORAN), item.SETORAN_ID || item.ID_SETORAN, memberDisplayNameById(item.ANGGOTA_ID || item.ID_ANGGOTA), item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-', formatNumber(item.BERAT_KG || item.BERAT, 2), formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI)]);
       doc.autoTable({ startY: y, head: [['No', 'Tanggal', 'ID', 'Anggota', 'Jenis', 'Kg', 'Nilai']], body: detailRows.length ? detailRows : [['-', '-', '-', 'Tidak ada transaksi', '-', '0', 'Rp0']], theme: 'grid', headStyles: { fillColor: [11, 59, 37] }, styles: { fontSize: 6.8, cellPadding: 1.6, overflow: 'linebreak' }, columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 19 }, 2: { cellWidth: 34 }, 5: { cellWidth: 13, halign: 'right' }, 6: { cellWidth: 24, halign: 'right' } }, margin: { left: 10, right: 10 } });
       y = doc.lastAutoTable.finalY + 10; if (y > 245) { doc.addPage(); y = 25; }
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(71, 85, 105); doc.text('Dokumen ini dihasilkan dari database Bank Sampah Kutanegara dan hanya memuat transaksi terverifikasi.', 14, y); y += 12;
-      doc.setTextColor(30, 41, 59); doc.text('Mengetahui,', 36, y); doc.text(member ? 'Anggota / Penanggung Jawab,' : 'Petugas Penyusun,', pageWidth - 55, y); y += 23; doc.setFont('helvetica', 'bold'); doc.text('(________________________)', 36, y, { align: 'center' }); doc.text('(________________________)', pageWidth - 55, y, { align: 'center' }); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('Admin Bank Sampah Kutanegara', 36, y + 5, { align: 'center' }); doc.text(member ? memberDisplayName(member) : (state.currentUser?.NAMA_TAMPIL || 'Administrator'), pageWidth - 55, y + 5, { align: 'center' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(71, 85, 105); doc.text('Dokumen ini dihasilkan dari database Bank Sampah Sejahtera Baru Kutanegara dan hanya memuat transaksi terverifikasi.', 14, y); y += 12;
+      doc.setTextColor(30, 41, 59); doc.text('Mengetahui,', 36, y); doc.text(member ? 'Anggota / Penanggung Jawab,' : 'Petugas Penyusun,', pageWidth - 55, y); y += 23; doc.setFont('helvetica', 'bold'); doc.text('(________________________)', 36, y, { align: 'center' }); doc.text('(________________________)', pageWidth - 55, y, { align: 'center' }); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('Admin Bank Sampah Sejahtera Baru Kutanegara', 36, y + 5, { align: 'center' }); doc.text(member ? memberDisplayName(member) : (state.currentUser?.NAMA_TAMPIL || 'Administrator'), pageWidth - 55, y + 5, { align: 'center' });
       addPdfFooters(doc, reportId);
       const fileName = `Laporan_${memberId ? safeFileName(memberDisplayName(member)) : 'Keseluruhan'}_${safeFileName(range.label)}.pdf`; doc.save(fileName); showToast('Laporan PDF berhasil dibuat.');
     }
@@ -1687,7 +1813,7 @@
     function downloadLeaderboardPdf() {
       if (!window.jspdf?.jsPDF) return showToast('Library PDF belum berhasil dimuat.', 'error');
       const reference = document.getElementById('leaderboardReferenceDate').valueAsDate || new Date(); const range = getPeriodRange(state.leaderboardPeriod, reference); const rows = buildLeaderboard(getVerifiedDeposits(range)); const { jsPDF } = window.jspdf; const doc = new jsPDF();
-      doc.setFillColor(11, 59, 37); doc.rect(0, 0, 210, 31, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text('LEADERBOARD BANK SAMPAH KUTANEGARA', 14, 14); doc.setFontSize(9); doc.text(range.label, 14, 22); let y = 40;
+      doc.setFillColor(11, 59, 37); doc.rect(0, 0, 210, 31, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text('LEADERBOARD BANK SAMPAH SEJAHTERA BARU KUTANEGARA', 14, 14); doc.setFontSize(9); doc.text(range.label, 14, 22); let y = 40;
       ['MASYARAKAT', 'UMKM'].forEach((role) => { const roleRows = rows.filter((item) => item.category === role); doc.setTextColor(30, 41, 59); doc.setFontSize(11); doc.text(`Peringkat ${role}`, 14, y); y += 3; doc.autoTable({ startY: y, head: [['Peringkat', 'Nama', 'Total Berat', 'Transaksi', 'Jenis Dominan']], body: roleRows.length ? roleRows.map((item, index) => [String(index + 1), item.name, `${formatNumber(item.weight, 2)} kg`, String(item.transactions), item.topType || '-']) : [['-', 'Belum ada peserta', '0 kg', '0', '-']], headStyles: { fillColor: role === 'UMKM' ? [47, 91, 150] : [23, 115, 63] }, styles: { fontSize: 8 }, margin: { left: 14, right: 14 } }); y = doc.lastAutoTable.finalY + 11; if (y > 245 && role === 'MASYARAKAT') { doc.addPage(); y = 25; } });
       addPdfFooters(doc, `BSK-LB-${formatDateCode(new Date())}`); doc.save(`Leaderboard_${safeFileName(range.label)}.pdf`); showToast('PDF leaderboard berhasil dibuat.');
     }
@@ -1833,6 +1959,7 @@
     function monthShort(month) { return new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(2026, month, 1)); }
     function round(value, decimals = 0) { const factor = 10 ** decimals; return Math.round((Number(value || 0) + Number.EPSILON) * factor) / factor; }
     function normalize(value) { return String(value ?? '').trim().toUpperCase().replace(/\s+/g, '_'); }
+    function normalizeConfirmation(value) { return String(value ?? '').trim().toUpperCase().replace(/\s+/g, ' '); }
     function value(id) { return document.getElementById(id)?.value?.trim() || ''; }
     function jsString(value) { return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/[\r\n]/g, ' '); }
     function safeFileName(value) { return String(value || 'Laporan').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 80); }
