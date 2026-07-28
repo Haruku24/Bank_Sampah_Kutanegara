@@ -3566,7 +3566,7 @@ html[data-theme="light"] .fairness-note > span {
 }
 
 /* =========================================================
-   Precision pass based on the supplied 1918 Ã— 1078 dashboard
+   Precision pass based on the supplied 1918 Ãƒâ€” 1078 dashboard
    ========================================================= */
 
 :root {
@@ -4357,7 +4357,7 @@ td small {
 }
 
 /* =========================================================
-   Light animated dashboard â€” based on the latest reference
+   Light animated dashboard Ã¢â‚¬â€ based on the latest reference
    ========================================================= */
 
 :root {
@@ -5299,7 +5299,7 @@ html[data-theme="dark"] .time-card {
   }
 }
 
-/* V3 FINAL PRIORITY â€” keep this block at the very end of the file. */
+/* V3 FINAL PRIORITY Ã¢â‚¬â€ keep this block at the very end of the file. */
 html[data-dashboard-design="v3"] body.dashboard-v3 .sidebar {
   width: var(--sidebar-width);
   padding: 15px 14px 14px;
@@ -5451,7 +5451,7 @@ html[data-dashboard-design="v3"] body.dashboard-v3 .chart-wrap.donut { height: 2
 }
 
 /* =========================================================
-   V3.1 â€” larger typography, colored sidebar, full responsive pass
+   V3.1 Ã¢â‚¬â€ larger typography, colored sidebar, full responsive pass
    ========================================================= */
 
 html[data-dashboard-design="v3"] {
@@ -6173,5 +6173,475 @@ html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .excel-she
 
   html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-summary-card {
     min-height: 108px;
+  }
+}
+
+/* =========================================================
+   V5 - KONFIRMASI HAPUS PENGGUNA PERMANEN
+   ========================================================= */
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-modal {
+  width: min(620px, calc(100vw - 28px));
+  overflow: hidden;
+  border: 1px solid rgba(181, 45, 45, .22);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .danger-header {
+  border-bottom-color: rgba(181, 45, 45, .14);
+  background: linear-gradient(135deg, rgba(254, 226, 226, .72), rgba(255, 255, 255, .35));
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .danger-header .panel-kicker,
+html[data-dashboard-design="v3"] body.dashboard-v3 .danger-header h3 {
+  color: var(--red-700);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-danger-alert {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid rgba(181, 45, 45, .2);
+  border-radius: 15px;
+  background: rgba(254, 226, 226, .5);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-danger-alert > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--red-700);
+  color: #fff;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-danger-alert strong {
+  display: block;
+  color: var(--red-700);
+  font-size: 14px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-danger-alert p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-identity {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--canvas);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .member-avatar.large {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--green-100);
+  color: var(--green-800);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-identity div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-identity small,
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-identity span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-identity strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-count-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-count-grid > span {
+  display: grid;
+  gap: 5px;
+  min-height: 72px;
+  align-content: center;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  text-align: center;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-count-grid small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-count-grid strong {
+  color: var(--red-700);
+  font-size: 21px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-preview-loading,
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-preview-error {
+  grid-column: 1 / -1;
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 13px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-preview-error {
+  border-color: rgba(181, 45, 45, .24);
+  background: rgba(254, 226, 226, .35);
+  color: var(--red-700);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-confirm-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-confirm-field > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .delete-confirm-field code {
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: var(--red-100);
+  color: var(--red-700);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #deleteConfirmationInput {
+  border-color: rgba(181, 45, 45, .26);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #deleteConfirmationInput:focus {
+  border-color: var(--red-700);
+  box-shadow: 0 0 0 4px rgba(181, 45, 45, .1);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #deleteConfirmationInput.is-confirmed {
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 4px rgba(37, 169, 91, .1);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .button-danger {
+  border-color: var(--red-700);
+  background: var(--red-700);
+  color: #fff;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .button-danger:hover:not(:disabled) {
+  filter: brightness(.94);
+  transform: translateY(-1px);
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .button-danger:disabled {
+  border-color: var(--border);
+  background: var(--border);
+  color: var(--muted);
+  opacity: .7;
+}
+
+html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .danger-header,
+html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .delete-danger-alert,
+html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .delete-preview-error {
+  background: rgba(181, 45, 45, .1);
+}
+
+html[data-theme="dark"][data-dashboard-design="v3"] body.dashboard-v3 .member-avatar.large {
+  background: rgba(37, 169, 91, .14);
+  color: #a6d8c0;
+}
+
+@media (max-width: 560px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 .delete-count-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 .delete-person-modal .modal-body {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+}
+
+/* =========================================================
+   LAPORAN & EXCEL - PERBAIKAN LAYOUT RESPONSIF
+   ========================================================= */
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan {
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config {
+  overflow: hidden;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config-main {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  align-items: end;
+  gap: 24px;
+  padding: 22px 24px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config-main > div:first-child {
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config h3 {
+  margin-top: 5px;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config p {
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls {
+  display: grid;
+  grid-template-columns: minmax(145px, .8fr) minmax(190px, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls label {
+  min-width: 0;
+  font-size: 10px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls .select-control,
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls .input-control {
+  width: 100%;
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls > .button {
+  min-height: 50px;
+  padding-inline: 18px;
+  white-space: nowrap;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card {
+  display: flex;
+  min-width: 0;
+  min-height: 470px;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card-heading {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card-copy {
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card .report-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 16px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card h3 {
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card p {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card .panel-kicker {
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card.overall .report-stats,
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card.individual .member-select-label,
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card.excel .excel-sheet-list {
+  margin-top: auto;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats {
+  width: 100%;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats span {
+  min-width: 0;
+  min-height: 76px;
+  align-content: center;
+  padding: 12px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats small {
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats strong {
+  font-size: 13px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .member-select-label {
+  width: 100%;
+  font-size: 10px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan #reportMemberSearch,
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan #reportMemberSelect {
+  width: 100%;
+  min-width: 0;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan #reportMemberSelect {
+  min-height: 150px;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .excel-sheet-list {
+  width: 100%;
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card > .button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 0;
+}
+
+@media (max-width: 1320px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config-main {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls {
+    width: 100%;
+    grid-template-columns: minmax(145px, .8fr) minmax(190px, 1fr) auto;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card.excel {
+    grid-column: 1 / -1;
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 820px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card,
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card.excel {
+    grid-column: auto;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-config-main {
+    gap: 18px;
+    padding: 18px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-controls > .button {
+    grid-column: auto;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card {
+    gap: 16px;
+    padding: 18px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card-heading {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card .report-icon {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    border-radius: 14px;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats span {
+    min-height: 64px;
   }
 }
