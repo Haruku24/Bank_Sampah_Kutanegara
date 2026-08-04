@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b3b25">
   <meta name="description" content="Portal UMKM Bank Sampah Kutanegara.">
-  <meta name="bank-sampah-api" content="https://script.google.com/macros/s/AKfycbyY5RikrwjW7p9BQbDDJiqw2qS5cN999nEyKwweE6FpkSMSWUVPMV6i_l58GlyRKU1i/exec">
+  <meta name="bank-sampah-api" content="">
   <title>Portal UMKM | Bank Sampah Kutanegara</title>
   <link rel="stylesheet" href="css/umkm.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -112,7 +112,7 @@
           <div class="metric-grid">
             <article class="metric-card green">
               <span class="metric-icon">♻</span>
-              <div><small>Total berat</small><strong id="metricWeight">0 kg</strong><p id="metricWeightNote">Belum ada setoran</p></div>
+              <div><small>Total fisik</small><strong id="metricWeight">0 kg + 0 pcs</strong><p id="metricWeightNote">Belum ada setoran</p></div>
             </article>
             <article class="metric-card blue">
               <span class="metric-icon">¤</span>
@@ -131,7 +131,7 @@
           <div class="dashboard-grid">
             <article class="panel chart-panel">
               <div class="panel-heading">
-                <div><span class="panel-kicker">Grafik usaha</span><h3 id="trendTitle">Berat sampah bulan ini</h3></div>
+                <div><span class="panel-kicker">Grafik usaha</span><h3 id="trendTitle">Nilai setoran bulan ini</h3></div>
                 <span id="dashboardPeriodLabel" class="soft-badge">-</span>
               </div>
               <div class="chart-box"><canvas id="personalTrendChart"></canvas></div>
@@ -200,7 +200,7 @@
 
           <div class="summary-grid">
             <article><span>Total transaksi</span><strong id="depositTotal">0</strong></article>
-            <article class="success"><span>Total berat valid</span><strong id="depositWeight">0 kg</strong></article>
+            <article class="success"><span>Total fisik valid</span><strong id="depositWeight">0 kg + 0 pcs</strong></article>
             <article class="blue"><span>Total nilai valid</span><strong id="depositValue">Rp0</strong></article>
             <article class="warning"><span>Jenis terbanyak</span><strong id="depositTopType">-</strong></article>
           </div>
@@ -274,7 +274,7 @@
           </div>
 
           <div class="report-stat-grid">
-            <article><span>Total berat</span><strong id="reportWeight">0 kg</strong><small>Setoran terverifikasi</small></article>
+            <article><span>Total fisik</span><strong id="reportWeight">0 kg + 0 pcs</strong><small>Kg dan pcs terverifikasi</small></article>
             <article><span>Total nilai</span><strong id="reportValue">Rp0</strong><small>Nilai setoran pada periode</small></article>
             <article><span>Pengajuan</span><strong id="reportSubmissions">0</strong><small>Semua status</small></article>
             <article><span>Pencairan</span><strong id="reportWithdrawals">0</strong><small>Semua status</small></article>
@@ -333,7 +333,7 @@
       <form id="submissionForm">
         <div class="modal-body form-grid">
           <label class="field full"><span>Jenis sampah</span><select id="submissionType" class="select-control" required></select></label>
-          <label class="field"><span>Perkiraan berat (kg)</span><input id="submissionWeight" class="input-control" type="number" min="0.01" step="0.01" placeholder="Contoh: 2.5" required></label>
+          <label class="field"><span id="submissionQuantityLabel">Perkiraan kuantitas</span><input id="submissionWeight" class="input-control" type="number" min="0.01" step="0.01" required><small id="submissionQuantityHelp">Pilih jenis sampah terlebih dahulu.</small></label>
           <label class="field"><span>Metode setor</span>
             <select id="submissionMethod" class="select-control" required>
               <option value="ANTAR_MANDIRI">Antar mandiri</option>
@@ -467,6 +467,7 @@
       document.getElementById('reportPeriod').addEventListener('change', refreshReportPreview);
       document.getElementById('reportReferenceDate').addEventListener('change', refreshReportPreview);
       document.getElementById('submissionMethod').addEventListener('change', updatePickupFields);
+      document.getElementById('submissionType').addEventListener('change', syncSubmissionQuantityField);
     }
 
     function bindForms() {
@@ -706,7 +707,7 @@
       document.getElementById('heroBalanceNote').textContent = pendingWithdrawalTotal() > 0
         ? formatRupiah(pendingWithdrawalTotal()) + ' sedang diajukan'
         : 'Dihitung dari transaksi terverifikasi';
-      document.getElementById('metricWeight').textContent = formatNumber(summary.totalWeight, 2) + ' kg';
+      document.getElementById('metricWeight').textContent = formatPhysicalTotals(summary);
       document.getElementById('metricWeightNote').textContent = summary.topType ? 'Terbanyak: ' + summary.topType.name : 'Belum ada setoran';
       document.getElementById('metricValue').textContent = formatRupiah(summary.totalValue);
       document.getElementById('metricValueNote').textContent = summary.count + ' transaksi terverifikasi';
@@ -714,7 +715,7 @@
       document.getElementById('metricTransactionsNote').textContent = range.label;
       document.getElementById('metricSubmissions').textContent = waiting;
       document.getElementById('dashboardPeriodLabel').textContent = range.label;
-      document.getElementById('trendTitle').textContent = 'Berat sampah ' + periodName(state.dashboardPeriod).toLowerCase();
+      document.getElementById('trendTitle').textContent = 'Nilai setoran ' + periodName(state.dashboardPeriod).toLowerCase();
 
       renderPersonalCharts(rows, range);
       renderRecentDeposits();
@@ -731,7 +732,7 @@
         data: {
           labels: points.map(function (item) { return item.label; }),
           datasets: [{
-            label: 'Berat sampah',
+            label: 'Nilai setoran',
             data: points.map(function (item) { return item.value; }),
             borderColor: '#16834a',
             backgroundColor: 'rgba(22,131,74,.13)',
@@ -742,11 +743,11 @@
             borderWidth: 2.5
           }]
         },
-        options: chartOptions('kg')
+        options: chartOptions('Rp')
       });
 
       const summary = summarizeDeposits(rows);
-      const typeRows = Object.values(summary.byType).sort(function (a, b) { return b.weight - a.weight; }).slice(0, 7);
+      const typeRows = Object.values(summary.byType).sort(function (a, b) { return b.value - a.value; }).slice(0, 7);
       const typeContext = document.getElementById('personalTypeChart');
       if (state.typeChart) state.typeChart.destroy();
       state.typeChart = new Chart(typeContext, {
@@ -754,7 +755,7 @@
         data: {
           labels: typeRows.length ? typeRows.map(function (item) { return item.name; }) : ['Belum ada data'],
           datasets: [{
-            data: typeRows.length ? typeRows.map(function (item) { return item.weight; }) : [1],
+            data: typeRows.length ? typeRows.map(function (item) { return item.value; }) : [1],
             backgroundColor: typeRows.length
               ? ['#16834a', '#35b76b', '#79cc95', '#2563eb', '#f59e0b', '#8b5cf6', '#0ea5e9']
               : ['#e7eee9'],
@@ -771,7 +772,7 @@
             tooltip: {
               callbacks: {
                 label: function (context) {
-                  return ' ' + context.label + ': ' + formatNumber(context.raw, 2) + ' kg';
+                  return ' ' + context.label + ': ' + formatRupiah(context.raw);
                 }
               }
             }
@@ -781,7 +782,7 @@
 
       document.getElementById('topTypeSummary').innerHTML = typeRows.length
         ? typeRows.slice(0, 3).map(function (item, index) {
-            return '<span><i style="background:' + ['#16834a', '#35b76b', '#79cc95'][index] + '"></i><b>' + escapeHtml(item.name) + '</b><small>' + formatNumber(item.weight, 2) + ' kg</small></span>';
+            return '<span><i style="background:' + ['#16834a', '#35b76b', '#79cc95'][index] + '"></i><b>' + escapeHtml(item.name) + '</b><small>' + formatTypeQuantity(item) + ' · ' + formatRupiah(item.value) + '</small></span>';
           }).join('')
         : '<p class="empty-inline">Belum ada komposisi sampah pada periode ini.</p>';
     }
@@ -795,7 +796,7 @@
               escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)) +
               '</strong><small>' + formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN) + ' · ' +
               escapeHtml(statusLabel(status)) + '</small></span><b>' +
-              formatNumber(item.BERAT_KG || item.BERAT, 2) + ' kg</b></div>';
+              formatRecordQuantity(item) + '</b></div>';
           }).join('')
         : emptyState('Belum ada riwayat setoran.');
     }
@@ -807,7 +808,7 @@
         return date ? date.getFullYear() + '-' + date.getMonth() : '';
       }).filter(Boolean)).size;
       document.getElementById('lifetimeImpact').innerHTML =
-        '<div><span>♻</span><strong>' + formatNumber(summary.totalWeight, 2) + ' kg</strong><small>Total sampah</small></div>' +
+        '<div><span>♻</span><strong>' + formatPhysicalTotals(summary) + '</strong><small>Total sampah</small></div>' +
         '<div><span>⇩</span><strong>' + summary.count + '</strong><small>Transaksi valid</small></div>' +
         '<div><span>□</span><strong>' + activeMonths + '</strong><small>Bulan aktif</small></div>';
     }
@@ -841,7 +842,7 @@
             String(paging.start + index + 1),
             formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN),
             escapeHtml(item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)),
-            formatNumber(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT, 2) + ' kg',
+            formatSubmissionQuantity(item),
             escapeHtml(methodLabel(item.METODE_SETOR)),
             item.JADWAL ? formatDateTime(item.JADWAL) : '-',
             statusBadge(itemStatus),
@@ -869,19 +870,19 @@
       const summary = summarizeDeposits(verifiedDeposits());
 
       document.getElementById('depositTotal').textContent = state.deposits.length;
-      document.getElementById('depositWeight').textContent = formatNumber(summary.totalWeight, 2) + ' kg';
+      document.getElementById('depositWeight').textContent = formatPhysicalTotals(summary);
       document.getElementById('depositValue').textContent = formatRupiah(summary.totalValue);
       document.getElementById('depositTopType').textContent = summary.topType ? summary.topType.name : '-';
 
       const table = tableHtml(
-        ['No.', 'Tanggal', 'Jenis Sampah', 'Berat', 'Harga/kg', 'Nilai', 'Status'],
+        ['No.', 'Tanggal', 'Jenis Sampah', 'Kuantitas', 'Harga/satuan', 'Nilai', 'Status'],
         paging.items.map(function (item, index) {
           return [
             String(paging.start + index + 1),
             formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN),
             escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)),
-            formatNumber(item.BERAT_KG || item.BERAT, 2) + ' kg',
-            formatRupiah(item.HARGA_BELI_KG || item.HARGA_BELI_SAAT_TRANSAKSI),
+            formatRecordQuantity(item),
+            formatRupiah(item.HARGA_BELI_SATUAN || item.HARGA_BELI_KG || item.HARGA_BELI_SAAT_TRANSAKSI) + '/' + recordUnit(item),
             formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI),
             statusBadge(normalize(item.STATUS || item.STATUS_TRANSAKSI))
           ];
@@ -935,17 +936,33 @@
         ? '<option value="">Pilih jenis sampah</option>' + activeTypes.map(function (item) {
             const id = item.JENIS_ID || item.ID_JENIS;
             const name = item.NAMA_JENIS || item.NAMA_SAMPAH;
-            return '<option value="' + escapeHtml(id) + '">' + escapeHtml(name) + ' · ' + formatRupiah(item.HARGA_BELI_KG || item.HARGA_BELI) + '/kg</option>';
+            const unit = normalizeUnit(item.SATUAN);
+            return '<option value="' + escapeHtml(id) + '" data-unit="' + unit + '">' + escapeHtml(name) + ' · ' + formatRupiah(item.HARGA_BELI_SATUAN || item.HARGA_BELI_KG || item.HARGA_BELI) + '/' + unit + '</option>';
           }).join('')
         : '<option value="">Belum ada jenis aktif</option>';
+      syncSubmissionQuantityField();
     }
 
     function openSubmissionModal() {
       populateTypeOptions();
       document.getElementById('submissionForm').reset();
       document.getElementById('submissionSchedule').min = localDateTimeValue(new Date());
+      syncSubmissionQuantityField();
       updatePickupFields();
       openModal('submissionModal');
+    }
+
+    function syncSubmissionQuantityField() {
+      const type = selectedType();
+      const unit = normalizeUnit(type && type.SATUAN);
+      const input = document.getElementById('submissionWeight');
+      document.getElementById('submissionQuantityLabel').textContent = unit === 'pcs' ? 'Perkiraan jumlah (pcs)' : 'Perkiraan berat (kg)';
+      document.getElementById('submissionQuantityHelp').textContent = type
+        ? (unit === 'pcs' ? 'Masukkan jumlah item utuh, misalnya 100 botol.' : 'Masukkan berat sampah dalam kilogram.')
+        : 'Pilih jenis sampah terlebih dahulu.';
+      input.min = unit === 'pcs' ? '1' : '0.01';
+      input.step = unit === 'pcs' ? '1' : '0.01';
+      input.placeholder = unit === 'pcs' ? 'Contoh: 100' : 'Contoh: 2.5';
     }
 
     function updatePickupFields() {
@@ -967,15 +984,20 @@
 
       setButtonLoading(button, true, 'Mengirim...');
       try {
+        const type = selectedType();
+        const unit = normalizeUnit(type && type.SATUAN);
         const payload = {
           idAnggota: memberId(),
           idJenis: value('submissionType'),
-          perkiraanBeratKg: value('submissionWeight'),
+          satuan: unit,
+          perkiraanJumlah: value('submissionWeight'),
           metodeSetor: value('submissionMethod'),
           alamatJemput: value('submissionAddress'),
           jadwal: value('submissionSchedule'),
           catatan: value('submissionNote')
         };
+        if (unit === 'kg') payload.perkiraanBeratKg = value('submissionWeight');
+        else payload.perkiraanJumlahPcs = value('submissionWeight');
         if (state.token) payload.token = state.token;
         await apiPost('pengajuan.create', payload);
         closeModal('submissionModal');
@@ -1039,22 +1061,22 @@
 
       document.getElementById('reportPreviewTitle').textContent = 'Ringkasan ' + range.label.toLowerCase();
       document.getElementById('reportTransactionCount').textContent = deposits.length + ' transaksi';
-      document.getElementById('reportWeight').textContent = formatNumber(summary.totalWeight, 2) + ' kg';
+      document.getElementById('reportWeight').textContent = formatPhysicalTotals(summary);
       document.getElementById('reportValue').textContent = formatRupiah(summary.totalValue);
       document.getElementById('reportSubmissions').textContent = submissions.length;
       document.getElementById('reportWithdrawals').textContent = withdrawals.length;
 
-      const types = Object.values(summary.byType).sort(function (a, b) { return b.weight - a.weight; });
+      const types = Object.values(summary.byType).sort(function (a, b) { return b.value - a.value; });
       document.getElementById('reportPreview').innerHTML = types.length
         ? tableHtml(
-            ['No.', 'Jenis Sampah', 'Berat', 'Nilai', 'Porsi'],
+            ['No.', 'Jenis Sampah', 'Kuantitas', 'Nilai', 'Porsi nilai'],
             types.map(function (item, index) {
               return [
                 String(index + 1),
                 escapeHtml(item.name),
-                formatNumber(item.weight, 2) + ' kg',
+                formatTypeQuantity(item),
                 formatRupiah(item.value),
-                (summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : '0') + '%'
+                (summary.totalValue ? formatNumber(item.value / summary.totalValue * 100, 1) : '0') + '%'
               ];
             })
           )
@@ -1108,8 +1130,8 @@
       y = doc.lastAutoTable.finalY + 6;
       doc.autoTable({
         startY: y,
-        head: [['TOTAL BERAT', 'TOTAL NILAI', 'SETORAN', 'SALDO SAAT INI']],
-        body: [[formatNumber(summary.totalWeight, 2) + ' kg', formatRupiah(summary.totalValue), String(deposits.length), formatRupiah(currentBalance())]],
+        head: [['TOTAL FISIK', 'TOTAL NILAI', 'SETORAN', 'SALDO SAAT INI']],
+        body: [[formatPhysicalTotals(summary), formatRupiah(summary.totalValue), String(deposits.length), formatRupiah(currentBalance())]],
         theme: 'grid',
         headStyles: { fillColor: [23, 115, 63], fontSize: 8, halign: 'center' },
         bodyStyles: { fontSize: 10, fontStyle: 'bold', halign: 'center', cellPadding: 4 },
@@ -1117,21 +1139,21 @@
       });
 
       y = doc.lastAutoTable.finalY + 7;
-      const typeRows = Object.values(summary.byType).sort(function (a, b) { return b.weight - a.weight; }).map(function (item, index) {
+      const typeRows = Object.values(summary.byType).sort(function (a, b) { return b.value - a.value; }).map(function (item, index) {
         return [
           String(index + 1),
           item.name,
-          formatNumber(item.weight, 2) + ' kg',
+          formatTypeQuantity(item),
           formatRupiah(item.value),
-          (summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : '0') + '%'
+          (summary.totalValue ? formatNumber(item.value / summary.totalValue * 100, 1) : '0') + '%'
         ];
       });
       addPdfSectionTitle(doc, 'Ringkasan per Jenis Sampah', y);
       y += 3;
       doc.autoTable({
         startY: y,
-        head: [['No', 'Jenis Sampah', 'Berat', 'Nilai', 'Porsi']],
-        body: typeRows.length ? typeRows : [['-', 'Tidak ada data', '0 kg', 'Rp0', '0%']],
+        head: [['No', 'Jenis Sampah', 'Kuantitas', 'Nilai', 'Porsi Nilai']],
+        body: typeRows.length ? typeRows : [['-', 'Tidak ada data', '-', 'Rp0', '0%']],
         theme: 'striped',
         headStyles: { fillColor: [226, 239, 231], textColor: [11, 59, 37] },
         styles: { fontSize: 7.5, cellPadding: 2 },
@@ -1146,14 +1168,14 @@
           String(index + 1),
           formatDate(item.TANGGAL || item.TANGGAL_SETORAN),
           item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS),
-          formatNumber(item.BERAT_KG || item.BERAT, 2) + ' kg',
+          formatRecordQuantity(item),
           formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI)
         ];
       });
       doc.autoTable({
         startY: y,
-        head: [['No', 'Tanggal', 'Jenis Sampah', 'Berat', 'Nilai']],
-        body: depositRows.length ? depositRows : [['-', '-', 'Tidak ada setoran', '0 kg', 'Rp0']],
+        head: [['No', 'Tanggal', 'Jenis Sampah', 'Kuantitas', 'Nilai']],
+        body: depositRows.length ? depositRows : [['-', '-', 'Tidak ada setoran', '-', 'Rp0']],
         theme: 'grid',
         headStyles: { fillColor: [11, 59, 37] },
         styles: { fontSize: 7, cellPadding: 1.8 },
@@ -1168,7 +1190,7 @@
           String(index + 1),
           formatDate(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN),
           item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS),
-          formatNumber(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT, 2) + ' kg',
+          formatSubmissionQuantity(item),
           methodLabel(item.METODE_SETOR),
           statusLabel(item.STATUS || item.STATUS_PENGAJUAN)
         ];
@@ -1320,20 +1342,23 @@
     }
 
     function summarizeDeposits(rows) {
-      const result = { count: rows.length, totalWeight: 0, totalValue: 0, byType: {}, topType: null };
+      const result = { count: rows.length, totalWeight: 0, totalPcs: 0, totalValue: 0, byType: {}, topType: null };
       rows.forEach(function (item) {
         const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS);
-        const weight = Number(item.BERAT_KG || item.BERAT || 0);
+        const unit = recordUnit(item);
+        const quantity = recordQuantity(item);
         const amount = Number(item.TOTAL_RP || item.TOTAL_NILAI || 0);
-        if (!result.byType[name]) result.byType[name] = { name: name, weight: 0, value: 0 };
-        result.byType[name].weight += weight;
+        if (!result.byType[name]) result.byType[name] = { name: name, unit: unit, quantity: 0, value: 0 };
+        result.byType[name].quantity += quantity;
         result.byType[name].value += amount;
-        result.totalWeight += weight;
+        if (unit === 'pcs') result.totalPcs += quantity;
+        else result.totalWeight += quantity;
         result.totalValue += amount;
       });
       result.totalWeight = round(result.totalWeight, 2);
+      result.totalPcs = round(result.totalPcs, 0);
       result.totalValue = round(result.totalValue, 0);
-      result.topType = Object.values(result.byType).sort(function (a, b) { return b.weight - a.weight; })[0] || null;
+      result.topType = Object.values(result.byType).sort(function (a, b) { return b.value - a.value; })[0] || null;
       return result;
     }
 
@@ -1345,7 +1370,7 @@
         if (!date) return;
         let key = dateKey(date);
         if (period === 'year') key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
-        values[key] = (values[key] || 0) + Number(item.BERAT_KG || item.BERAT || 0);
+        values[key] = (values[key] || 0) + Number(item.TOTAL_RP || item.TOTAL_NILAI || 0);
       });
 
       if (period === 'today') {
@@ -1353,9 +1378,9 @@
           const key = dateKey(range.start) + '-' + String(hour).padStart(2, '0');
           const total = rows.reduce(function (sumValue, item) {
             const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
-            return sumValue + (date && Math.floor(date.getHours() / 3) * 3 === hour ? Number(item.BERAT_KG || item.BERAT || 0) : 0);
+            return sumValue + (date && Math.floor(date.getHours() / 3) * 3 === hour ? Number(item.TOTAL_RP || item.TOTAL_NILAI || 0) : 0);
           }, 0);
-          points.push({ label: String(hour).padStart(2, '0') + '.00', value: round(total, 2), key: key });
+          points.push({ label: String(hour).padStart(2, '0') + '.00', value: round(total, 0), key: key });
         }
         return points;
       }
@@ -1363,7 +1388,7 @@
       if (period === 'year') {
         for (let month = 0; month < 12; month += 1) {
           const key = range.start.getFullYear() + '-' + String(month + 1).padStart(2, '0');
-          points.push({ label: monthShort(month), value: round(values[key] || 0, 2) });
+          points.push({ label: monthShort(month), value: round(values[key] || 0, 0) });
         }
         return points;
       }
@@ -1372,7 +1397,7 @@
       while (cursor <= range.end) {
         const key = dateKey(cursor);
         const label = period === 'week' ? weekdayShort(cursor) : String(cursor.getDate());
-        points.push({ label: label, value: round(values[key] || 0, 2) });
+        points.push({ label: label, value: round(values[key] || 0, 0) });
         cursor.setDate(cursor.getDate() + 1);
       }
       return points;
@@ -1388,7 +1413,7 @@
           tooltip: {
             callbacks: {
               label: function (context) {
-                return ' ' + formatNumber(context.raw, 2) + ' ' + unit;
+                return unit === 'Rp' ? ' ' + formatRupiah(context.raw) : ' ' + formatNumber(context.raw, 2) + ' ' + unit;
               }
             }
           }
@@ -1401,7 +1426,7 @@
             ticks: {
               color: '#758277',
               font: { size: 10 },
-              callback: function (value) { return formatNumber(value, 1) + ' ' + unit; }
+              callback: function (value) { return unit === 'Rp' ? compactRupiah(value) : formatNumber(value, 1) + ' ' + unit; }
             }
           }
         }
@@ -1574,6 +1599,52 @@
         return (row.JENIS_ID || row.ID_JENIS) === id;
       });
       return item ? item.NAMA_JENIS || item.NAMA_SAMPAH : '-';
+    }
+
+    function normalizeUnit(input) {
+      return String(input || '').trim().toLowerCase() === 'pcs' ? 'pcs' : 'kg';
+    }
+
+    function selectedType() {
+      const id = value('submissionType');
+      return state.types.find(function (item) { return (item.JENIS_ID || item.ID_JENIS) === id; }) || null;
+    }
+
+    function typeUnit(id) {
+      const item = state.types.find(function (row) { return (row.JENIS_ID || row.ID_JENIS) === id; });
+      return normalizeUnit(item && item.SATUAN);
+    }
+
+    function recordUnit(item) {
+      return normalizeUnit(item && (item.SATUAN || typeUnit(item.JENIS_ID || item.ID_JENIS)));
+    }
+
+    function recordQuantity(item) {
+      const explicit = Number(item && (item.JUMLAH ?? item.KUANTITAS));
+      if (Number.isFinite(explicit) && explicit > 0) return explicit;
+      return recordUnit(item) === 'pcs'
+        ? Number(item && (item.JUMLAH_PCS || 0))
+        : Number(item && (item.BERAT_KG ?? item.BERAT ?? 0));
+    }
+
+    function formatRecordQuantity(item) {
+      const unit = recordUnit(item);
+      return formatNumber(recordQuantity(item), unit === 'pcs' ? 0 : 2) + ' ' + unit;
+    }
+
+    function formatPhysicalTotals(summary) {
+      return formatNumber(summary && summary.totalWeight, 2) + ' kg + ' + formatNumber(summary && summary.totalPcs, 0) + ' pcs';
+    }
+
+    function formatTypeQuantity(item) {
+      const unit = normalizeUnit(item && item.unit);
+      return formatNumber(item && item.quantity, unit === 'pcs' ? 0 : 2) + ' ' + unit;
+    }
+
+    function formatSubmissionQuantity(item) {
+      const unit = normalizeUnit(item && (item.SATUAN || typeUnit(item.JENIS_ID || item.ID_JENIS)));
+      const quantity = Number(item && (item.PERKIRAAN_JUMLAH ?? (unit === 'pcs' ? item.PERKIRAAN_JUMLAH_PCS : (item.PERKIRAAN_BERAT_KG ?? item.PERKIRAAN_BERAT)))) || 0;
+      return formatNumber(quantity, unit === 'pcs' ? 0 : 2) + ' ' + unit;
     }
 
     function currentBalance() {
@@ -1781,6 +1852,14 @@
       return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(input || 0));
     }
 
+    function compactRupiah(input) {
+      const number = Number(input || 0);
+      if (Math.abs(number) >= 1000000000) return 'Rp' + formatNumber(number / 1000000000, 1) + 'M';
+      if (Math.abs(number) >= 1000000) return 'Rp' + formatNumber(number / 1000000, 1) + 'jt';
+      if (Math.abs(number) >= 1000) return 'Rp' + formatNumber(number / 1000, 1) + 'rb';
+      return 'Rp' + formatNumber(number, 0);
+    }
+
     function periodName(period) {
       return ({ today: 'Hari ini', week: 'Minggu ini', month: 'Bulan ini', year: 'Tahun ini', all: 'Semua data' })[period] || 'Periode';
     }
@@ -1835,6 +1914,7 @@
         return text;
       }
     }
+
 
     function escapeHtml(input) {
       const element = document.createElement('div');
