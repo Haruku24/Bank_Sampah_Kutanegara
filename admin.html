@@ -17,7 +17,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="./css/admin.css?v=20260728-3">
+  <link rel="stylesheet" href="./css/admin.css?v=20260804-1">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
@@ -28,7 +28,7 @@
   <div class="app-shell">
     <aside id="sidebar" class="sidebar" aria-label="Navigasi admin">
       <a class="sidebar-brand" href="admin.html">
-        <span class="sidebar-logo" aria-hidden="true">♻</span>
+        <span class="sidebar-logo" aria-hidden="true">&#x267B;</span>
         <span><strong>Bank Sampah</strong><small>Sejahtera Baru Kutanegara</small></span>
       </a>
 
@@ -39,25 +39,25 @@
 
       <p class="nav-label">Ringkasan</p>
       <nav class="nav-list">
-        <button class="nav-item is-active" type="button" data-view="dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
-        <button class="nav-item" type="button" data-view="leaderboard"><span class="nav-icon">★</span><span>Leaderboard</span></button>
-        <button class="nav-item" type="button" data-view="laporan"><span class="nav-icon">▤</span><span>Laporan & Excel</span></button>
+        <button class="nav-item is-active" type="button" data-view="dashboard"><span class="nav-icon">&#x2302;</span><span>Dashboard</span></button>
+        <button class="nav-item" type="button" data-view="leaderboard"><span class="nav-icon">&#x2605;</span><span>Leaderboard</span></button>
+        <button class="nav-item" type="button" data-view="laporan"><span class="nav-icon">&#x25A4;</span><span>Laporan & Excel</span></button>
       </nav>
 
       <p class="nav-label">Data & transaksi</p>
       <nav class="nav-list">
-        <button class="nav-item" type="button" data-view="pengguna"><span class="nav-icon">◎</span><span>Pengguna</span><span id="navPeopleCount" class="nav-count">0</span></button>
-        <button class="nav-item" type="button" data-view="setoran"><span class="nav-icon">⇩</span><span>Setoran</span></button>
-        <button class="nav-item" type="button" data-view="jenis"><span class="nav-icon">♻</span><span>Jenis Sampah</span></button>
-        <button class="nav-item" type="button" data-view="pengajuan"><span class="nav-icon">◫</span><span>Pengajuan</span><span id="navSubmissionCount" class="nav-count warning">0</span></button>
-        <button class="nav-item" type="button" data-view="pencairan"><span class="nav-icon">¤</span><span>Pencairan</span><span id="navWithdrawalCount" class="nav-count warning">0</span></button>
-        <button class="nav-item" type="button" data-view="penjualan"><span class="nav-icon">↗</span><span>Penjualan</span></button>
-        <button class="nav-item" type="button" data-view="akses"><span class="nav-icon">▦</span><span>Akses & QR</span></button>
+        <button class="nav-item" type="button" data-view="pengguna"><span class="nav-icon">&#x25CE;</span><span>Pengguna</span><span id="navPeopleCount" class="nav-count">0</span></button>
+        <button class="nav-item" type="button" data-view="setoran"><span class="nav-icon">&#x21E9;</span><span>Setoran</span></button>
+        <button class="nav-item" type="button" data-view="jenis"><span class="nav-icon">&#x267B;</span><span>Jenis Sampah</span></button>
+        <button class="nav-item" type="button" data-view="pengajuan"><span class="nav-icon">&#x25EB;</span><span>Pengajuan</span><span id="navSubmissionCount" class="nav-count warning">0</span></button>
+        <button class="nav-item" type="button" data-view="pencairan"><span class="nav-icon">&#x00A4;</span><span>Pencairan</span><span id="navWithdrawalCount" class="nav-count warning">0</span></button>
+        <button class="nav-item" type="button" data-view="penjualan"><span class="nav-icon">&#x2197;</span><span>Penjualan</span></button>
+        <button class="nav-item" type="button" data-view="akses"><span class="nav-icon">&#x25A6;</span><span>Akses & QR</span></button>
       </nav>
 
       <div class="sidebar-footer">
-        <button type="button" onclick="logoutAdmin()"><span>↪</span>Keluar dari sistem</button>
-        <small>Bank Sampah Sejahtera Baru Kutanegara · <span id="sidebarYear"></span></small>
+        <button type="button" onclick="logoutAdmin()"><span>&#x21AA;</span>Keluar dari sistem</button>
+        <small>Bank Sampah Sejahtera Baru Kutanegara &middot; <span id="sidebarYear"></span></small>
       </div>
     </aside>
 
@@ -66,7 +66,7 @@
     <div class="main-shell">
       <header class="topbar">
         <div class="topbar-left">
-          <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Buka menu">☰</button>
+          <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Buka menu">&#x2630;</button>
           <div class="page-heading">
             <span id="pageEyebrow">Ringkasan sistem</span>
             <h1 id="pageTitle">Overview</h1>
@@ -79,16 +79,16 @@
             <button class="button button-outline topbar-report" type="button" onclick="downloadOverallReport()">Laporan PDF</button>
           </div>
           <label class="topbar-search" for="globalSearch">
-            <span aria-hidden="true">⌕</span>
+            <span aria-hidden="true">&#x2315;</span>
             <input id="globalSearch" type="search" autocomplete="off" placeholder="Cari menu atau data...">
           </label>
           <button id="apiStatusButton" class="api-pill is-checking" type="button" onclick="refreshCurrentView()">
             <span></span><b id="apiStatusText">Memuat data...</b>
           </button>
-          <button class="icon-button refresh-button" type="button" onclick="refreshCurrentView()" title="Muat ulang">↻</button>
+          <button class="icon-button refresh-button" type="button" onclick="refreshCurrentView()" title="Muat ulang">&#x21BB;</button>
           <button id="themeToggle" class="icon-button theme-toggle" type="button" onclick="toggleTheme()" aria-label="Aktifkan mode terang" aria-pressed="true" title="Ganti tema">
-            <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
-            <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+            <span class="theme-icon theme-icon-sun" aria-hidden="true">&#x2600;</span>
+            <span class="theme-icon theme-icon-moon" aria-hidden="true">&#x263E;</span>
           </button>
           <button id="notificationButton" class="icon-button notification-button" type="button" onclick="showToast('Tidak ada notifikasi baru.', 'success')" aria-label="Lihat notifikasi" title="Notifikasi">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
@@ -112,8 +112,8 @@
               </div>
               <div class="welcome-actions">
                 <button class="button button-light" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
-                <button class="button button-soft" type="button" onclick="downloadOverallReport()">↓ Laporan PDF</button>
-                <button class="button button-soft" type="button" onclick="exportDatabaseExcel(this)">↓ Backup Excel</button>
+                <button class="button button-soft" type="button" onclick="downloadOverallReport()">&#x2193; Laporan PDF</button>
+                <button class="button button-soft" type="button" onclick="exportDatabaseExcel(this)">&#x2193; Backup Excel</button>
               </div>
               <div class="welcome-illustration" aria-hidden="true">
                 <svg viewBox="0 0 210 120" role="img">
@@ -150,7 +150,7 @@
               <span class="clock-orbit" aria-hidden="true"><i></i><i></i><i></i></span>
               <strong id="liveClock">00:00</strong>
               <span id="liveDate">Memuat tanggal...</span>
-              <small id="liveTimezone">WIB · UTC+7</small>
+              <small id="liveTimezone">WIB &middot; UTC+7</small>
             </aside>
           </div>
 
@@ -169,15 +169,15 @@
           </div>
 
           <div class="metric-grid">
-            <article class="metric-card green"><div class="metric-top"><span>Total sampah</span><i>kg</i></div><strong id="metricWeight">0 kg</strong><small id="metricWeightNote">Belum ada transaksi</small></article>
+            <article class="metric-card green"><div class="metric-top"><span>Total sampah</span><i>kg/pcs</i></div><strong id="metricWeight">0 kg + 0 pcs</strong><small id="metricWeightNote">Belum ada transaksi</small></article>
             <article class="metric-card blue"><div class="metric-top"><span>Nilai setoran</span><i>Rp</i></div><strong id="metricValue">Rp0</strong><small id="metricValueNote">0 transaksi terverifikasi</small></article>
-            <article class="metric-card amber"><div class="metric-top"><span>Jenis terbanyak</span><i>♻</i></div><strong id="metricTopType">-</strong><small id="metricTopTypeNote">0 kg</small></article>
-            <article class="metric-card purple"><div class="metric-top"><span>Kontributor teratas</span><i>★</i></div><strong id="metricTopMember">-</strong><small id="metricTopMemberNote">0 kg</small></article>
+            <article class="metric-card amber"><div class="metric-top"><span>Nilai jenis terbesar</span><i>&#x267B;</i></div><strong id="metricTopType">-</strong><small id="metricTopTypeNote">Belum ada data</small></article>
+            <article class="metric-card purple"><div class="metric-top"><span>Kontributor teratas</span><i>&#x2605;</i></div><strong id="metricTopMember">-</strong><small id="metricTopMemberNote">Rp0</small></article>
           </div>
 
           <div class="dashboard-grid">
             <article class="panel chart-panel trend-panel">
-              <div class="panel-heading"><div><span class="panel-kicker">Perkembangan</span><h3 id="trendTitle">Berat sampah tahun ini</h3></div><span id="dashboardPeriodLabel" class="soft-badge">-</span></div>
+              <div class="panel-heading"><div><span class="panel-kicker">Perkembangan</span><h3 id="trendTitle">Nilai setoran tahun ini</h3></div><span id="dashboardPeriodLabel" class="soft-badge">-</span></div>
               <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
             </article>
             <article class="panel chart-panel">
@@ -189,11 +189,11 @@
 
           <div class="dashboard-grid lower">
             <article class="panel">
-              <div class="panel-heading"><div><span class="panel-kicker">Peringkat</span><h3>Kontributor periode ini</h3></div><button class="text-button" type="button" onclick="navigateTo('leaderboard')">Lihat lengkap →</button></div>
+              <div class="panel-heading"><div><span class="panel-kicker">Peringkat</span><h3>Kontributor periode ini</h3></div><button class="text-button" type="button" onclick="navigateTo('leaderboard')">Lihat lengkap &#x2192;</button></div>
               <div id="dashboardLeaderboard" class="mini-ranking"></div>
             </article>
             <article class="panel">
-              <div class="panel-heading"><div><span class="panel-kicker">Aktivitas</span><h3>Setoran terbaru</h3></div><button class="text-button" type="button" onclick="navigateTo('setoran')">Semua transaksi →</button></div>
+              <div class="panel-heading"><div><span class="panel-kicker">Aktivitas</span><h3>Setoran terbaru</h3></div><button class="text-button" type="button" onclick="navigateTo('setoran')">Semua transaksi &#x2192;</button></div>
               <div id="recentDeposits" class="activity-list"></div>
             </article>
           </div>
@@ -213,9 +213,9 @@
 
           <div class="panel">
             <div class="data-toolbar">
-              <div class="search-box"><span>⌕</span><input id="peopleSearch" type="search" placeholder="Ketik nama, email, atau nomor HP..."><kbd>instan</kbd></div>
+              <div class="search-box"><span>&#x2315;</span><input id="peopleSearch" type="search" placeholder="Ketik nama, email, atau nomor HP..."><kbd>instan</kbd></div>
               <select id="peopleStatus" class="select-control"><option value="">Semua status</option><option value="AKTIF">Aktif</option><option value="NONAKTIF">Nonaktif</option></select>
-              <button class="button button-outline" type="button" onclick="loadPeopleData()">↻ Muat ulang</button>
+              <button class="button button-outline" type="button" onclick="loadPeopleData()">&#x21BB; Muat ulang</button>
             </div>
             <div id="peopleResultInfo" class="result-info"></div>
             <div id="peopleTable"></div>
@@ -224,8 +224,8 @@
 
         <section id="view-leaderboard" class="view">
           <div class="section-head">
-            <div><span class="section-kicker">Program apresiasi</span><h2>Leaderboard Pengumpulan Sampah</h2><p>Peringkat dihitung dari total berat setoran terverifikasi. Masyarakat dan UMKM dinilai secara terpisah.</p></div>
-            <button class="button button-outline" type="button" onclick="downloadLeaderboardPdf()">↓ Unduh Peringkat</button>
+            <div><span class="section-kicker">Program apresiasi</span><h2>Leaderboard Pengumpulan Sampah</h2><p>Peringkat dihitung dari total nilai setoran terverifikasi agar transaksi kg dan pcs dapat dibandingkan secara adil. Masyarakat dan UMKM dinilai terpisah.</p></div>
+            <button class="button button-outline" type="button" onclick="downloadLeaderboardPdf()">&#x2193; Unduh Peringkat</button>
           </div>
 
           <div class="period-toolbar card-flat">
@@ -254,14 +254,15 @@
               <div id="businessLeaderboard" class="ranking-table"></div>
             </article>
           </div>
-          <div class="fairness-note"><span>i</span><p><strong>Dasar peringkat:</strong> hanya setoran berstatus TERVERIFIKASI yang dihitung. Jika berat sama, peserta dengan transaksi lebih banyak ditempatkan lebih tinggi. Laporan PDF dapat digunakan sebagai bukti data.</p></div>
+          <div class="fairness-note"><span>i</span><p><strong>Dasar peringkat:</strong> hanya setoran TERVERIFIKASI yang dihitung. Peringkat utama berdasarkan total nilai rupiah; jika sama, peserta dengan transaksi lebih banyak ditempatkan lebih tinggi. Total kg dan pcs tetap ditampilkan terpisah.</p></div>
         </section>
 
         <section id="view-setoran" class="view">
           <div class="section-head">
             <div><span class="section-kicker">Transaksi masuk</span><h2>Data Setoran</h2><p>Catat dan periksa seluruh setoran sampah yang telah diverifikasi.</p></div>
             <div class="section-actions">
-              <button class="button button-outline excel-button" type="button" onclick="exportFilteredDepositsExcel(this)">↓ Ekspor Setoran</button>
+              <button class="button button-outline excel-button" type="button" onclick="exportFilteredDepositsExcel(this)">&#x2193; Ekspor Setoran</button>
+              <button class="button button-outline historical-deposit-button" type="button" onclick="openDepositModal({ historical: true })">&#x21B6; Input Setoran Lama</button>
               <button class="button" type="button" onclick="openDepositModal()">+ Catat Setoran</button>
             </div>
           </div>
@@ -274,20 +275,21 @@
               </div>
               <div class="chart-wrap deposit-chart-wrap"><canvas id="depositChart"></canvas></div>
               <div class="deposit-chart-legend">
-                <span><i class="weight"></i>Berat sampah (kg)</span>
+                <span><i class="weight"></i>Berat (kg)</span>
+                <span><i class="pieces"></i>Jumlah item (pcs)</span>
                 <span><i class="value"></i>Nilai setoran (Rp)</span>
               </div>
             </article>
             <aside class="deposit-summary-stack">
               <article class="deposit-summary-card green"><span>Setoran terverifikasi</span><strong id="depositSummaryCount">0</strong><small id="depositSummaryCountNote">transaksi pada filter</small></article>
-              <article class="deposit-summary-card blue"><span>Total berat</span><strong id="depositSummaryWeight">0 kg</strong><small>Sampah yang berhasil dicatat</small></article>
+              <article class="deposit-summary-card blue"><span>Total fisik</span><strong id="depositSummaryWeight">0 kg + 0 pcs</strong><small>Kg dan pcs dihitung terpisah</small></article>
               <article class="deposit-summary-card amber"><span>Total nilai</span><strong id="depositSummaryValue">Rp0</strong><small>Nilai setoran terverifikasi</small></article>
             </aside>
           </div>
 
           <div class="panel">
             <div class="data-toolbar">
-              <div class="search-box"><span>⌕</span><input id="depositSearch" type="search" placeholder="Cari anggota, jenis, atau transaksi..."></div>
+              <div class="search-box"><span>&#x2315;</span><input id="depositSearch" type="search" placeholder="Cari anggota, jenis, atau transaksi..."></div>
               <select id="depositPeriod" class="select-control"><option value="all">Semua periode</option><option value="today">Hari ini</option><option value="week">Minggu ini</option><option value="month">Bulan ini</option><option value="year">Tahun ini</option></select>
               <select id="depositStatus" class="select-control"><option value="">Semua status</option><option value="TERVERIFIKASI">Terverifikasi</option><option value="DIBATALKAN">Dibatalkan</option></select>
             </div>
@@ -301,7 +303,7 @@
             <button class="button" type="button" onclick="openTypeModal()">+ Tambah Jenis</button>
           </div>
           <div class="panel">
-            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="typeSearch" type="search" placeholder="Cari nama atau kode jenis sampah..."></div><button class="button button-outline" type="button" onclick="loadTypes()">↻ Muat ulang</button></div>
+            <div class="data-toolbar"><div class="search-box"><span>&#x2315;</span><input id="typeSearch" type="search" placeholder="Cari nama atau kode jenis sampah..."></div><button class="button button-outline" type="button" onclick="loadTypes()">&#x21BB; Muat ulang</button></div>
             <div id="typeTable"></div>
           </div>
         </section>
@@ -309,7 +311,7 @@
         <section id="view-pengajuan" class="view">
           <div class="section-head"><div><span class="section-kicker">Permintaan anggota</span><h2>Pengajuan Setoran</h2><p>Verifikasi berat aktual atau tolak pengajuan yang tidak sesuai.</p></div></div>
           <div class="panel">
-            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="submissionSearch" type="search" placeholder="Cari anggota atau jenis sampah..."></div><select id="submissionStatus" class="select-control"><option value="">Semua status</option><option value="MENUNGGU">Menunggu</option><option value="TERVERIFIKASI">Terverifikasi</option><option value="DITOLAK">Ditolak</option></select><button class="button button-outline" type="button" onclick="loadSubmissions()">↻ Muat ulang</button></div>
+            <div class="data-toolbar"><div class="search-box"><span>&#x2315;</span><input id="submissionSearch" type="search" placeholder="Cari anggota atau jenis sampah..."></div><select id="submissionStatus" class="select-control"><option value="">Semua status</option><option value="MENUNGGU">Menunggu</option><option value="TERVERIFIKASI">Terverifikasi</option><option value="DITOLAK">Ditolak</option></select><button class="button button-outline" type="button" onclick="loadSubmissions()">&#x21BB; Muat ulang</button></div>
             <div id="submissionTable"></div>
           </div>
         </section>
@@ -317,7 +319,7 @@
         <section id="view-pencairan" class="view">
           <div class="section-head"><div><span class="section-kicker">Saldo anggota</span><h2>Pengajuan Pencairan</h2><p>Setujui atau tolak pencairan berdasarkan saldo valid anggota.</p></div></div>
           <div class="panel">
-            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="withdrawalSearch" type="search" placeholder="Cari anggota atau pencairan..."></div><select id="withdrawalStatus" class="select-control"><option value="">Semua status</option><option value="DIAJUKAN">Diajukan</option><option value="DISETUJUI">Disetujui</option><option value="DITOLAK">Ditolak</option><option value="DIBATALKAN">Dibatalkan</option></select><button class="button button-outline" type="button" onclick="loadWithdrawals()">↻ Muat ulang</button></div>
+            <div class="data-toolbar"><div class="search-box"><span>&#x2315;</span><input id="withdrawalSearch" type="search" placeholder="Cari anggota atau pencairan..."></div><select id="withdrawalStatus" class="select-control"><option value="">Semua status</option><option value="DIAJUKAN">Diajukan</option><option value="DISETUJUI">Disetujui</option><option value="DITOLAK">Ditolak</option><option value="DIBATALKAN">Dibatalkan</option></select><button class="button button-outline" type="button" onclick="loadWithdrawals()">&#x21BB; Muat ulang</button></div>
             <div id="withdrawalTable"></div>
           </div>
         </section>
@@ -325,7 +327,7 @@
         <section id="view-penjualan" class="view">
           <div class="section-head"><div><span class="section-kicker">Transaksi keluar</span><h2>Penjualan Sampah</h2><p>Catat penjualan kepada pengepul beserta rincian jenis, berat, dan harga.</p></div><button class="button" type="button" onclick="openSaleModal()">+ Catat Penjualan</button></div>
           <div class="panel">
-            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="saleSearch" type="search" placeholder="Cari pembeli atau transaksi penjualan..."></div><select id="salePeriod" class="select-control"><option value="all">Semua periode</option><option value="month">Bulan ini</option><option value="year">Tahun ini</option></select></div>
+            <div class="data-toolbar"><div class="search-box"><span>&#x2315;</span><input id="saleSearch" type="search" placeholder="Cari pembeli atau transaksi penjualan..."></div><select id="salePeriod" class="select-control"><option value="all">Semua periode</option><option value="month">Bulan ini</option><option value="year">Tahun ini</option></select></div>
             <div id="saleTable"></div>
           </div>
         </section>
@@ -347,20 +349,20 @@
           <div class="report-card-grid">
             <article class="report-card overall">
               <div class="report-card-heading">
-                <span class="report-icon">▤</span>
+                <span class="report-icon">&#x25A4;</span>
                 <div class="report-card-copy"><span class="panel-kicker">Laporan keseluruhan</span><h3>Rekap Bank Sampah</h3><p>Berisi ringkasan total, komposisi jenis, dan seluruh rincian transaksi pada periode terpilih.</p></div>
               </div>
               <div id="overallReportStats" class="report-stats"></div>
-              <button class="button" type="button" onclick="downloadOverallReport()">↓ Unduh PDF Keseluruhan</button>
+              <button class="button" type="button" onclick="downloadOverallReport()">&#x2193; Unduh PDF Keseluruhan</button>
             </article>
             <article class="report-card individual">
               <div class="report-card-heading">
-                <span class="report-icon">◎</span>
+                <span class="report-icon">&#x25CE;</span>
                 <div class="report-card-copy"><span class="panel-kicker">Laporan per anggota</span><h3>Bukti Transaksi Anggota</h3><p>Pilih masyarakat atau UMKM untuk menghasilkan laporan individual beserta ruang tanda tangan.</p></div>
               </div>
               <label class="member-select-label">Cari dan pilih anggota<input id="reportMemberSearch" class="input-control" type="search" placeholder="Ketik nama anggota..."></label>
               <select id="reportMemberSelect" class="select-control" size="4"></select>
-              <button id="memberReportButton" class="button button-blue" type="button" onclick="downloadSelectedMemberReport()">↓ Unduh PDF Anggota</button>
+              <button id="memberReportButton" class="button button-blue" type="button" onclick="downloadSelectedMemberReport()">&#x2193; Unduh PDF Anggota</button>
             </article>
             <article class="report-card excel">
               <div class="report-card-heading">
@@ -368,7 +370,7 @@
                 <div class="report-card-copy"><span class="panel-kicker">Backup spreadsheet</span><h3>Database Bank Sampah</h3><p>Mengunduh satu file Excel dengan sheet Ringkasan, Anggota, Pengguna, Jenis Sampah, Setoran, Pengajuan, Pencairan, Penjualan, dan Detail Penjualan.</p></div>
               </div>
               <div class="excel-sheet-list"><span>9 sheet</span><span>Data terbaru</span><span>Siap dibuka di Excel/Google Sheets</span></div>
-              <button class="button excel-download-button" type="button" onclick="exportDatabaseExcel(this)">↓ Unduh Database Excel</button>
+              <button class="button excel-download-button" type="button" onclick="exportDatabaseExcel(this)">&#x2193; Unduh Database Excel</button>
             </article>
           </div>
 
@@ -381,7 +383,7 @@
         <section id="view-akses" class="view">
           <div class="section-head"><div><span class="section-kicker">Keamanan akun</span><h2>Akses & QR</h2><p>Buat ulang, lihat, aktifkan, atau nonaktifkan QR untuk admin, masyarakat, dan UMKM.</p></div></div>
           <div class="panel">
-            <div class="data-toolbar"><div class="search-box"><span>⌕</span><input id="qrSearch" type="search" placeholder="Cari nama atau role..."></div><select id="qrRole" class="select-control"><option value="">Semua role</option><option value="ADMIN">Admin</option><option value="MASYARAKAT">Masyarakat</option><option value="UMKM">UMKM</option></select></div>
+            <div class="data-toolbar"><div class="search-box"><span>&#x2315;</span><input id="qrSearch" type="search" placeholder="Cari nama atau role..."></div><select id="qrRole" class="select-control"><option value="">Semua role</option><option value="ADMIN">Admin</option><option value="MASYARAKAT">Masyarakat</option><option value="UMKM">UMKM</option></select></div>
             <div id="qrTable"></div>
           </div>
         </section>
@@ -391,7 +393,7 @@
 
   <div id="personModal" class="modal-backdrop" role="presentation">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="personModalTitle">
-      <header class="modal-header"><div><span class="panel-kicker">Data pengguna</span><h3 id="personModalTitle">Tambah Pengguna</h3></div><button class="modal-close" type="button" onclick="closeModal('personModal')" aria-label="Tutup">×</button></header>
+      <header class="modal-header"><div><span class="panel-kicker">Data pengguna</span><h3 id="personModalTitle">Tambah Pengguna</h3></div><button class="modal-close" type="button" onclick="closeModal('personModal')" aria-label="Tutup">&times;</button></header>
       <form id="personForm">
         <div class="modal-body">
           <input id="personRecordId" type="hidden">
@@ -416,15 +418,15 @@
 
   <div id="typeModal" class="modal-backdrop" role="presentation">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="typeModalTitle">
-      <header class="modal-header"><div><span class="panel-kicker">Master sampah</span><h3 id="typeModalTitle">Tambah Jenis Sampah</h3></div><button class="modal-close" type="button" onclick="closeModal('typeModal')">×</button></header>
+      <header class="modal-header"><div><span class="panel-kicker">Master sampah</span><h3 id="typeModalTitle">Tambah Jenis Sampah</h3></div><button class="modal-close" type="button" onclick="closeModal('typeModal')">&times;</button></header>
       <form id="typeForm">
         <div class="modal-body"><input id="typeId" type="hidden"><div class="form-grid">
           <label class="field"><span>Kode asal</span><input id="typeCode" class="input-control"></label>
           <label class="field"><span>Status</span><select id="typeStatus" class="select-control"><option value="AKTIF">Aktif</option><option value="NONAKTIF">Nonaktif</option></select></label>
           <label class="field full"><span>Nama jenis sampah</span><input id="typeName" class="input-control" required></label>
-          <label class="field"><span>Harga beli / kg</span><input id="typeBuy" class="input-control" type="number" min="0" required></label>
-          <label class="field"><span>Harga jual / kg</span><input id="typeSell" class="input-control" type="number" min="0" required></label>
           <label class="field"><span>Satuan</span><select id="typeUnit" class="select-control"><option value="kg">kg</option><option value="pcs">pcs</option></select></label>
+          <label class="field"><span id="typeBuyLabel">Harga beli / kg</span><input id="typeBuy" class="input-control" type="number" min="0" step="1" required></label>
+          <label class="field"><span id="typeSellLabel">Harga jual / kg <small>(opsional)</small></span><input id="typeSell" class="input-control" type="number" min="0" step="1" placeholder="Boleh dikosongkan"></label>
           <label class="field"><span>Catatan</span><input id="typeNote" class="input-control"></label>
         </div></div>
         <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('typeModal')">Batal</button><button id="typeSubmitButton" class="button" type="submit">Simpan Jenis</button></footer>
@@ -434,13 +436,21 @@
 
   <div id="depositModal" class="modal-backdrop" role="presentation">
     <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="depositModalTitle">
-      <header class="modal-header"><div><span class="panel-kicker">Transaksi masuk</span><h3 id="depositModalTitle">Catat Setoran</h3></div><button class="modal-close" type="button" onclick="closeModal('depositModal')">×</button></header>
+      <header class="modal-header"><div><span id="depositModalKicker" class="panel-kicker">Transaksi masuk</span><h3 id="depositModalTitle">Catat Setoran</h3></div><button class="modal-close" type="button" onclick="closeModal('depositModal')">&times;</button></header>
       <form id="depositForm">
         <div class="modal-body">
-          <div class="form-grid"><label class="field"><span>Anggota</span><select id="depositMember" class="select-control" required></select></label><label class="field"><span>Tanggal setoran</span><input id="depositDate" class="input-control" type="datetime-local" required></label></div>
+          <input id="depositEntryMode" type="hidden" value="CURRENT">
+          <aside id="depositDateNotice" class="deposit-date-notice" aria-live="polite">
+            <span class="deposit-date-notice-icon">i</span>
+            <div><strong id="depositDateNoticeTitle">Tanggal transaksi dapat disesuaikan</strong><p id="depositDateNoticeText">Pilih pengguna dan tanggal setoran yang sebenarnya.</p></div>
+          </aside>
+          <div class="form-grid">
+            <label class="field"><span>Pengguna / anggota</span><select id="depositMember" class="select-control" required></select></label>
+            <label class="field"><span>Tanggal dan waktu setoran</span><input id="depositDate" class="input-control" type="datetime-local" required><small class="field-help">Data akan masuk ke riwayat dan laporan sesuai tanggal ini.</small></label>
+          </div>
           <div class="repeater-head"><div><span class="panel-kicker">Rincian sampah</span><h4>Jenis dan berat setoran</h4></div><button class="button button-outline button-small" type="button" onclick="addDepositItem()">+ Tambah baris</button></div>
           <div id="depositItems" class="repeater-list"></div>
-          <div class="transaction-total"><span>Estimasi total</span><strong id="depositTotalWeight">0 kg</strong><strong id="depositTotalValue">Rp0</strong></div>
+          <div class="transaction-total"><span>Estimasi total</span><strong id="depositTotalWeight">0 kg + 0 pcs</strong><strong id="depositTotalValue">Rp0</strong></div>
         </div>
         <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('depositModal')">Batal</button><button id="depositSubmitButton" class="button" type="submit">Simpan Setoran</button></footer>
       </form>
@@ -449,7 +459,7 @@
 
   <div id="saleModal" class="modal-backdrop" role="presentation">
     <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="saleModalTitle">
-      <header class="modal-header"><div><span class="panel-kicker">Transaksi keluar</span><h3 id="saleModalTitle">Catat Penjualan</h3></div><button class="modal-close" type="button" onclick="closeModal('saleModal')">×</button></header>
+      <header class="modal-header"><div><span class="panel-kicker">Transaksi keluar</span><h3 id="saleModalTitle">Catat Penjualan</h3></div><button class="modal-close" type="button" onclick="closeModal('saleModal')">&times;</button></header>
       <form id="saleForm">
         <div class="modal-body">
           <div class="form-grid">
@@ -461,7 +471,7 @@
           </div>
           <div class="repeater-head"><div><span class="panel-kicker">Rincian penjualan</span><h4>Jenis, berat, dan harga jual</h4></div><button class="button button-outline button-small" type="button" onclick="addSaleItem()">+ Tambah baris</button></div>
           <div id="saleItems" class="repeater-list"></div>
-          <div class="transaction-total"><span>Total penjualan</span><strong id="saleTotalWeight">0 kg</strong><strong id="saleTotalValue">Rp0</strong></div>
+          <div class="transaction-total"><span>Total penjualan</span><strong id="saleTotalWeight">0 kg + 0 pcs</strong><strong id="saleTotalValue">Rp0</strong></div>
         </div>
         <footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('saleModal')">Batal</button><button id="saleSubmitButton" class="button" type="submit">Simpan Penjualan</button></footer>
       </form>
@@ -470,7 +480,7 @@
 
   <div id="processModal" class="modal-backdrop" role="presentation">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="processModalTitle">
-      <header class="modal-header"><div><span class="panel-kicker">Tindakan admin</span><h3 id="processModalTitle">Proses Data</h3></div><button class="modal-close" type="button" onclick="closeModal('processModal')">×</button></header>
+      <header class="modal-header"><div><span class="panel-kicker">Tindakan admin</span><h3 id="processModalTitle">Proses Data</h3></div><button class="modal-close" type="button" onclick="closeModal('processModal')">&times;</button></header>
       <form id="processForm"><div id="processModalBody" class="modal-body"></div><footer class="modal-footer"><button class="button button-outline" type="button" onclick="closeModal('processModal')">Batal</button><button id="processSubmitButton" class="button" type="submit">Simpan Keputusan</button></footer></form>
     </section>
   </div>
@@ -479,7 +489,7 @@
     <section class="modal delete-person-modal" role="dialog" aria-modal="true" aria-labelledby="deletePersonModalTitle">
       <header class="modal-header danger-header">
         <div><span class="panel-kicker">Zona berbahaya</span><h3 id="deletePersonModalTitle">Hapus Pengguna Permanen</h3></div>
-        <button class="modal-close" type="button" onclick="closeDeletePersonModal()">×</button>
+        <button class="modal-close" type="button" onclick="closeDeletePersonModal()">&times;</button>
       </header>
       <form id="deletePersonForm">
         <div class="modal-body">
@@ -504,7 +514,7 @@
 
   <div id="qrModal" class="modal-backdrop" role="presentation">
     <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
-      <header class="modal-header"><div><span class="panel-kicker">Akses pengguna</span><h3 id="qrModalTitle">QR Akses</h3></div><button class="modal-close" type="button" onclick="closeModal('qrModal')">×</button></header>
+      <header class="modal-header"><div><span class="panel-kicker">Akses pengguna</span><h3 id="qrModalTitle">QR Akses</h3></div><button class="modal-close" type="button" onclick="closeModal('qrModal')">&times;</button></header>
       <div class="modal-body qr-modal-layout"><div id="qrImage" class="qr-image-box"></div><div><div id="qrDetails" class="detail-list"></div><div class="modal-inline-actions"><button class="button button-blue" type="button" onclick="copyCurrentQr()">Salin tautan</button><button class="button" type="button" onclick="downloadCurrentQr()">Simpan QR</button></div></div></div>
     </section>
   </div>
@@ -621,7 +631,7 @@
         month: 'long',
         year: 'numeric'
       }).format(now);
-      timezoneLabel.textContent = 'WIB · UTC+7';
+      timezoneLabel.textContent = 'WIB \u00b7 UTC+7';
 
       clock.classList.remove('is-ticking');
       void clock.offsetWidth;
@@ -726,6 +736,9 @@
       document.getElementById('reportPeriod').addEventListener('change', refreshReportPreview);
       document.getElementById('reportReferenceDate').addEventListener('change', refreshReportPreview);
       document.getElementById('personRole').addEventListener('change', syncPersonFormVisibility);
+      document.getElementById('typeUnit').addEventListener('change', syncTypeUnitLabels);
+      document.getElementById('depositMember').addEventListener('change', syncDepositContext);
+      document.getElementById('depositDate').addEventListener('input', syncDepositContext);
     }
 
     function bindPagedFilters(ids, pageKey, renderer) {
@@ -889,16 +902,16 @@
       const analytics = summarizeDeposits(rows);
       const ranking = buildLeaderboard(rows);
 
-      document.getElementById('metricWeight').textContent = `${formatNumber(analytics.totalWeight, 2)} kg`;
+      document.getElementById('metricWeight').textContent = formatPhysicalTotals(analytics);
       document.getElementById('metricWeightNote').textContent = analytics.count ? `${analytics.count} baris setoran terverifikasi` : 'Belum ada transaksi';
       document.getElementById('metricValue').textContent = formatRupiah(analytics.totalValue);
       document.getElementById('metricValueNote').textContent = `${analytics.memberCount} anggota berkontribusi`;
       document.getElementById('metricTopType').textContent = analytics.topType?.name || '-';
-      document.getElementById('metricTopTypeNote').textContent = `${formatNumber(analytics.topType?.weight || 0, 2)} kg pada periode ini`;
+      document.getElementById('metricTopTypeNote').textContent = analytics.topType ? `${formatTypeQuantity(analytics.topType)} & ${formatRupiah(analytics.topType.value)}` : 'Belum ada data';
       document.getElementById('metricTopMember').textContent = ranking[0]?.name || '-';
-      document.getElementById('metricTopMemberNote').textContent = `${formatNumber(ranking[0]?.weight || 0, 2)} kg`;
+      document.getElementById('metricTopMemberNote').textContent = formatRupiah(ranking[0]?.value || 0);
       document.getElementById('dashboardPeriodLabel').textContent = range.label;
-      document.getElementById('trendTitle').textContent = `Berat sampah ${periodName(state.dashboardPeriod).toLowerCase()}`;
+      document.getElementById('trendTitle').textContent = `Nilai setoran ${periodName(state.dashboardPeriod).toLowerCase()}`;
       renderTrendChart(rows, range);
       renderTypeChart(analytics.byType);
       renderMiniRanking(ranking.slice(0, 5));
@@ -913,33 +926,33 @@
       const context = document.getElementById('trendChart');
       state.trendChart = new Chart(context, {
         type: 'line',
-        data: { labels: points.labels, datasets: [{ label: 'Berat (kg)', data: points.values, borderColor: palette.accent, backgroundColor: palette.fill, pointBackgroundColor: palette.surface, pointBorderColor: palette.accent, borderWidth: 2, pointBorderWidth: 2, pointRadius: 3.5, pointHoverRadius: 5, tension: .28, fill: true }] },
-        options: chartOptions('kg')
+        data: { labels: points.labels, datasets: [{ label: 'Nilai setoran', data: points.values, borderColor: palette.accent, backgroundColor: palette.fill, pointBackgroundColor: palette.surface, pointBorderColor: palette.accent, borderWidth: 2, pointBorderWidth: 2, pointRadius: 3.5, pointHoverRadius: 5, tension: .28, fill: true }] },
+        options: chartOptions('Rp')
       });
     }
 
     function renderTypeChart(byType) {
-      const entries = Object.values(byType).sort((a, b) => b.weight - a.weight).slice(0, 7);
+      const entries = Object.values(byType).sort((a, b) => b.value - a.value).slice(0, 7);
       const colors = ['#17733f', '#2ea866', '#66c987', '#f1b84b', '#4f83d1', '#8b6cc7', '#db7d65'];
       const palette = chartThemePalette();
       if (state.typeChart) state.typeChart.destroy();
       if (typeof Chart !== 'undefined') {
         state.typeChart = new Chart(document.getElementById('typeChart'), {
           type: 'doughnut',
-          data: { labels: entries.map((item) => item.name), datasets: [{ data: entries.map((item) => round(item.weight, 2)), backgroundColor: colors, borderColor: palette.surface, borderWidth: 2, hoverOffset: 5 }] },
-          options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { backgroundColor: palette.tooltip, titleColor: palette.text, bodyColor: palette.text, callbacks: { label: (context) => ` ${context.label}: ${formatNumber(context.raw, 2)} kg` } } } }
+          data: { labels: entries.map((item) => item.name), datasets: [{ data: entries.map((item) => round(item.value, 0)), backgroundColor: colors, borderColor: palette.surface, borderWidth: 2, hoverOffset: 5 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { backgroundColor: palette.tooltip, titleColor: palette.text, bodyColor: palette.text, callbacks: { label: (context) => ` ${context.label}: ${formatRupiah(context.raw)}` } } } }
         });
       }
-      document.getElementById('typeLegend').innerHTML = entries.length ? entries.map((item, index) => `<span><i style="background:${colors[index]}"></i><b>${escapeHtml(item.name)}</b><small>${formatNumber(item.weight, 2)} kg</small></span>`).join('') : '<div class="empty-state compact">Belum ada data pada periode ini.</div>';
+      document.getElementById('typeLegend').innerHTML = entries.length ? entries.map((item, index) => `<span><i style="background:${colors[index]}"></i><b>${escapeHtml(item.name)}</b><small>${formatTypeQuantity(item)} &middot; ${formatRupiah(item.value)}</small></span>`).join('') : '<div class="empty-state compact">Belum ada data pada periode ini.</div>';
     }
 
     function renderMiniRanking(rows) {
-      document.getElementById('dashboardLeaderboard').innerHTML = rows.length ? rows.map((item, index) => `<div class="mini-rank-row"><span class="rank-number ${index < 3 ? `top-${index + 1}` : ''}">${index + 1}</span><span class="member-avatar">${escapeHtml(item.name.charAt(0).toUpperCase())}</span><span class="rank-person"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.category)}</small></span><b>${formatNumber(item.weight, 2)} kg</b></div>`).join('') : '<div class="empty-state">Belum ada peringkat pada periode ini.</div>';
+      document.getElementById('dashboardLeaderboard').innerHTML = rows.length ? rows.map((item, index) => `<div class="mini-rank-row"><span class="rank-number ${index < 3 ? `top-${index + 1}` : ''}">${index + 1}</span><span class="member-avatar">${escapeHtml(item.name.charAt(0).toUpperCase())}</span><span class="rank-person"><strong>${escapeHtml(item.name)}</strong><small>${formatNumber(item.weight, 2)} kg + ${formatNumber(item.pieces, 0)} pcs</small></span><b>${formatRupiah(item.value)}</b></div>`).join('') : '<div class="empty-state">Belum ada peringkat pada periode ini.</div>';
     }
 
     function renderRecentDeposits() {
       const rows = state.deposits.slice().sort((a, b) => dateValue(b.TANGGAL || b.TANGGAL_SETORAN) - dateValue(a.TANGGAL || a.TANGGAL_SETORAN)).slice(0, 5);
-      document.getElementById('recentDeposits').innerHTML = rows.length ? rows.map((item) => `<div class="activity-item"><span class="activity-icon">⇩</span><span><strong>${escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))}</strong><small>${escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-')} · ${formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN)}</small></span><b>${formatNumber(item.BERAT_KG || item.BERAT, 2)} kg</b></div>`).join('') : '<div class="empty-state">Belum ada setoran.</div>';
+      document.getElementById('recentDeposits').innerHTML = rows.length ? rows.map((item) => `<div class="activity-item"><span class="activity-icon">&#x21E9;</span><span><strong>${escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))}</strong><small>${escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-')} &middot; ${formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN)}</small></span><b>${formatRecordQuantity(item)}</b></div>`).join('') : '<div class="empty-state">Belum ada setoran.</div>';
     }
 
     function switchPeopleRole(role) {
@@ -978,7 +991,7 @@
       }
 
       rows = rows.filter((item) => (!status || item.status === status) && (!keyword || [item.id, item.name, item.subtitle, item.username, item.email, item.phone].join(' ').toLowerCase().includes(keyword)));
-      document.getElementById('peopleResultInfo').textContent = `${rows.length} data ${state.peopleRole.toLowerCase()} ditemukan${keyword ? ` untuk “${keyword}”` : ''}.`;
+      document.getElementById('peopleResultInfo').textContent = `${rows.length} data ${state.peopleRole.toLowerCase()} ditemukan${keyword ? ` untuk "${keyword}"` : ''}.`;
       const container = document.getElementById('peopleTable');
       if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada pengguna yang cocok dengan pencarian.</div>'; return; }
 
@@ -1087,7 +1100,7 @@
 
       state.deleteTarget = { id, name: memberDisplayName(record), category: normalize(record.KATEGORI) };
       state.deletePreview = null;
-      document.getElementById('deletePersonIdentity').innerHTML = `<span class="member-avatar large">${escapeHtml(state.deleteTarget.name.charAt(0).toUpperCase())}</span><div><small>Pengguna yang akan dihapus</small><strong>${escapeHtml(state.deleteTarget.name)}</strong><span>${escapeHtml(id)} · ${escapeHtml(state.deleteTarget.category)}</span></div>`;
+      document.getElementById('deletePersonIdentity').innerHTML = `<span class="member-avatar large">${escapeHtml(state.deleteTarget.name.charAt(0).toUpperCase())}</span><div><small>Pengguna yang akan dihapus</small><strong>${escapeHtml(state.deleteTarget.name)}</strong><span>${escapeHtml(id)} &middot; ${escapeHtml(state.deleteTarget.category)}</span></div>`;
       document.getElementById('deletePersonCounts').innerHTML = '<div class="delete-preview-loading">Menghitung seluruh data terkait...</div>';
       document.getElementById('deleteConfirmationPhrase').textContent = '-';
       document.getElementById('deleteConfirmationInput').value = '';
@@ -1100,7 +1113,7 @@
         if (!state.deleteTarget || state.deleteTarget.id !== id) return;
         state.deletePreview = preview;
         const counts = preview.counts || {};
-        document.getElementById('deletePersonIdentity').innerHTML = `<span class="member-avatar large">${escapeHtml((preview.nama || state.deleteTarget.name).charAt(0).toUpperCase())}</span><div><small>Pengguna yang akan dihapus</small><strong>${escapeHtml(preview.nama || state.deleteTarget.name)}</strong><span>${escapeHtml(preview.idAnggota || id)} · ${escapeHtml(preview.kategori || state.deleteTarget.category)}</span></div>`;
+        document.getElementById('deletePersonIdentity').innerHTML = `<span class="member-avatar large">${escapeHtml((preview.nama || state.deleteTarget.name).charAt(0).toUpperCase())}</span><div><small>Pengguna yang akan dihapus</small><strong>${escapeHtml(preview.nama || state.deleteTarget.name)}</strong><span>${escapeHtml(preview.idAnggota || id)} &middot; ${escapeHtml(preview.kategori || state.deleteTarget.category)}</span></div>`;
         document.getElementById('deletePersonCounts').innerHTML = [
           ['Setoran', counts.setoran || 0],
           ['Pengajuan', counts.pengajuan || 0],
@@ -1176,7 +1189,7 @@
 
     function renderPodium(containerId, rows) {
       const ordered = [rows[1], rows[0], rows[2]];
-      document.getElementById(containerId).innerHTML = rows.length ? ordered.map((item, position) => item ? `<div class="podium-person place-${position === 1 ? 1 : position === 0 ? 2 : 3}"><span class="podium-medal">${position === 1 ? '1' : position === 0 ? '2' : '3'}</span><span class="podium-avatar">${escapeHtml(item.name.charAt(0))}</span><strong>${escapeHtml(item.name)}</strong><small>${formatNumber(item.weight, 2)} kg</small></div>` : '<div></div>').join('') : '<div class="empty-state compact">Belum ada peserta pada periode ini.</div>';
+      document.getElementById(containerId).innerHTML = rows.length ? ordered.map((item, position) => item ? `<div class="podium-person place-${position === 1 ? 1 : position === 0 ? 2 : 3}"><span class="podium-medal">${position === 1 ? '1' : position === 0 ? '2' : '3'}</span><span class="podium-avatar">${escapeHtml(item.name.charAt(0))}</span><strong>${escapeHtml(item.name)}</strong><small>${formatRupiah(item.value)}</small></div>` : '<div></div>').join('') : '<div class="empty-state compact">Belum ada peserta pada periode ini.</div>';
     }
 
     function renderFullRanking(containerId, rows, pageKey) {
@@ -1184,7 +1197,7 @@
       const paging = paginateRows(pageKey, rows);
       document.getElementById(containerId).innerHTML = paging.items.map((item, index) => {
         const position = paging.start + index + 1;
-        return `<div class="ranking-row"><span class="rank-number ${position <= 3 ? `top-${position}` : ''}">${position}</span><span class="ranking-person"><strong>${escapeHtml(item.name)}</strong><small>${item.transactions} transaksi · ${escapeHtml(item.topType || '-')}</small></span><b>${formatNumber(item.weight, 2)} kg</b></div>`;
+        return `<div class="ranking-row"><span class="rank-number ${position <= 3 ? `top-${position}` : ''}">${position}</span><span class="ranking-person"><strong>${escapeHtml(item.name)}</strong><small>${item.transactions} transaksi &middot; ${formatNumber(item.weight, 2)} kg + ${formatNumber(item.pieces, 0)} pcs</small></span><b>${formatRupiah(item.value)}</b></div>`;
       }).join('') + paginationHtml(paging, true);
     }
 
@@ -1207,10 +1220,10 @@
       const container = document.getElementById('depositTable');
       if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada transaksi setoran yang cocok.</div>'; return; }
       const paging = paginateRows('deposits', rows);
-      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Anggota', 'Jenis', 'Berat', 'Nilai', 'Status', 'Aksi'], paging.items.map((item, index) => {
+      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Anggota', 'Jenis', 'Kuantitas', 'Nilai', 'Status', 'Aksi'], paging.items.map((item, index) => {
         const id = item.SETORAN_ID || item.ID_SETORAN;
         const itemStatus = normalize(item.STATUS || item.STATUS_TRANSAKSI);
-        return [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN), escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'), `${formatNumber(item.BERAT_KG || item.BERAT, 2)} kg`, formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI), statusBadge(itemStatus), itemStatus === 'TERVERIFIKASI' ? `<button class="action-button red" onclick="cancelDeposit('${jsString(id)}')">Batalkan</button>` : '-'];
+        return [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_SETORAN), escapeHtml(item.NAMA_SNAPSHOT || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'), formatRecordQuantity(item), formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI), statusBadge(itemStatus), itemStatus === 'TERVERIFIKASI' ? `<button class="action-button red" onclick="cancelDeposit('${jsString(id)}')">Batalkan</button>` : '-'];
       })) + paginationHtml(paging);
     }
 
@@ -1223,7 +1236,7 @@
 
       document.getElementById('depositSummaryCount').textContent = formatNumber(summary.count);
       document.getElementById('depositSummaryCountNote').textContent = `${formatNumber(filteredRows.length)} transaksi cocok dengan filter`;
-      document.getElementById('depositSummaryWeight').textContent = `${formatNumber(summary.totalWeight, 2)} kg`;
+      document.getElementById('depositSummaryWeight').textContent = formatPhysicalTotals(summary);
       document.getElementById('depositSummaryValue').textContent = formatRupiah(summary.totalValue);
       document.getElementById('depositChartPeriodLabel').textContent = period === 'all' ? 'Semua periode' : periodName(period);
 
@@ -1244,6 +1257,21 @@
               borderWidth: 1,
               borderRadius: 7,
               maxBarThickness: 36
+            },
+            {
+              type: 'line',
+              label: 'Jumlah item (pcs)',
+              data: points.pieces,
+              yAxisID: 'yPieces',
+              borderColor: '#d59a22',
+              backgroundColor: '#d59a22',
+              pointBackgroundColor: palette.surface,
+              pointBorderColor: '#d59a22',
+              pointBorderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+              tension: .3
             },
             {
               type: 'line',
@@ -1270,13 +1298,16 @@
       const buckets = {};
       const validRows = rows.filter((item) => parseDate(item.TANGGAL || item.TANGGAL_SETORAN));
       const addRow = (key, item) => {
-        if (!buckets[key]) buckets[key] = { weight: 0, value: 0 };
-        buckets[key].weight += Number(item.BERAT_KG ?? item.BERAT ?? 0);
+        if (!buckets[key]) buckets[key] = { weight: 0, pieces: 0, value: 0 };
+        const unit = recordUnit(item);
+        const quantity = recordQuantity(item);
+        if (unit === 'pcs') buckets[key].pieces += quantity;
+        else buckets[key].weight += quantity;
         buckets[key].value += Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0);
       };
 
       if (period === 'today') {
-        for (let hour = 0; hour < 24; hour += 3) buckets[String(hour).padStart(2, '0')] = { weight: 0, value: 0 };
+        for (let hour = 0; hour < 24; hour += 3) buckets[String(hour).padStart(2, '0')] = { weight: 0, pieces: 0, value: 0 };
         validRows.forEach((item) => {
           const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
           addRow(String(Math.floor(date.getHours() / 3) * 3).padStart(2, '0'), item);
@@ -1288,7 +1319,7 @@
         const range = getPeriodRange(period, new Date());
         const cursor = new Date(range.start);
         while (cursor <= range.end) {
-          buckets[dateKey(cursor)] = { weight: 0, value: 0 };
+          buckets[dateKey(cursor)] = { weight: 0, pieces: 0, value: 0 };
           cursor.setDate(cursor.getDate() + 1);
         }
         validRows.forEach((item) => addRow(dateKey(parseDate(item.TANGGAL || item.TANGGAL_SETORAN)), item));
@@ -1297,7 +1328,7 @@
 
       if (period === 'year') {
         const year = new Date().getFullYear();
-        for (let month = 0; month < 12; month += 1) buckets[`${year}-${String(month + 1).padStart(2, '0')}`] = { weight: 0, value: 0 };
+        for (let month = 0; month < 12; month += 1) buckets[`${year}-${String(month + 1).padStart(2, '0')}`] = { weight: 0, pieces: 0, value: 0 };
         validRows.forEach((item) => {
           const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN);
           addRow(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`, item);
@@ -1317,10 +1348,11 @@
 
     function depositPointResult(buckets, labelFormatter) {
       const keys = Object.keys(buckets).sort();
-      if (!keys.length) return { labels: ['Belum ada data'], weights: [0], values: [0] };
+      if (!keys.length) return { labels: ['Belum ada data'], weights: [0], pieces: [0], values: [0] };
       return {
         labels: keys.map(labelFormatter),
         weights: keys.map((key) => round(buckets[key].weight, 2)),
+        pieces: keys.map((key) => round(buckets[key].pieces, 0)),
         values: keys.map((key) => round(buckets[key].value, 0))
       };
     }
@@ -1347,9 +1379,17 @@
           yValue: {
             beginAtZero: true,
             position: 'right',
+            display: false,
             grid: { drawOnChartArea: false },
             border: { display: false },
             ticks: { color: '#4f83d1', padding: 8, callback: (number) => compactRupiah(number) }
+          },
+          yPieces: {
+            beginAtZero: true,
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            border: { display: false },
+            ticks: { color: '#d59a22', padding: 8, callback: (number) => `${formatNumber(number, 0)} pcs` }
           }
         },
         plugins: {
@@ -1362,6 +1402,8 @@
             callbacks: {
               label: (context) => context.dataset.yAxisID === 'yValue'
                 ? ` Nilai: ${formatRupiah(context.raw)}`
+                : context.dataset.yAxisID === 'yPieces'
+                ? ` Jumlah: ${formatNumber(context.raw, 0)} pcs`
                 : ` Berat: ${formatNumber(context.raw, 2)} kg`
             }
           }
@@ -1369,47 +1411,101 @@
       };
     }
 
-    function openDepositModal() {
+    function openDepositModal(options = {}) {
+      const historical = options?.historical === true;
+      const now = new Date();
       document.getElementById('depositForm').reset();
-      document.getElementById('depositDate').value = toLocalInputValue(new Date());
-      document.getElementById('depositMember').innerHTML = activeMembers().map((item) => `<option value="${escapeHtml(item.ANGGOTA_ID || item.ID_ANGGOTA)}">${escapeHtml(memberDisplayName(item))} · ${escapeHtml(item.KATEGORI)}</option>`).join('');
+      document.getElementById('depositEntryMode').value = historical ? 'HISTORICAL' : 'CURRENT';
+      document.getElementById('depositModalKicker').textContent = historical ? 'Koreksi data terdahulu' : 'Transaksi masuk';
+      document.getElementById('depositModalTitle').textContent = historical ? 'Input Setoran Lama' : 'Catat Setoran';
+      document.getElementById('depositDate').max = toLocalInputValue(now);
+      document.getElementById('depositDate').value = historical ? '' : toLocalInputValue(now);
+      document.getElementById('depositMember').innerHTML = activeMembers().map((item) => `<option value="${escapeHtml(item.ANGGOTA_ID || item.ID_ANGGOTA)}">${escapeHtml(memberDisplayName(item))} &middot; ${escapeHtml(item.KATEGORI || 'ANGGOTA')}</option>`).join('');
       document.getElementById('depositItems').replaceChildren();
       addDepositItem();
       calculateDepositTotals();
+      syncDepositContext();
       openModal('depositModal');
+      if (historical) requestAnimationFrame(() => document.getElementById('depositDate').focus());
+    }
+
+    function syncDepositContext() {
+      const notice = document.getElementById('depositDateNotice');
+      const member = activeMembers().find((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === value('depositMember'));
+      const selectedDate = parseDate(value('depositDate'));
+      const historical = value('depositEntryMode') === 'HISTORICAL' || isPastCalendarDate(selectedDate);
+      notice.classList.toggle('is-historical', historical);
+      document.getElementById('depositDateNoticeTitle').textContent = historical ? 'Setoran lama akan dicatat pada periode aslinya' : 'Tanggal transaksi dapat disesuaikan';
+      if (!selectedDate) {
+        document.getElementById('depositDateNoticeText').textContent = `Pilih tanggal setoran sebenarnya untuk ${member ? memberDisplayName(member) : 'pengguna yang dipilih'}.`;
+        return;
+      }
+      document.getElementById('depositDateNoticeText').textContent = `Riwayat ${member ? memberDisplayName(member) : 'pengguna'} akan bertambah pada ${formatDateTime(selectedDate)}, bukan pada tanggal input hari ini.`;
+    }
+
+    function isPastCalendarDate(date) {
+      if (!date) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return date.getTime() < today.getTime();
     }
 
     function addDepositItem(data = {}) {
       const row = document.createElement('div');
       row.className = 'repeater-row deposit-item-row';
-      row.innerHTML = `<label><span>Jenis sampah</span><select class="select-control item-type" required>${activeTypes().map((item) => `<option value="${escapeHtml(item.JENIS_ID || item.ID_JENIS)}" data-buy="${Number(item.HARGA_BELI_KG ?? item.HARGA_BELI ?? 0)}" ${data.idJenis === (item.JENIS_ID || item.ID_JENIS) ? 'selected' : ''}>${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</option>`).join('')}</select></label><label><span>Berat (kg)</span><input class="input-control item-weight" type="number" min="0.01" step="0.01" value="${data.berat || ''}" required></label><label><span>Harga beli</span><input class="input-control item-price" readonly></label><label><span>Subtotal</span><input class="input-control item-subtotal" readonly></label><button class="remove-row" type="button" title="Hapus baris">×</button>`;
-      row.querySelectorAll('select,input').forEach((element) => element.addEventListener('input', calculateDepositTotals));
+      row.innerHTML = `<label><span>Jenis sampah</span><select class="select-control item-type" required>${activeTypes().map((item) => `<option value="${escapeHtml(item.JENIS_ID || item.ID_JENIS)}" data-buy="${Number(item.HARGA_BELI_SATUAN ?? item.HARGA_BELI_KG ?? item.HARGA_BELI ?? 0)}" data-unit="${normalizeUnit(item.SATUAN)}" ${data.idJenis === (item.JENIS_ID || item.ID_JENIS) ? 'selected' : ''}>${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)} (${normalizeUnit(item.SATUAN)})</option>`).join('')}</select></label><label><span class="item-quantity-label">Kuantitas</span><input class="input-control item-weight" type="number" value="${data.jumlah || data.berat || ''}" required></label><label><span class="item-price-label">Harga beli</span><input class="input-control item-price" readonly></label><label><span>Subtotal</span><input class="input-control item-subtotal" readonly></label><button class="remove-row" type="button" title="Hapus baris">&times;</button>`;
+      row.querySelector('.item-type').addEventListener('change', () => { syncDepositItemRow(row); calculateDepositTotals(); });
+      row.querySelectorAll('input').forEach((element) => element.addEventListener('input', calculateDepositTotals));
       row.querySelector('.remove-row').addEventListener('click', () => { row.remove(); calculateDepositTotals(); });
       document.getElementById('depositItems').appendChild(row);
+      syncDepositItemRow(row);
       calculateDepositTotals();
+    }
+
+    function syncDepositItemRow(row) {
+      const option = row.querySelector('.item-type').selectedOptions[0];
+      const unit = normalizeUnit(option?.dataset.unit);
+      const input = row.querySelector('.item-weight');
+      row.dataset.unit = unit;
+      row.querySelector('.item-quantity-label').textContent = unit === 'pcs' ? 'Jumlah (pcs)' : 'Berat (kg)';
+      row.querySelector('.item-price-label').textContent = `Harga beli / ${unit}`;
+      input.min = unit === 'pcs' ? '1' : '0.01';
+      input.step = unit === 'pcs' ? '1' : '0.01';
+      input.placeholder = unit === 'pcs' ? 'Contoh: 100' : 'Contoh: 2.5';
     }
 
     function calculateDepositTotals() {
       let weight = 0;
+      let pieces = 0;
       let total = 0;
       document.querySelectorAll('.deposit-item-row').forEach((row) => {
         const select = row.querySelector('.item-type');
         const price = Number(select.selectedOptions[0]?.dataset.buy || 0);
-        const itemWeight = Number(row.querySelector('.item-weight').value || 0);
-        const subtotal = price * itemWeight;
+        const quantity = Number(row.querySelector('.item-weight').value || 0);
+        const unit = normalizeUnit(row.dataset.unit);
+        const subtotal = price * quantity;
         row.querySelector('.item-price').value = formatRupiah(price);
         row.querySelector('.item-subtotal').value = formatRupiah(subtotal);
-        weight += itemWeight;
+        if (unit === 'pcs') pieces += quantity;
+        else weight += quantity;
         total += subtotal;
       });
-      document.getElementById('depositTotalWeight').textContent = `${formatNumber(weight, 2)} kg`;
+      document.getElementById('depositTotalWeight').textContent = `${formatNumber(weight, 2)} kg + ${formatNumber(pieces, 0)} pcs`;
       document.getElementById('depositTotalValue').textContent = formatRupiah(total);
     }
 
     async function submitDeposit(event) {
       event.preventDefault();
-      const items = [...document.querySelectorAll('.deposit-item-row')].map((row) => ({ idJenis: row.querySelector('.item-type').value, beratKg: row.querySelector('.item-weight').value }));
+      const items = [...document.querySelectorAll('.deposit-item-row')].map((row) => {
+        const unit = normalizeUnit(row.dataset.unit);
+        const quantity = row.querySelector('.item-weight').value;
+        return { idJenis: row.querySelector('.item-type').value, satuan: unit, jumlah: quantity, beratKg: unit === 'kg' ? quantity : '', jumlahPcs: unit === 'pcs' ? quantity : '' };
+      });
       if (!items.length) return showToast('Minimal satu jenis sampah harus diisi.', 'warning');
+      const transactionDate = parseDate(value('depositDate'));
+      if (!transactionDate) return showToast('Tanggal setoran belum valid.', 'warning');
+      if (transactionDate.getTime() > Date.now() + 60000) return showToast('Tanggal setoran tidak boleh berada di masa depan.', 'warning');
+      const historical = isPastCalendarDate(transactionDate);
       const button = document.getElementById('depositSubmitButton');
       setButtonLoading(button, true, 'Menyimpan...');
       try {
@@ -1418,7 +1514,7 @@
         state.deposits = await apiGet('setoran.list', { limit: 500 });
         state.members = await apiGet('anggota.list', { limit: 500 });
         renderDepositTable();
-        showToast('Setoran berhasil dicatat.');
+        showToast(historical ? `Setoran lama berhasil dicatat pada ${formatDate(transactionDate)}.` : 'Setoran berhasil dicatat.');
       } catch (error) { showToast(error.message, 'error'); }
       finally { setButtonLoading(button, false, 'Simpan Setoran'); }
     }
@@ -1441,7 +1537,13 @@
       const container = document.getElementById('typeTable');
       if (!rows.length) { container.innerHTML = '<div class="empty-state large">Jenis sampah tidak ditemukan.</div>'; return; }
       const paging = paginateRows('types', rows);
-      container.innerHTML = tableHtml(['No.', 'Kode', 'Jenis sampah', 'Harga beli', 'Harga jual', 'Satuan', 'Status', 'Aksi'], paging.items.map((item, index) => { const id = item.JENIS_ID || item.ID_JENIS; const status = normalize(item.STATUS || item.STATUS_JENIS); return [String(paging.start + index + 1), escapeHtml(item.KODE_ASAL || '-'), `<strong>${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</strong><br><small>${escapeHtml(item.CATATAN || '-')}</small>`, formatRupiah(item.HARGA_BELI_KG ?? item.HARGA_BELI), formatRupiah(item.HARGA_JUAL_KG ?? item.ESTIMASI_HARGA_JUAL), escapeHtml(item.SATUAN || 'kg'), statusBadge(status), `<div class="row-actions"><button class="action-button" onclick="editType('${jsString(id)}')">Edit</button><button class="action-button amber" onclick="toggleTypeStatus('${jsString(id)}','${status === 'AKTIF' ? 'NONAKTIF' : 'AKTIF'}')">${status === 'AKTIF' ? 'Nonaktifkan' : 'Aktifkan'}</button><button class="action-button red" onclick="deleteType('${jsString(id)}')">Hapus</button></div>`]; })) + paginationHtml(paging);
+      container.innerHTML = tableHtml(['No.', 'Kode', 'Jenis sampah', 'Harga beli', 'Harga jual', 'Satuan', 'Status', 'Aksi'], paging.items.map((item, index) => {
+        const id = item.JENIS_ID || item.ID_JENIS;
+        const status = normalize(item.STATUS || item.STATUS_JENIS);
+        const unit = normalizeUnit(item.SATUAN);
+        const sellPrice = item.HARGA_JUAL_SATUAN ?? item.HARGA_JUAL_KG ?? item.ESTIMASI_HARGA_JUAL;
+        return [String(paging.start + index + 1), escapeHtml(item.KODE_ASAL || '-'), `<strong>${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</strong><br><small>${escapeHtml(item.CATATAN || '-')}</small>`, `${formatRupiah(item.HARGA_BELI_SATUAN ?? item.HARGA_BELI_KG ?? item.HARGA_BELI)}/${unit}`, sellPrice === '' || sellPrice === null || sellPrice === undefined || Number(sellPrice) === 0 ? '<span class="optional-value">Belum diisi</span>' : `${formatRupiah(sellPrice)}/${unit}`, unit, statusBadge(status), `<div class="row-actions"><button class="action-button" onclick="editType('${jsString(id)}')">Edit</button><button class="action-button amber" onclick="toggleTypeStatus('${jsString(id)}','${status === 'AKTIF' ? 'NONAKTIF' : 'AKTIF'}')">${status === 'AKTIF' ? 'Nonaktifkan' : 'Aktifkan'}</button><button class="action-button red" onclick="deleteType('${jsString(id)}')">Hapus</button></div>`];
+      })) + paginationHtml(paging);
     }
 
     function openTypeModal(item = null) {
@@ -1449,13 +1551,21 @@
       document.getElementById('typeId').value = item?.JENIS_ID || item?.ID_JENIS || '';
       document.getElementById('typeCode').value = item?.KODE_ASAL || '';
       document.getElementById('typeName').value = item?.NAMA_JENIS || item?.NAMA_SAMPAH || '';
-      document.getElementById('typeBuy').value = item?.HARGA_BELI_KG ?? item?.HARGA_BELI ?? '';
-      document.getElementById('typeSell').value = item?.HARGA_JUAL_KG ?? item?.ESTIMASI_HARGA_JUAL ?? '';
+      document.getElementById('typeBuy').value = item?.HARGA_BELI_SATUAN ?? item?.HARGA_BELI_KG ?? item?.HARGA_BELI ?? '';
+      const sellPrice = item?.HARGA_JUAL_SATUAN ?? item?.HARGA_JUAL_KG ?? item?.ESTIMASI_HARGA_JUAL ?? '';
+      document.getElementById('typeSell').value = Number(sellPrice) > 0 ? sellPrice : '';
       document.getElementById('typeUnit').value = String(item?.SATUAN || 'kg').toLowerCase();
       document.getElementById('typeStatus').value = normalize(item?.STATUS || item?.STATUS_JENIS || 'AKTIF');
       document.getElementById('typeNote').value = item?.CATATAN || '';
       document.getElementById('typeModalTitle').textContent = item ? 'Edit Jenis Sampah' : 'Tambah Jenis Sampah';
+      syncTypeUnitLabels();
       openModal('typeModal');
+    }
+
+    function syncTypeUnitLabels() {
+      const unit = value('typeUnit') === 'pcs' ? 'pcs' : 'kg';
+      document.getElementById('typeBuyLabel').textContent = `Harga beli / ${unit}`;
+      document.getElementById('typeSellLabel').innerHTML = `Harga jual / ${unit} <small>(opsional)</small>`;
     }
 
     function editType(id) { const item = state.types.find((row) => (row.JENIS_ID || row.ID_JENIS) === id); if (item) openTypeModal(item); }
@@ -1463,9 +1573,10 @@
     async function submitType(event) {
       event.preventDefault();
       const id = value('typeId');
+      const sellPrice = value('typeSell');
       const button = document.getElementById('typeSubmitButton');
       setButtonLoading(button, true, 'Menyimpan...');
-      try { await apiPost(id ? 'jenis.update' : 'jenis.create', { idJenis: id, kodeAsal: value('typeCode'), namaJenis: value('typeName'), hargaBeliKg: value('typeBuy'), hargaJualKg: value('typeSell'), satuan: value('typeUnit'), status: value('typeStatus'), catatan: value('typeNote') }); closeModal('typeModal'); await loadTypes(); }
+      try { await apiPost(id ? 'jenis.update' : 'jenis.create', { idJenis: id, kodeAsal: value('typeCode'), namaJenis: value('typeName'), hargaBeliSatuan: Number(value('typeBuy')), hargaJualSatuan: sellPrice === '' ? '' : Number(sellPrice), satuan: value('typeUnit'), status: value('typeStatus'), catatan: value('typeNote') }); closeModal('typeModal'); await loadTypes(); }
       catch (error) { showToast(error.message, 'error'); }
       finally { setButtonLoading(button, false, 'Simpan Jenis'); }
     }
@@ -1481,15 +1592,28 @@
       const container = document.getElementById('submissionTable');
       if (!rows.length) { container.innerHTML = '<div class="empty-state large">Tidak ada pengajuan yang cocok.</div>'; return; }
       const paging = paginateRows('submissions', rows);
-      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Anggota', 'Jenis', 'Perkiraan', 'Metode', 'Status', 'Aksi'], paging.items.map((item, index) => { const id = item.PENGAJUAN_ID || item.ID_PENGAJUAN; const itemStatus = normalize(item.STATUS || item.STATUS_PENGAJUAN); return [String(paging.start + index + 1), formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN), escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)), `${formatNumber(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT, 2)} kg`, escapeHtml(item.METODE_SETOR || '-'), statusBadge(itemStatus), itemStatus === 'MENUNGGU' ? `<div class="row-actions"><button class="action-button blue" onclick="openSubmissionProcess('${jsString(id)}')">Verifikasi</button><button class="action-button red" onclick="rejectSubmission('${jsString(id)}')">Tolak</button></div>` : '-']; })) + paginationHtml(paging);
+      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Anggota', 'Jenis', 'Perkiraan', 'Metode', 'Status', 'Aksi'], paging.items.map((item, index) => { const id = item.PENGAJUAN_ID || item.ID_PENGAJUAN; const itemStatus = normalize(item.STATUS || item.STATUS_PENGAJUAN); return [String(paging.start + index + 1), formatDateTime(item.DIAJUKAN_PADA || item.TANGGAL_PENGAJUAN), escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA)), escapeHtml(item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS)), submissionQuantity(item), escapeHtml(item.METODE_SETOR || '-'), statusBadge(itemStatus), itemStatus === 'MENUNGGU' ? `<div class="row-actions"><button class="action-button blue" onclick="openSubmissionProcess('${jsString(id)}')">Verifikasi</button><button class="action-button red" onclick="rejectSubmission('${jsString(id)}')">Tolak</button></div>` : '-']; })) + paginationHtml(paging);
     }
 
     function openSubmissionProcess(id) {
       const item = state.submissions.find((row) => (row.PENGAJUAN_ID || row.ID_PENGAJUAN) === id); if (!item) return;
       state.processMode = 'submission'; state.processId = id;
       document.getElementById('processModalTitle').textContent = 'Verifikasi Pengajuan';
-      document.getElementById('processModalBody').innerHTML = `<div class="form-grid"><label class="field full"><span>Anggota</span><input class="input-control" value="${escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))}" readonly></label><label class="field"><span>Jenis sampah</span><select id="processType" class="select-control">${activeTypes().map((type) => `<option value="${escapeHtml(type.JENIS_ID || type.ID_JENIS)}" ${(type.JENIS_ID || type.ID_JENIS) === (item.JENIS_ID || item.ID_JENIS) ? 'selected' : ''}>${escapeHtml(type.NAMA_JENIS || type.NAMA_SAMPAH)}</option>`).join('')}</select></label><label class="field"><span>Berat final (kg)</span><input id="processWeight" class="input-control" type="number" min="0.01" step="0.01" value="${Number(item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT || 0)}" required></label><label class="field full"><span>Catatan admin</span><textarea id="processNote" class="textarea-control"></textarea></label></div>`;
+      document.getElementById('processModalBody').innerHTML = `<div class="form-grid"><label class="field full"><span>Anggota</span><input class="input-control" value="${escapeHtml(item.NAMA_ANGGOTA || memberName(item.ANGGOTA_ID || item.ID_ANGGOTA))}" readonly></label><label class="field"><span>Jenis sampah</span><select id="processType" class="select-control">${activeTypes().map((type) => `<option value="${escapeHtml(type.JENIS_ID || type.ID_JENIS)}" data-unit="${normalizeUnit(type.SATUAN)}" ${(type.JENIS_ID || type.ID_JENIS) === (item.JENIS_ID || item.ID_JENIS) ? 'selected' : ''}>${escapeHtml(type.NAMA_JENIS || type.NAMA_SAMPAH)} (${normalizeUnit(type.SATUAN)})</option>`).join('')}</select></label><label class="field"><span id="processQuantityLabel">Kuantitas final</span><input id="processWeight" class="input-control" type="number" value="${Number(item.PERKIRAAN_JUMLAH || item.PERKIRAAN_BERAT_KG || item.PERKIRAAN_BERAT || 0)}" required></label><label class="field full"><span>Catatan admin</span><textarea id="processNote" class="textarea-control"></textarea></label></div>`;
+      document.getElementById('processType').addEventListener('change', syncProcessQuantityField);
+      syncProcessQuantityField();
       openModal('processModal');
+    }
+
+    function syncProcessQuantityField() {
+      const select = document.getElementById('processType');
+      const input = document.getElementById('processWeight');
+      const label = document.getElementById('processQuantityLabel');
+      if (!select || !input || !label) return;
+      const unit = normalizeUnit(select.selectedOptions[0]?.dataset.unit);
+      label.textContent = unit === 'pcs' ? 'Jumlah final (pcs)' : 'Berat final (kg)';
+      input.min = unit === 'pcs' ? '1' : '0.01';
+      input.step = unit === 'pcs' ? '1' : '0.01';
     }
 
     async function rejectSubmission(id) { const note = prompt('Alasan penolakan:', 'Data atau sampah belum sesuai ketentuan.'); if (note === null) return; try { await apiPost('pengajuan.reject', { idPengajuan: id, adminId: currentUserId(), catatanAdmin: note }); await loadSubmissions(); showToast('Pengajuan ditolak.'); } catch (error) { showToast(error.message, 'error'); } }
@@ -1515,7 +1639,7 @@
     async function submitProcess(event) {
       event.preventDefault(); const button = document.getElementById('processSubmitButton'); setButtonLoading(button, true, 'Memproses...');
       try {
-        if (state.processMode === 'submission') { await apiPost('pengajuan.verify', { idPengajuan: state.processId, idJenis: value('processType'), beratFinal: value('processWeight'), adminId: currentUserId(), catatanAdmin: value('processNote') }); await loadSubmissions(); state.deposits = await apiGet('setoran.list', { limit: 500 }); }
+        if (state.processMode === 'submission') { await apiPost('pengajuan.verify', { idPengajuan: state.processId, idJenis: value('processType'), jumlahFinal: value('processWeight'), adminId: currentUserId(), catatanAdmin: value('processNote') }); await loadSubmissions(); state.deposits = await apiGet('setoran.list', { limit: 500 }); }
         else { await apiPost('pencairan.process', { idPencairan: state.processId, status: value('processStatus'), adminId: currentUserId(), catatan: value('processNote') }); await loadWithdrawals(); state.members = await apiGet('anggota.list', { limit: 500 }); }
         closeModal('processModal'); showToast('Data berhasil diproses.');
       } catch (error) { showToast(error.message, 'error'); }
@@ -1527,7 +1651,7 @@
       const rows = state.sales.filter((item) => (!keyword || [item.PENJUALAN_ID || item.ID_PENJUALAN, item.PEMBELI || item.NAMA_PENGEPUL].join(' ').toLowerCase().includes(keyword)) && (!range || isDateInRange(parseDate(item.TANGGAL || item.TANGGAL_PENJUALAN), range)));
       const container = document.getElementById('saleTable'); if (!rows.length) { container.innerHTML = '<div class="empty-state large">Belum ada penjualan pada filter ini.</div>'; return; }
       const paging = paginateRows('sales', rows);
-      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Pembeli', 'Total berat', 'Total nilai', 'Rincian', 'Status'], paging.items.map((item, index) => [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_PENJUALAN), escapeHtml(item.PEMBELI || item.NAMA_PENGEPUL), `${formatNumber(item.TOTAL_BERAT_KG, 2)} kg`, formatRupiah(item.TOTAL_RP || item.TOTAL_KOTOR), `${(item.DETAIL || []).length} jenis`, statusBadge(item.STATUS || 'SELESAI')])) + paginationHtml(paging);
+      container.innerHTML = tableHtml(['No.', 'Tanggal', 'Pembeli', 'Total fisik', 'Total nilai', 'Rincian', 'Status'], paging.items.map((item, index) => [String(paging.start + index + 1), formatDateTime(item.TANGGAL || item.TANGGAL_PENJUALAN), escapeHtml(item.PEMBELI || item.NAMA_PENGEPUL), `${formatNumber(item.TOTAL_BERAT_KG, 2)} kg + ${formatNumber(item.TOTAL_JUMLAH_PCS, 0)} pcs`, formatRupiah(item.TOTAL_RP || item.TOTAL_KOTOR), `${(item.DETAIL || []).length} jenis`, statusBadge(item.STATUS || 'SELESAI')])) + paginationHtml(paging);
     }
 
     function openSaleModal() {
@@ -1536,21 +1660,31 @@
 
     function addSaleItem(data = {}) {
       const row = document.createElement('div'); row.className = 'repeater-row sale-item-row';
-      row.innerHTML = `<label><span>Jenis sampah</span><select class="select-control item-type" required>${state.types.map((item) => `<option value="${escapeHtml(item.JENIS_ID || item.ID_JENIS)}" data-sell="${Number(item.HARGA_JUAL_KG ?? item.ESTIMASI_HARGA_JUAL ?? 0)}">${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)}</option>`).join('')}</select></label><label><span>Berat (kg)</span><input class="input-control item-weight" type="number" min="0.01" step="0.01" value="${data.berat || ''}" required></label><label><span>Harga jual / kg</span><input class="input-control item-price" type="number" min="0" required></label><label><span>Subtotal</span><input class="input-control item-subtotal" readonly></label><button class="remove-row" type="button">×</button>`;
+      row.innerHTML = `<label><span>Jenis sampah</span><select class="select-control item-type" required>${state.types.map((item) => `<option value="${escapeHtml(item.JENIS_ID || item.ID_JENIS)}" data-sell="${Number(item.HARGA_JUAL_SATUAN ?? item.HARGA_JUAL_KG ?? item.ESTIMASI_HARGA_JUAL ?? 0)}" data-unit="${normalizeUnit(item.SATUAN)}">${escapeHtml(item.NAMA_JENIS || item.NAMA_SAMPAH)} (${normalizeUnit(item.SATUAN)})</option>`).join('')}</select></label><label><span class="item-quantity-label">Kuantitas</span><input class="input-control item-weight" type="number" value="${data.jumlah || data.berat || ''}" required></label><label><span class="item-price-label">Harga jual</span><input class="input-control item-price" type="number" min="0" required></label><label><span>Subtotal</span><input class="input-control item-subtotal" readonly></label><button class="remove-row" type="button">&times;</button>`;
       const select = row.querySelector('.item-type'); const price = row.querySelector('.item-price'); price.value = select.selectedOptions[0]?.dataset.sell || 0;
-      select.addEventListener('change', () => { price.value = select.selectedOptions[0]?.dataset.sell || 0; calculateSaleTotals(); });
+      select.addEventListener('change', () => { price.value = select.selectedOptions[0]?.dataset.sell || 0; syncSaleItemRow(row); calculateSaleTotals(); });
       row.querySelectorAll('input').forEach((element) => element.addEventListener('input', calculateSaleTotals)); row.querySelector('.remove-row').addEventListener('click', () => { row.remove(); calculateSaleTotals(); });
-      document.getElementById('saleItems').appendChild(row); calculateSaleTotals();
+      document.getElementById('saleItems').appendChild(row); syncSaleItemRow(row); calculateSaleTotals();
+    }
+
+    function syncSaleItemRow(row) {
+      const unit = normalizeUnit(row.querySelector('.item-type').selectedOptions[0]?.dataset.unit);
+      const input = row.querySelector('.item-weight');
+      row.dataset.unit = unit;
+      row.querySelector('.item-quantity-label').textContent = unit === 'pcs' ? 'Jumlah (pcs)' : 'Berat (kg)';
+      row.querySelector('.item-price-label').textContent = `Harga jual / ${unit}`;
+      input.min = unit === 'pcs' ? '1' : '0.01';
+      input.step = unit === 'pcs' ? '1' : '0.01';
     }
 
     function calculateSaleTotals() {
-      let weight = 0; let total = 0;
-      document.querySelectorAll('.sale-item-row').forEach((row) => { const itemWeight = Number(row.querySelector('.item-weight').value || 0); const price = Number(row.querySelector('.item-price').value || 0); row.querySelector('.item-subtotal').value = formatRupiah(itemWeight * price); weight += itemWeight; total += itemWeight * price; });
-      document.getElementById('saleTotalWeight').textContent = `${formatNumber(weight, 2)} kg`; document.getElementById('saleTotalValue').textContent = formatRupiah(total);
+      let weight = 0; let pieces = 0; let total = 0;
+      document.querySelectorAll('.sale-item-row').forEach((row) => { const quantity = Number(row.querySelector('.item-weight').value || 0); const price = Number(row.querySelector('.item-price').value || 0); row.querySelector('.item-subtotal').value = formatRupiah(quantity * price); if (normalizeUnit(row.dataset.unit) === 'pcs') pieces += quantity; else weight += quantity; total += quantity * price; });
+      document.getElementById('saleTotalWeight').textContent = `${formatNumber(weight, 2)} kg + ${formatNumber(pieces, 0)} pcs`; document.getElementById('saleTotalValue').textContent = formatRupiah(total);
     }
 
     async function submitSale(event) {
-      event.preventDefault(); const items = [...document.querySelectorAll('.sale-item-row')].map((row) => ({ idJenis: row.querySelector('.item-type').value, beratKg: row.querySelector('.item-weight').value, hargaJualKg: row.querySelector('.item-price').value })); const button = document.getElementById('saleSubmitButton'); setButtonLoading(button, true, 'Menyimpan...');
+      event.preventDefault(); const items = [...document.querySelectorAll('.sale-item-row')].map((row) => { const unit = normalizeUnit(row.dataset.unit); const quantity = row.querySelector('.item-weight').value; return { idJenis: row.querySelector('.item-type').value, satuan: unit, jumlah: quantity, beratKg: unit === 'kg' ? quantity : '', jumlahPcs: unit === 'pcs' ? quantity : '', hargaJualSatuan: row.querySelector('.item-price').value }; }); const button = document.getElementById('saleSubmitButton'); setButtonLoading(button, true, 'Menyimpan...');
       try { await apiPost('penjualan.create', { pembeli: value('saleBuyer'), tanggal: value('saleDate'), penyetor: value('saleSender'), penerima: value('saleReceiver'), catatan: value('saleNote'), adminId: currentUserId(), items }); closeModal('saleModal'); state.sales = await apiGet('penjualan.list', { limit: 500 }); renderSaleTable(); showToast('Penjualan berhasil dicatat.'); }
       catch (error) { showToast(error.message, 'error'); }
       finally { setButtonLoading(button, false, 'Simpan Penjualan'); }
@@ -1559,9 +1693,9 @@
     function refreshReportPreview() {
       const range = getReportRange(); const rows = getVerifiedDeposits(range); const summary = summarizeDeposits(rows);
       document.getElementById('reportPreviewTitle').textContent = `Ringkasan ${range.label.toLowerCase()}`; document.getElementById('reportTransactionCount').textContent = `${rows.length} transaksi`;
-      document.getElementById('overallReportStats').innerHTML = `<span><small>Total berat</small><strong>${formatNumber(summary.totalWeight, 2)} kg</strong></span><span><small>Total nilai</small><strong>${formatRupiah(summary.totalValue)}</strong></span><span><small>Anggota</small><strong>${summary.memberCount}</strong></span>`;
-      const topTypes = Object.values(summary.byType).sort((a, b) => b.weight - a.weight).slice(0, 8);
-      document.getElementById('reportPreview').innerHTML = topTypes.length ? tableHtml(['Jenis sampah', 'Berat', 'Nilai', 'Persentase'], topTypes.map((item) => [escapeHtml(item.name), `${formatNumber(item.weight, 2)} kg`, formatRupiah(item.value), `${summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : 0}%`])) : '<div class="empty-state large">Belum ada data terverifikasi pada periode ini.</div>';
+      document.getElementById('overallReportStats').innerHTML = `<span><small>Total fisik</small><strong>${formatPhysicalTotals(summary)}</strong></span><span><small>Total nilai</small><strong>${formatRupiah(summary.totalValue)}</strong></span><span><small>Anggota</small><strong>${summary.memberCount}</strong></span>`;
+      const topTypes = Object.values(summary.byType).sort((a, b) => b.value - a.value).slice(0, 8);
+      document.getElementById('reportPreview').innerHTML = topTypes.length ? tableHtml(['Jenis sampah', 'Kuantitas', 'Nilai', 'Persentase nilai'], topTypes.map((item) => [escapeHtml(item.name), formatTypeQuantity(item), formatRupiah(item.value), `${summary.totalValue ? formatNumber(item.value / summary.totalValue * 100, 1) : 0}%`])) : '<div class="empty-state large">Belum ada data terverifikasi pada periode ini.</div>';
       renderReportMemberOptions();
     }
 
@@ -1569,7 +1703,7 @@
       const select = document.getElementById('reportMemberSelect'); if (!select) return;
       const selected = select.value; const keyword = value('reportMemberSearch').toLowerCase();
       const rows = state.members.filter((item) => !keyword || [memberDisplayName(item), item.NAMA, item.NAMA_UMKM, item.ANGGOTA_ID || item.ID_ANGGOTA].join(' ').toLowerCase().includes(keyword)).sort((a, b) => memberDisplayName(a).localeCompare(memberDisplayName(b), 'id'));
-      select.innerHTML = rows.map((item) => `<option value="${escapeHtml(item.ANGGOTA_ID || item.ID_ANGGOTA)}">${escapeHtml(memberDisplayName(item))} · ${escapeHtml(item.KATEGORI)}</option>`).join('');
+      select.innerHTML = rows.map((item) => `<option value="${escapeHtml(item.ANGGOTA_ID || item.ID_ANGGOTA)}">${escapeHtml(memberDisplayName(item))} &middot; ${escapeHtml(item.KATEGORI)}</option>`).join('');
       if (rows.some((item) => (item.ANGGOTA_ID || item.ID_ANGGOTA) === selected)) select.value = selected;
     }
 
@@ -1633,6 +1767,7 @@
           ['Jumlah baris hasil filter', rows.length],
           ['Setoran terverifikasi', verifiedRows.length],
           ['Total berat terverifikasi (kg)', summary.totalWeight],
+          ['Total jumlah terverifikasi (pcs)', summary.totalPcs],
           ['Total nilai terverifikasi (Rp)', summary.totalValue]
         ]);
         summarySheet['!cols'] = [{ wch: 34 }, { wch: 28 }];
@@ -1692,6 +1827,7 @@
         ['RINGKASAN SETORAN TERVERIFIKASI', 'NILAI'],
         ['Jumlah transaksi', verified.length],
         ['Total berat (kg)', summary.totalWeight],
+        ['Total jumlah (pcs)', summary.totalPcs],
         ['Total nilai (Rp)', summary.totalValue]
       ];
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
@@ -1764,8 +1900,11 @@
         KATEGORI: member?.KATEGORI || '',
         ID_JENIS: item.JENIS_ID || item.ID_JENIS || '',
         JENIS_SAMPAH: item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS),
-        BERAT_KG: Number(item.BERAT_KG ?? item.BERAT ?? 0),
-        HARGA_BELI_PER_KG: Number(item.HARGA_BELI_SNAPSHOT ?? item.HARGA_BELI_KG ?? item.HARGA_BELI ?? 0),
+        SATUAN: recordUnit(item),
+        JUMLAH: recordQuantity(item),
+        BERAT_KG: recordUnit(item) === 'kg' ? recordQuantity(item) : '',
+        JUMLAH_PCS: recordUnit(item) === 'pcs' ? recordQuantity(item) : '',
+        HARGA_BELI_PER_SATUAN: Number(item.HARGA_BELI_SATUAN ?? item.HARGA_BELI_SNAPSHOT ?? item.HARGA_BELI_KG ?? item.HARGA_BELI ?? 0),
         TOTAL_RP: Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0),
         STATUS: normalize(item.STATUS || item.STATUS_TRANSAKSI),
         SUMBER_DATA: item.SUMBER_DATA || item.SUMBER || '',
@@ -1775,10 +1914,11 @@
 
     function summarizeDepositRowsWithoutState(rows) {
       return rows.reduce((summary, item) => {
-        summary.totalWeight += Number(item.BERAT_KG ?? item.BERAT ?? 0);
+        if (recordUnit(item) === 'pcs') summary.totalPcs += recordQuantity(item);
+        else summary.totalWeight += recordQuantity(item);
         summary.totalValue += Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0);
         return summary;
-      }, { totalWeight: 0, totalValue: 0 });
+      }, { totalWeight: 0, totalPcs: 0, totalValue: 0 });
     }
 
     function generateReportPdf({ memberId, range, title }) {
@@ -1794,15 +1934,15 @@
       const metadata = member ? [['ID Anggota', memberId], ['Nama', memberDisplayName(member)], ['Kategori', normalize(member.KATEGORI)], ['Alamat', [member.ALAMAT, member.RT ? `RT ${member.RT}` : '', member.RW ? `RW ${member.RW}` : ''].filter(Boolean).join(', ') || '-'], ['Periode', range.label]] : [['Jenis laporan', 'Rekap keseluruhan'], ['Periode', range.label], ['Jumlah anggota', String(summary.memberCount)], ['Status data', 'Hanya transaksi TERVERIFIKASI']];
       doc.autoTable({ startY: y, body: metadata, theme: 'plain', styles: { fontSize: 8, cellPadding: 1.4 }, columnStyles: { 0: { fontStyle: 'bold', textColor: [71, 85, 105], cellWidth: 35 } }, margin: { left: 14, right: 14 } });
       y = doc.lastAutoTable.finalY + 6;
-      doc.autoTable({ startY: y, head: [['TOTAL BERAT', 'TOTAL NILAI', 'TRANSAKSI', 'JENIS SAMPAH']], body: [[`${formatNumber(summary.totalWeight, 2)} kg`, formatRupiah(summary.totalValue), String(rows.length), String(Object.keys(summary.byType).length)]], theme: 'grid', headStyles: { fillColor: [23, 115, 63], fontSize: 8, halign: 'center' }, bodyStyles: { fontSize: 10, fontStyle: 'bold', halign: 'center', cellPadding: 4 }, margin: { left: 14, right: 14 } });
+      doc.autoTable({ startY: y, head: [['TOTAL FISIK', 'TOTAL NILAI', 'TRANSAKSI', 'JENIS SAMPAH']], body: [[formatPhysicalTotals(summary), formatRupiah(summary.totalValue), String(rows.length), String(Object.keys(summary.byType).length)]], theme: 'grid', headStyles: { fillColor: [23, 115, 63], fontSize: 8, halign: 'center' }, bodyStyles: { fontSize: 10, fontStyle: 'bold', halign: 'center', cellPadding: 4 }, margin: { left: 14, right: 14 } });
       y = doc.lastAutoTable.finalY + 7;
-      const typeRows = Object.values(summary.byType).sort((a, b) => b.weight - a.weight).map((item, index) => [String(index + 1), item.name, `${formatNumber(item.weight, 2)} kg`, formatRupiah(item.value), `${summary.totalWeight ? formatNumber(item.weight / summary.totalWeight * 100, 1) : 0}%`]);
+      const typeRows = Object.values(summary.byType).sort((a, b) => b.value - a.value).map((item, index) => [String(index + 1), item.name, formatTypeQuantity(item), formatRupiah(item.value), `${summary.totalValue ? formatNumber(item.value / summary.totalValue * 100, 1) : 0}%`]);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('Ringkasan per Jenis Sampah', 14, y); y += 3;
-      doc.autoTable({ startY: y, head: [['No', 'Jenis Sampah', 'Berat', 'Nilai', 'Porsi']], body: typeRows.length ? typeRows : [['-', 'Tidak ada data', '0 kg', 'Rp0', '0%']], theme: 'striped', headStyles: { fillColor: [226, 239, 231], textColor: [11, 59, 37], fontStyle: 'bold' }, styles: { fontSize: 7.5, cellPadding: 2 }, margin: { left: 14, right: 14 } });
+      doc.autoTable({ startY: y, head: [['No', 'Jenis Sampah', 'Kuantitas', 'Nilai', 'Porsi Nilai']], body: typeRows.length ? typeRows : [['-', 'Tidak ada data', '0 kg', 'Rp0', '0%']], theme: 'striped', headStyles: { fillColor: [226, 239, 231], textColor: [11, 59, 37], fontStyle: 'bold' }, styles: { fontSize: 7.5, cellPadding: 2 }, margin: { left: 14, right: 14 } });
       y = doc.lastAutoTable.finalY + 7;
       doc.setFontSize(10); doc.text('Rincian Transaksi Terverifikasi', 14, y); y += 3;
-      const detailRows = rows.map((item, index) => [String(index + 1), formatDate(item.TANGGAL || item.TANGGAL_SETORAN), item.SETORAN_ID || item.ID_SETORAN, memberDisplayNameById(item.ANGGOTA_ID || item.ID_ANGGOTA), item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-', formatNumber(item.BERAT_KG || item.BERAT, 2), formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI)]);
-      doc.autoTable({ startY: y, head: [['No', 'Tanggal', 'ID', 'Anggota', 'Jenis', 'Kg', 'Nilai']], body: detailRows.length ? detailRows : [['-', '-', '-', 'Tidak ada transaksi', '-', '0', 'Rp0']], theme: 'grid', headStyles: { fillColor: [11, 59, 37] }, styles: { fontSize: 6.8, cellPadding: 1.6, overflow: 'linebreak' }, columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 19 }, 2: { cellWidth: 34 }, 5: { cellWidth: 13, halign: 'right' }, 6: { cellWidth: 24, halign: 'right' } }, margin: { left: 10, right: 10 } });
+      const detailRows = rows.map((item, index) => [String(index + 1), formatDate(item.TANGGAL || item.TANGGAL_SETORAN), item.SETORAN_ID || item.ID_SETORAN, memberDisplayNameById(item.ANGGOTA_ID || item.ID_ANGGOTA), item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-', formatRecordQuantity(item), formatRupiah(item.TOTAL_RP || item.TOTAL_NILAI)]);
+      doc.autoTable({ startY: y, head: [['No', 'Tanggal', 'ID', 'Anggota', 'Jenis', 'Kuantitas', 'Nilai']], body: detailRows.length ? detailRows : [['-', '-', '-', 'Tidak ada transaksi', '-', '0', 'Rp0']], theme: 'grid', headStyles: { fillColor: [11, 59, 37] }, styles: { fontSize: 6.8, cellPadding: 1.6, overflow: 'linebreak' }, columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 19 }, 2: { cellWidth: 34 }, 5: { cellWidth: 18, halign: 'right' }, 6: { cellWidth: 24, halign: 'right' } }, margin: { left: 10, right: 10 } });
       y = doc.lastAutoTable.finalY + 10; if (y > 245) { doc.addPage(); y = 25; }
       doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(71, 85, 105); doc.text('Dokumen ini dihasilkan dari database Bank Sampah Sejahtera Baru Kutanegara dan hanya memuat transaksi terverifikasi.', 14, y); y += 12;
       doc.setTextColor(30, 41, 59); doc.text('Mengetahui,', 36, y); doc.text(member ? 'Anggota / Penanggung Jawab,' : 'Petugas Penyusun,', pageWidth - 55, y); y += 23; doc.setFont('helvetica', 'bold'); doc.text('(________________________)', 36, y, { align: 'center' }); doc.text('(________________________)', pageWidth - 55, y, { align: 'center' }); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.text('Admin Bank Sampah Sejahtera Baru Kutanegara', 36, y + 5, { align: 'center' }); doc.text(member ? memberDisplayName(member) : (state.currentUser?.NAMA_TAMPIL || 'Administrator'), pageWidth - 55, y + 5, { align: 'center' });
@@ -1814,7 +1954,7 @@
       if (!window.jspdf?.jsPDF) return showToast('Library PDF belum berhasil dimuat.', 'error');
       const reference = document.getElementById('leaderboardReferenceDate').valueAsDate || new Date(); const range = getPeriodRange(state.leaderboardPeriod, reference); const rows = buildLeaderboard(getVerifiedDeposits(range)); const { jsPDF } = window.jspdf; const doc = new jsPDF();
       doc.setFillColor(11, 59, 37); doc.rect(0, 0, 210, 31, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text('LEADERBOARD BANK SAMPAH SEJAHTERA BARU KUTANEGARA', 14, 14); doc.setFontSize(9); doc.text(range.label, 14, 22); let y = 40;
-      ['MASYARAKAT', 'UMKM'].forEach((role) => { const roleRows = rows.filter((item) => item.category === role); doc.setTextColor(30, 41, 59); doc.setFontSize(11); doc.text(`Peringkat ${role}`, 14, y); y += 3; doc.autoTable({ startY: y, head: [['Peringkat', 'Nama', 'Total Berat', 'Transaksi', 'Jenis Dominan']], body: roleRows.length ? roleRows.map((item, index) => [String(index + 1), item.name, `${formatNumber(item.weight, 2)} kg`, String(item.transactions), item.topType || '-']) : [['-', 'Belum ada peserta', '0 kg', '0', '-']], headStyles: { fillColor: role === 'UMKM' ? [47, 91, 150] : [23, 115, 63] }, styles: { fontSize: 8 }, margin: { left: 14, right: 14 } }); y = doc.lastAutoTable.finalY + 11; if (y > 245 && role === 'MASYARAKAT') { doc.addPage(); y = 25; } });
+      ['MASYARAKAT', 'UMKM'].forEach((role) => { const roleRows = rows.filter((item) => item.category === role); doc.setTextColor(30, 41, 59); doc.setFontSize(11); doc.text(`Peringkat ${role}`, 14, y); y += 3; doc.autoTable({ startY: y, head: [['Peringkat', 'Nama', 'Total Nilai', 'Fisik', 'Transaksi']], body: roleRows.length ? roleRows.map((item, index) => [String(index + 1), item.name, formatRupiah(item.value), `${formatNumber(item.weight, 2)} kg + ${formatNumber(item.pieces, 0)} pcs`, String(item.transactions)]) : [['-', 'Belum ada peserta', 'Rp0', '0 kg + 0 pcs', '0']], headStyles: { fillColor: role === 'UMKM' ? [47, 91, 150] : [23, 115, 63] }, styles: { fontSize: 8 }, margin: { left: 14, right: 14 } }); y = doc.lastAutoTable.finalY + 11; if (y > 245 && role === 'MASYARAKAT') { doc.addPage(); y = 25; } });
       addPdfFooters(doc, `BSK-LB-${formatDateCode(new Date())}`); doc.save(`Leaderboard_${safeFileName(range.label)}.pdf`); showToast('PDF leaderboard berhasil dibuat.');
     }
 
@@ -1841,25 +1981,25 @@
     function buildQrUrl(type, token) { const accessType = String(type || '').toLowerCase(); const isAdmin = accessType === 'admin'; const fileName = isAdmin ? 'admin.html' : accessType === 'umkm' ? 'umkm.html' : 'masyarakat.html'; return new URL(fileName + '?' + (isAdmin ? 'access' : 'token') + '=' + encodeURIComponent(token), window.location.href).href; }
 
     function summarizeDeposits(rows) {
-      const byType = {}; const members = new Set(); let totalWeight = 0; let totalValue = 0;
-      rows.forEach((item) => { const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS); const weight = Number(item.BERAT_KG ?? item.BERAT ?? 0); const itemValue = Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); if (!byType[name]) byType[name] = { name, weight: 0, value: 0 }; byType[name].weight += weight; byType[name].value += itemValue; totalWeight += weight; totalValue += itemValue; members.add(item.ANGGOTA_ID || item.ID_ANGGOTA); });
-      const topType = Object.values(byType).sort((a, b) => b.weight - a.weight)[0] || null;
-      return { count: rows.length, totalWeight: round(totalWeight, 2), totalValue: round(totalValue, 0), memberCount: [...members].filter(Boolean).length, byType, topType };
+      const byType = {}; const members = new Set(); let totalWeight = 0; let totalPcs = 0; let totalValue = 0;
+      rows.forEach((item) => { const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || typeName(item.JENIS_ID || item.ID_JENIS); const unit = recordUnit(item); const quantity = recordQuantity(item); const itemValue = Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); if (!byType[name]) byType[name] = { name, unit, quantity: 0, value: 0 }; byType[name].quantity += quantity; byType[name].value += itemValue; if (unit === 'pcs') totalPcs += quantity; else totalWeight += quantity; totalValue += itemValue; members.add(item.ANGGOTA_ID || item.ID_ANGGOTA); });
+      const topType = Object.values(byType).sort((a, b) => b.value - a.value)[0] || null;
+      return { count: rows.length, totalWeight: round(totalWeight, 2), totalPcs: round(totalPcs, 0), totalValue: round(totalValue, 0), memberCount: [...members].filter(Boolean).length, byType, topType };
     }
 
     function buildLeaderboard(rows) {
       const result = {};
-      rows.forEach((item) => { const id = item.ANGGOTA_ID || item.ID_ANGGOTA; if (!id) return; const member = state.members.find((row) => (row.ANGGOTA_ID || row.ID_ANGGOTA) === id); if (!member) return; if (!result[id]) result[id] = { id, name: memberDisplayName(member), category: normalize(member.KATEGORI), weight: 0, value: 0, transactions: 0, types: {} }; const weight = Number(item.BERAT_KG ?? item.BERAT ?? 0); const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'; result[id].weight += weight; result[id].value += Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); result[id].transactions += 1; result[id].types[name] = (result[id].types[name] || 0) + weight; });
-      return Object.values(result).map((item) => ({ ...item, weight: round(item.weight, 2), topType: Object.entries(item.types).sort((a, b) => b[1] - a[1])[0]?.[0] || '-' })).sort((a, b) => b.weight - a.weight || b.transactions - a.transactions || a.name.localeCompare(b.name, 'id'));
+      rows.forEach((item) => { const id = item.ANGGOTA_ID || item.ID_ANGGOTA; if (!id) return; const member = state.members.find((row) => (row.ANGGOTA_ID || row.ID_ANGGOTA) === id); if (!member) return; if (!result[id]) result[id] = { id, name: memberDisplayName(member), category: normalize(member.KATEGORI), weight: 0, pieces: 0, value: 0, transactions: 0, types: {} }; const unit = recordUnit(item); const quantity = recordQuantity(item); const itemValue = Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); const name = item.NAMA_SAMPAH_SNAPSHOT || item.NAMA_SAMPAH || '-'; if (unit === 'pcs') result[id].pieces += quantity; else result[id].weight += quantity; result[id].value += itemValue; result[id].transactions += 1; result[id].types[name] = (result[id].types[name] || 0) + itemValue; });
+      return Object.values(result).map((item) => ({ ...item, weight: round(item.weight, 2), pieces: round(item.pieces, 0), value: round(item.value, 0), topType: Object.entries(item.types).sort((a, b) => b[1] - a[1])[0]?.[0] || '-' })).sort((a, b) => b.value - a.value || b.transactions - a.transactions || a.name.localeCompare(b.name, 'id'));
     }
 
     function buildTrendPoints(rows, period, range) {
       const map = {};
-      if (period === 'year') { for (let month = 0; month < 12; month += 1) map[`${range.start.getFullYear()}-${String(month + 1).padStart(2, '0')}`] = 0; rows.forEach((item) => { const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN); const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; map[key] = (map[key] || 0) + Number(item.BERAT_KG ?? item.BERAT ?? 0); }); return { labels: Object.keys(map).map((key) => monthShort(Number(key.slice(-2)) - 1)), values: Object.values(map).map((value) => round(value, 2)) }; }
-      if (period === 'today') { for (let hour = 0; hour < 24; hour += 3) map[String(hour).padStart(2, '0')] = 0; rows.forEach((item) => { const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN); const bucket = Math.floor(date.getHours() / 3) * 3; const key = String(bucket).padStart(2, '0'); map[key] = (map[key] || 0) + Number(item.BERAT_KG ?? item.BERAT ?? 0); }); return { labels: Object.keys(map).map((key) => `${key}:00`), values: Object.values(map).map((value) => round(value, 2)) }; }
+      if (period === 'year') { for (let month = 0; month < 12; month += 1) map[`${range.start.getFullYear()}-${String(month + 1).padStart(2, '0')}`] = 0; rows.forEach((item) => { const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN); const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; map[key] = (map[key] || 0) + Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); }); return { labels: Object.keys(map).map((key) => monthShort(Number(key.slice(-2)) - 1)), values: Object.values(map).map((value) => round(value, 0)) }; }
+      if (period === 'today') { for (let hour = 0; hour < 24; hour += 3) map[String(hour).padStart(2, '0')] = 0; rows.forEach((item) => { const date = parseDate(item.TANGGAL || item.TANGGAL_SETORAN); const bucket = Math.floor(date.getHours() / 3) * 3; const key = String(bucket).padStart(2, '0'); map[key] = (map[key] || 0) + Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); }); return { labels: Object.keys(map).map((key) => `${key}:00`), values: Object.values(map).map((value) => round(value, 0)) }; }
       const cursor = new Date(range.start); while (cursor <= range.end) { map[dateKey(cursor)] = 0; cursor.setDate(cursor.getDate() + 1); }
-      rows.forEach((item) => { const key = dateKey(parseDate(item.TANGGAL || item.TANGGAL_SETORAN)); map[key] = (map[key] || 0) + Number(item.BERAT_KG ?? item.BERAT ?? 0); });
-      return { labels: Object.keys(map).map((key) => period === 'week' ? weekdayShort(parseDate(`${key}T00:00:00`)) : key.slice(-2)), values: Object.values(map).map((value) => round(value, 2)) };
+      rows.forEach((item) => { const key = dateKey(parseDate(item.TANGGAL || item.TANGGAL_SETORAN)); map[key] = (map[key] || 0) + Number(item.TOTAL_RP ?? item.TOTAL_NILAI ?? 0); });
+      return { labels: Object.keys(map).map((key) => period === 'week' ? weekdayShort(parseDate(`${key}T00:00:00`)) : key.slice(-2)), values: Object.values(map).map((value) => round(value, 0)) };
     }
 
     function getVerifiedDeposits(range) { return state.deposits.filter((item) => normalize(item.STATUS || item.STATUS_TRANSAKSI) === 'TERVERIFIKASI' && (!range || isDateInRange(parseDate(item.TANGGAL || item.TANGGAL_SETORAN), range))); }
@@ -1893,9 +2033,9 @@
       return `<nav class="pagination-bar ${compact ? 'compact' : ''}" data-pagination="${escapeHtml(paging.key)}" aria-label="Navigasi halaman">
         <span class="pagination-info">${paging.start + 1}-${paging.end} dari ${paging.totalItems} data</span>
         <div class="pagination-controls">
-          <button class="page-direction" type="button" onclick="goToPage('${paging.key}',${paging.currentPage - 1})" ${paging.currentPage === 1 ? 'disabled' : ''} aria-label="Halaman sebelumnya">‹ <span>Sebelumnya</span></button>
-          <div class="page-numbers">${pages.map((page) => page === 'ellipsis' ? '<span class="page-ellipsis">…</span>' : `<button class="page-number ${page === paging.currentPage ? 'is-active' : ''}" type="button" onclick="goToPage('${paging.key}',${page})" ${page === paging.currentPage ? 'aria-current="page"' : ''}>${page}</button>`).join('')}</div>
-          <button class="page-direction" type="button" onclick="goToPage('${paging.key}',${paging.currentPage + 1})" ${paging.currentPage === paging.totalPages ? 'disabled' : ''} aria-label="Halaman selanjutnya"><span>Selanjutnya</span> ›</button>
+          <button class="page-direction" type="button" onclick="goToPage('${paging.key}',${paging.currentPage - 1})" ${paging.currentPage === 1 ? 'disabled' : ''} aria-label="Halaman sebelumnya">&lsaquo; <span>Sebelumnya</span></button>
+          <div class="page-numbers">${pages.map((page) => page === 'ellipsis' ? '<span class="page-ellipsis">&hellip;</span>' : `<button class="page-number ${page === paging.currentPage ? 'is-active' : ''}" type="button" onclick="goToPage('${paging.key}',${page})" ${page === paging.currentPage ? 'aria-current="page"' : ''}>${page}</button>`).join('')}</div>
+          <button class="page-direction" type="button" onclick="goToPage('${paging.key}',${paging.currentPage + 1})" ${paging.currentPage === paging.totalPages ? 'disabled' : ''} aria-label="Halaman selanjutnya"><span>Selanjutnya</span> &rsaquo;</button>
         </div>
       </nav>`;
     }
@@ -1930,7 +2070,7 @@
         ? { accent: '#a6d8c0', fill: 'rgba(166,216,192,.13)', surface: '#12231b', text: '#e7f0eb', muted: '#9baba2', grid: 'rgba(149,173,160,.13)', tooltip: '#1d3328' }
         : { accent: '#17733f', fill: 'rgba(37,169,91,.13)', surface: '#ffffff', text: '#18231d', muted: '#7a887f', grid: 'rgba(220,231,223,.7)', tooltip: '#0b3b25' };
     }
-    function chartOptions(unit) { const palette = chartThemePalette(); return { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, layout: { padding: { top: 6, right: 4, bottom: 2, left: 2 } }, scales: { x: { grid: { display: false }, border: { color: palette.grid }, ticks: { color: palette.muted, padding: 8, font: { size: 11, weight: '600' }, maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, grid: { color: palette.grid }, border: { display: false }, ticks: { color: palette.muted, padding: 9, font: { size: 11, weight: '600' }, callback: (value) => `${value} ${unit}` } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: palette.tooltip, titleColor: palette.text, bodyColor: palette.text, padding: 11, titleFont: { size: 12 }, bodyFont: { size: 12 }, callbacks: { label: (context) => ` ${formatNumber(context.raw, 2)} ${unit}` } } } }; }
+    function chartOptions(unit) { const palette = chartThemePalette(); const money = unit === 'Rp'; return { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, layout: { padding: { top: 6, right: 4, bottom: 2, left: 2 } }, scales: { x: { grid: { display: false }, border: { color: palette.grid }, ticks: { color: palette.muted, padding: 8, font: { size: 11, weight: '600' }, maxRotation: 0, autoSkip: true } }, y: { beginAtZero: true, grid: { color: palette.grid }, border: { display: false }, ticks: { color: palette.muted, padding: 9, font: { size: 11, weight: '600' }, callback: (value) => money ? compactRupiah(value) : `${value} ${unit}` } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: palette.tooltip, titleColor: palette.text, bodyColor: palette.text, padding: 11, titleFont: { size: 12 }, bodyFont: { size: 12 }, callbacks: { label: (context) => money ? ` ${formatRupiah(context.raw)}` : ` ${formatNumber(context.raw, 2)} ${unit}` } } } }; }
     function tableHtml(headers, rows) { return `<div class="table-wrap"><table><thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead><tbody>${rows.map((cells) => `<tr>${cells.map((cell, index) => `<td data-label="${escapeHtml(headers[index])}">${cell ?? '-'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
     function detailRows(rows) { return rows.map(([label, content]) => `<div class="detail-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(content || '-')}</strong></div>`).join(''); }
     function statusBadge(status) { const value = normalize(status || '-'); let className = 'status-badge'; if (['AKTIF', 'TERVERIFIKASI', 'SELESAI', 'DISETUJUI'].includes(value)) className += ' success'; else if (['MENUNGGU', 'DIAJUKAN', 'DIPROSES'].includes(value)) className += ' warning'; else if (['NONAKTIF', 'DITOLAK', 'DIBATALKAN'].includes(value)) className += ' danger'; else className += ' neutral'; return `<span class="${className}">${escapeHtml(value.replaceAll('_', ' '))}</span>`; }
@@ -1938,6 +2078,24 @@
     function memberDisplayNameById(id) { return memberName(id); }
     function memberDisplayName(item) { return normalize(item.KATEGORI) === 'UMKM' && item.NAMA_UMKM ? item.NAMA_UMKM : item.NAMA || item.NAMA_ANGGOTA || '-'; }
     function typeName(id) { const item = state.types.find((type) => (type.JENIS_ID || type.ID_JENIS) === id); return item ? item.NAMA_JENIS || item.NAMA_SAMPAH : id || '-'; }
+    function normalizeUnit(value) { return String(value || '').trim().toLowerCase() === 'pcs' ? 'pcs' : 'kg'; }
+    function typeUnitById(id) { const item = state.types.find((type) => (type.JENIS_ID || type.ID_JENIS) === id); return normalizeUnit(item?.SATUAN); }
+    function recordUnit(item) { return normalizeUnit(item?.SATUAN || typeUnitById(item?.JENIS_ID || item?.ID_JENIS)); }
+    function recordQuantity(item) {
+      const unit = recordUnit(item);
+      const explicit = Number(item?.JUMLAH ?? item?.KUANTITAS ?? (unit === 'pcs' ? item?.JUMLAH_PCS : NaN));
+      if (Number.isFinite(explicit) && explicit > 0) return unit === 'pcs' ? Math.round(explicit) : round(explicit, 2);
+      return unit === 'kg' ? round(Number(item?.BERAT_KG ?? item?.BERAT ?? 0), 2) : 0;
+    }
+    function formatRecordQuantity(item) { const unit = recordUnit(item); return `${formatNumber(recordQuantity(item), unit === 'pcs' ? 0 : 2)} ${unit}`; }
+    function formatPhysicalTotals(summary) { return `${formatNumber(summary?.totalWeight || 0, 2)} kg + ${formatNumber(summary?.totalPcs || 0, 0)} pcs`; }
+    function formatTypeQuantity(item) { return `${formatNumber(item?.quantity || 0, item?.unit === 'pcs' ? 0 : 2)} ${item?.unit || 'kg'}`; }
+    function submissionQuantity(item) {
+      const unit = normalizeUnit(item?.SATUAN || typeUnitById(item?.JENIS_ID || item?.ID_JENIS));
+      const explicit = Number(item?.PERKIRAAN_JUMLAH ?? (unit === 'pcs' ? item?.JUMLAH_PCS : NaN));
+      const quantity = Number.isFinite(explicit) && explicit > 0 ? explicit : Number(item?.PERKIRAAN_BERAT_KG ?? item?.PERKIRAAN_BERAT ?? 0);
+      return `${formatNumber(quantity, unit === 'pcs' ? 0 : 2)} ${unit}`;
+    }
     function activeMembers() { return state.members.filter((item) => normalize(item.STATUS || item.STATUS_ANGGOTA) === 'AKTIF'); }
     function activeTypes() { return state.types.filter((item) => normalize(item.STATUS || item.STATUS_JENIS) === 'AKTIF'); }
     function currentUserId() { return state.currentUser?.USER_ID || state.currentUser?.ID_USER || 'USR-ADM-001'; }
@@ -1969,7 +2127,7 @@
     function openModal(id) { document.getElementById(id).classList.add('is-open'); document.body.classList.add('modal-open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('is-open'); if (!document.querySelector('.modal-backdrop.is-open')) document.body.classList.remove('modal-open'); }
     function setButtonLoading(button, loading, label) { button.disabled = loading; button.classList.toggle('is-loading', loading); button.dataset.originalLabel ||= button.textContent; button.textContent = loading ? label : button.dataset.originalLabel; }
-    function showToast(message, type = 'success') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<span>${type === 'error' ? '!' : type === 'warning' ? 'i' : '✓'}</span><p>${escapeHtml(message)}</p>`; document.getElementById('toastContainer').appendChild(toast); setTimeout(() => toast.classList.add('is-hiding'), 3500); setTimeout(() => toast.remove(), 3800); }
+    function showToast(message, type = 'success') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<span>${type === 'error' ? '!' : type === 'warning' ? 'i' : '&#x2713;'}</span><p>${escapeHtml(message)}</p>`; document.getElementById('toastContainer').appendChild(toast); setTimeout(() => toast.classList.add('is-hiding'), 3500); setTimeout(() => toast.remove(), 3800); }
 
     async function apiGet(action, params = {}) { if (window.BankSampahAPI?.apiGet) return window.BankSampahAPI.apiGet(action, params); return rawApiRequest('GET', action, params); }
     async function apiPost(action, payload = {}) { if (window.BankSampahAPI?.apiPost) return window.BankSampahAPI.apiPost(action, payload); return rawApiRequest('POST', action, payload); }
