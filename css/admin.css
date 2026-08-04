@@ -3566,7 +3566,7 @@ html[data-theme="light"] .fairness-note > span {
 }
 
 /* =========================================================
-   Precision pass based on the supplied 1918 Ãƒâ€” 1078 dashboard
+   Precision pass based on the supplied 1918 x 1078 dashboard
    ========================================================= */
 
 :root {
@@ -4357,7 +4357,7 @@ td small {
 }
 
 /* =========================================================
-   Light animated dashboard Ã¢â‚¬â€ based on the latest reference
+   Light animated dashboard - based on the latest reference
    ========================================================= */
 
 :root {
@@ -5299,7 +5299,7 @@ html[data-theme="dark"] .time-card {
   }
 }
 
-/* V3 FINAL PRIORITY Ã¢â‚¬â€ keep this block at the very end of the file. */
+/* V3 FINAL PRIORITY - keep this block at the very end of the file. */
 html[data-dashboard-design="v3"] body.dashboard-v3 .sidebar {
   width: var(--sidebar-width);
   padding: 15px 14px 14px;
@@ -5451,7 +5451,7 @@ html[data-dashboard-design="v3"] body.dashboard-v3 .chart-wrap.donut { height: 2
 }
 
 /* =========================================================
-   V3.1 Ã¢â‚¬â€ larger typography, colored sidebar, full responsive pass
+   V3.1 - larger typography, colored sidebar, full responsive pass
    ========================================================= */
 
 html[data-dashboard-design="v3"] {
@@ -6643,5 +6643,101 @@ html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-card > 
 
   html[data-dashboard-design="v3"] body.dashboard-v3 #view-laporan .report-stats span {
     min-height: 64px;
+  }
+}
+
+html[data-dashboard-design="v3"] body.dashboard-v3 .deposit-chart-legend i.pieces {
+  border-radius: 999px;
+  background: #d59a22;
+  box-shadow: 0 0 0 3px rgba(213, 154, 34, .13);
+}
+
+/* Setoran lama dan nilai opsional jenis sampah */
+.historical-deposit-button {
+  border-color: #d8c58f;
+  background: #fff9e9;
+  color: #76570c;
+}
+
+.deposit-date-notice {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 11px;
+  align-items: start;
+  margin-bottom: 14px;
+  padding: 12px 13px;
+  border: 1px solid var(--ui-border, #dce7df);
+  border-radius: 13px;
+  background: var(--ui-surface-soft, #f6faf7);
+  color: var(--ui-text, #18231d);
+}
+
+.deposit-date-notice.is-historical {
+  border-color: #d8c58f;
+  background: #fff9e9;
+  color: #60490f;
+}
+
+.deposit-date-notice-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ui-accent-soft, #e6f4eb);
+  color: var(--ui-accent, #17733f);
+  font-weight: 900;
+}
+
+.deposit-date-notice.is-historical .deposit-date-notice-icon {
+  background: #f3e3b4;
+  color: #76570c;
+}
+
+.deposit-date-notice strong {
+  display: block;
+  font-size: 11px;
+}
+
+.deposit-date-notice p {
+  margin: 3px 0 0;
+  color: inherit;
+  font-size: 9px;
+  line-height: 1.5;
+  opacity: .82;
+}
+
+.field-help {
+  color: var(--ui-muted, #718077);
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.optional-value {
+  color: var(--ui-muted, #718077);
+  font-size: 9px;
+  font-style: italic;
+}
+
+html[data-theme="dark"] .historical-deposit-button,
+html[data-theme="dark"] .deposit-date-notice.is-historical {
+  border-color: #665a2c;
+  background: #373218;
+  color: #ead483;
+}
+
+@media (max-width: 560px) {
+  .historical-deposit-button {
+    width: 100%;
+  }
+
+  .deposit-date-notice {
+    grid-template-columns: 30px minmax(0, 1fr);
+    padding: 11px;
+  }
+
+  .deposit-date-notice-icon {
+    width: 28px;
+    height: 28px;
   }
 }
